@@ -1,0 +1,22 @@
+{
+    "name": "lechimp-p/php.js",
+    "version": "0.1.0",
+    "description": "Run PHP client side with javascript.",
+    "keywords": ["compiler", "javascript", "client"],
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/lechimp-p/php.js",
+    "authors": [
+        {
+            "name": "Richard Klees",
+            "email": "richard.klees@rwth-aachen.de"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/lechimp-p/php.js/internal/issues",
+        "source": "https://github.com/lechimp-p/php.js"
+    },
+    "autoload" : {
+        "psr-4" : { "Lechimp\\PHP_JS\\" : "src" }
+    }
+}
