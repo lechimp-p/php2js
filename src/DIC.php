@@ -34,7 +34,13 @@ class DIC extends Container {
         };
 
         $this["command.compile"] = function($c) {
-            return new App\CompileCommand();   
+            return new App\CompileCommand(
+                $c["compiler"]
+            );
+        };
+
+        $this["compiler"] = function($c) {
+            return new Compiler\Compiler();
         };
     }
 }

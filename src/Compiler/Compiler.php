@@ -17,21 +17,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-namespace Lechimp\PHP_JS\Compiler;
+declare(strict_types=1);
 
-use Lechimp\PHP_JS\JS;
-use PhpParser\Node;
+namespace Lechimp\PHP_JS\Compiler;
 
 /**
  * Compile PHP to JS.
  */
 class Compiler {
-    /**
-     * Compile PHP to JS.
-     *
-     * @param   Node\Stmt[] $stmts
-     * @return  JS\Node[]
-     */
-    public function toJS($indentation) {
+    public function compileFile(string $filename) : string {
+        return "Compiling $filename";
     }
 }

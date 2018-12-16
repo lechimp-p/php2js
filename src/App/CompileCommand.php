@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP_JS\App;
 
+use Lechimp\PHP_JS\Compiler\Compiler;
+
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -30,17 +32,27 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CompileCommand extends Command {
     const FILE_ARG = "file";
 
+    /**
+     * @var Compiler
+     */
+    protected $compiler;
+
+    public function __construct(Compiler $compiler) {
+        parent::__construct();
+        $this->compiler = $compiler;
+    }
+
     protected function configure() {
         $this
             ->setName("compile")
-            ->setDescription("Compiles a view.")
-            ->setHelp("This takes a view in PHP and compiles it to JavaScript.")
+            ->setDescription("Compiles a script.")
+            ->setHelp("This takes a script in PHP and compiles it to JavaScript.")
             ->addArgument(self::FILE_ARG, InputArgument::REQUIRED, "The file containing the view.");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
         $filename = $input->getArgument(self::FILE_ARG);
 
-        $output->writeln("Compiling $filename...");
+        $output->writeln($this->compiler->compileFile($filename));
     }
 }
