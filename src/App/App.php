@@ -17,33 +17,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
+declare(strict_types=1);
+
 namespace Lechimp\PHP_JS\App;
 
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Pimple\Container;
+use Symfony\Component\Console\Command;
 
 /**
  * The compiler App.
  */
 class App extends Application {
-    public function __construct() {
-        parent::__construct();
-        $this->addCustomCommands();
-    }
-
-    protected function addCustomCommands() {
-    }
-
     /**
-     * Build the dependency injection container.
-     *
-     * @param   Config
-     * @return  Container
+     * @param   Command[]   $commands
      */
-    protected function buildDIC(Config $config) {
-        $container = new Container();
-        return $container;
+    public function __construct(array $commands) {
+        parent::__construct();
+        foreach($commands as $command) {
+            $this->add($command);
+        }
     }
 }

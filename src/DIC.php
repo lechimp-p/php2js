@@ -17,12 +17,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-require_once(__DIR__."/vendor/autoload.php");
+declare(strict_types=1);
 
-$container = new Lechimp\PHP_JS\DIC;
-$app = $container["app"];
+namespace Lechimp\PHP_JS;
 
-// Do not run in unit tests.
-if (stripos($_SERVER["SCRIPT_NAME"], "phpunit") === false) {
-    $app->run();
+use Pimple\Container;
+
+class DIC extends Container {
+    public function __construct() {
+        parent::__construct();
+
+        $this["app"] = function($c) {
+            return new App\App([
+                $c["command.compile"]
+            ]);
+        };
+
+        $this["command.compile"] = function($c) {
+            return new App\CompileCommand();   
+        };
+    }
 }

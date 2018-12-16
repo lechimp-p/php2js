@@ -17,12 +17,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-require_once(__DIR__."/vendor/autoload.php");
+declare(strict_types=1);
 
-$container = new Lechimp\PHP_JS\DIC;
-$app = $container["app"];
+namespace Lechimp\PHP_JS\App;
 
-// Do not run in unit tests.
-if (stripos($_SERVER["SCRIPT_NAME"], "phpunit") === false) {
-    $app->run();
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+
+class CompileCommand extends Command {
+    protected function configure() {
+        $this
+            ->setName("compile")
+            ->setDescription("Compiles a view.")
+            ->setHelp("This takes a view in PHP and compiles it to JavaScript.");
+    }
 }
