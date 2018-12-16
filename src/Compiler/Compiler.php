@@ -26,6 +26,16 @@ namespace Lechimp\PHP_JS\Compiler;
  */
 class Compiler {
     public function compileFile(string $filename) : string {
-        return "Compiling $filename";
+        if (!file_exists($filename)) {
+            throw new \InvalidArgumentException(
+                "Could not find file '$filename'"
+            );
+        }
+
+        return $this->compile(file_get_contents($filename));
+    }
+
+    public function compile(string $php) : string {
+        return $php;
     }
 }
