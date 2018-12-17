@@ -19,26 +19,44 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS;
+namespace Lechimp\PHP_JS\Test\JS;
 
-/**
- * Basic node in JS-AST.
- */
-abstract class Node {
-    /**
-     * @return Node (specificially the implementing class)
-     */
-    abstract public function fmap(callable $f);
+use Lechimp\PHP_JS\JS;
 
-    /**
-     * @return  mixed
-     */
-    public function cata(callable $f) {
-        return $f($this->fmap(function($v) use ($f) {
-            if (!($v instanceof Node)) {
-                return $f($v);
+class LList extends JS\Node {
+    public $value = null;
+    public $next = null;
+    function __construct($v, $n) {
+        $this->value = $v;
+        $this->next = $n;
+    }
+
+    public function fmap(callable $f) {
+        return new LList(
+            $this->value,
+            $f($this->next)
+        );
+    }
+}
+
+class NodeTest extends \PHPUnit\Framework\TestCase {
+    public function test_cata() {
+        $llist = new LList(
+            3,
+            new LList(
+                7,
+                null
+            )
+        );
+
+        $result = $llist->cata(function($v) {
+            if ($v === null) {
+                return 1;
             }
-            return $v->cata($f);
-        }));
+
+            return $v->value * $v->next;
+        }); 
+
+        $this->assertEquals(21, $result);
     }
 }
