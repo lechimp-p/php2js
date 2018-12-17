@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS;
 
 use Pimple\Container;
+use PhpParser\ParserFactory;
 
 class DIC extends Container {
     public function __construct() {
@@ -40,7 +41,14 @@ class DIC extends Container {
         };
 
         $this["compiler"] = function($c) {
-            return new Compiler\Compiler();
+            return new Compiler\Compiler(
+                $c["compiler.parser"]
+            );
+        };
+
+        $this["compiler.parser"] = function($c) {
+            return (new ParserFactory)
+                ->create(ParserFactory::PREFER_PHP7);
         };
     }
 }

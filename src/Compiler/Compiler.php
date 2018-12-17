@@ -21,10 +21,22 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP_JS\Compiler;
 
+use PhpParser\Parser;
+use PhpParser\NodeDumper;
+
 /**
  * Compile PHP to JS.
  */
 class Compiler {
+    /**
+     * @var Parser
+     */
+    protected $parser;
+
+    public function __construct(Parser $parser) {
+        $this->parser = $parser;
+    }
+
     public function compileFile(string $filename) : string {
         if (!file_exists($filename)) {
             throw new \InvalidArgumentException(
@@ -36,6 +48,7 @@ class Compiler {
     }
 
     public function compile(string $php) : string {
-        return $php;
+        $ast = $this->parser->parse($php);
+        return (new NodeDumper)->dump($ast);
     }
 }
