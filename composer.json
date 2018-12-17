@@ -24,5 +24,8 @@
         "pimple/pimple" : "3.2.*",
         "symfony/console" : "3.3.*",
         "psr/log" : "1.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "^5.7"
     }
 }

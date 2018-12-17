@@ -17,7 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-class SmokeTest extends PHPUnit_Framework_TestCase {
+declare(strict_types=1);
+
+namespace Lechimp\PHP_JS\Test;
+
+class SmokeTest extends \PHPUnit\Framework\TestCase {
     public function testApp() {
         require_once(__DIR__."/../php.js.php");
     }
