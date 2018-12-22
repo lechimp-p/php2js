@@ -22,20 +22,36 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS;
 
 /**
- * Basic node in JS-AST.
+ * Represents a member expression: a["b"]
  */
-abstract class Node {
+class Member extends Node {
     /**
-     * @return Node (specifically the implementing class)
+     * @var mixed
      */
-    abstract public function fmap(callable $f);
+    protected $object;
 
     /**
-     * @return  mixed
+     * @var mixed
      */
-    public function cata(callable $f) {
-        return $f($this->fmap(function($v) use ($f) {
-            return $v->cata($f);
-        }));
+    protected $member;
+
+    public function __construct($object, $member) {
+        $this->object = $object;
+        $this->member = $member;
+    }
+
+    /**
+     * @return Node (specificially the implementing class)
+     */
+    public function fmap(callable $f) {
+        return new Member($f($this->object), $f($this->member));
+    }
+
+    public function object() {
+        return $this->object;
+    }
+
+    public function member() {
+        return $this->member;
     }
 }

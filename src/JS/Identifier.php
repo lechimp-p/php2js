@@ -22,20 +22,31 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS;
 
 /**
- * Basic node in JS-AST.
+ * Represents an identifier: a
  */
-abstract class Node {
+class Identifier extends Node {
+    /**
+     * @var string
+     */
+    protected $value;
+
+    public function __construct(string $value) {
+        if (!preg_match('/[_$a-zA-Z][_$a-zA-Z0-9]+/', $value)) {
+            throw new \InvalidArgumentException(
+                "This '$value' is not a valid identifier."
+            );
+        }
+        $this->value = $value;
+    }
+
     /**
      * @return Node (specifically the implementing class)
      */
-    abstract public function fmap(callable $f);
+    public function fmap(callable $f) {
+        return $this;
+    }
 
-    /**
-     * @return  mixed
-     */
-    public function cata(callable $f) {
-        return $f($this->fmap(function($v) use ($f) {
-            return $v->cata($f);
-        }));
+    public function value() : string {
+        return $this->value;
     }
 }

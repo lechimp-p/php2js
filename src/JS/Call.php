@@ -22,20 +22,39 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS;
 
 /**
- * Basic node in JS-AST.
+ * Represents a call to something: a(1,2,3)
  */
-abstract class Node {
+class Call extends Node {
+    /**
+     * @var mixed
+     */
+    protected $callee;
+
+    /**
+     * @var array
+     */
+    protected $parameters;
+
+    public function __construct($callee, array $parameters) {
+        $this->callee = $callee;
+        $this->parameters = $parameters;
+    }
+
     /**
      * @return Node (specifically the implementing class)
      */
-    abstract public function fmap(callable $f);
+    public function fmap(callable $f) {
+        return new Call(
+            $f($this->callee),
+            array_map($f, $this->parameters)
+        );
+    }
 
-    /**
-     * @return  mixed
-     */
-    public function cata(callable $f) {
-        return $f($this->fmap(function($v) use ($f) {
-            return $v->cata($f);
-        }));
+    public function callee() {
+        return $this->callee;
+    }
+
+    public function parameters() {
+        return $this->parameters;
     }
 }

@@ -22,20 +22,28 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS;
 
 /**
- * Basic node in JS-AST.
+ * Represents a statment: a;
  */
-abstract class Node {
+class Statement extends Node {
+    /**
+     * @var mixed
+     */
+    protected $which;
+
+    public function __construct($which) {
+        $this->which = $which;
+    }
+
     /**
      * @return Node (specifically the implementing class)
      */
-    abstract public function fmap(callable $f);
+    public function fmap(callable $f) {
+        return new Statement(
+            $f($this->which)
+        );
+    }
 
-    /**
-     * @return  mixed
-     */
-    public function cata(callable $f) {
-        return $f($this->fmap(function($v) use ($f) {
-            return $v->cata($f);
-        }));
+    public function which() {
+        return $this->which;
     }
 }
