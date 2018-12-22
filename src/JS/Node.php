@@ -35,9 +35,6 @@ abstract class Node {
      */
     public function cata(callable $f) {
         return $f($this->fmap(function($v) use ($f) {
-            if (!($v instanceof Node)) {
-                return $f($v);
-            }
             return $v->cata($f);
         }));
     }

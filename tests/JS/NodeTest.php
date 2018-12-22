@@ -23,7 +23,13 @@ namespace Lechimp\PHP_JS\Test\JS;
 
 use Lechimp\PHP_JS\JS;
 
-class LList extends JS\Node {
+class LNil extends JS\Node {
+    public function fmap(callable $f) {
+        return $this;
+    }
+}
+
+class LCon extends JS\Node {
     public $value = null;
     public $next = null;
     function __construct($v, $n) {
@@ -32,7 +38,7 @@ class LList extends JS\Node {
     }
 
     public function fmap(callable $f) {
-        return new LList(
+        return new LCon(
             $this->value,
             $f($this->next)
         );
@@ -41,16 +47,16 @@ class LList extends JS\Node {
 
 class NodeTest extends \PHPUnit\Framework\TestCase {
     public function test_cata() {
-        $llist = new LList(
+        $llist = new LCon(
             3,
-            new LList(
+            new LCon(
                 7,
-                null
+                new LNil
             )
         );
 
         $result = $llist->cata(function($v) {
-            if ($v === null) {
+            if ($v instanceof LNil) {
                 return 1;
             }
 
