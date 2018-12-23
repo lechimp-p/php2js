@@ -24,7 +24,7 @@ namespace Lechimp\PHP_JS\JS;
 /**
  * Represents a call to something: a(1,2,3)
  */
-class Call extends Node {
+class Call extends Node implements Expression {
     /**
      * @var mixed
      */

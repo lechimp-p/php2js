@@ -22,26 +22,36 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS;
 
 /**
- * Represents a string literal: "a"
+ * Represents a property access: a["b"]
  */
-class StringLiteral extends Node implements Expression {
+class PropertyOf extends Node implements Expression {
     /**
-     * @var string
+     * @var mixed
      */
-    protected $value;
+    protected $object;
 
-    public function __construct(string $value) {
-        $this->value = $value;
+    /**
+     * @var mixed
+     */
+    protected $property;
+
+    public function __construct($object, $property) {
+        $this->object = $object;
+        $this->property = $property;
     }
 
     /**
-     * @return Node (specifically the implementing class)
+     * @return Node (specificially the implementing class)
      */
     public function fmap(callable $f) {
-        return $this;
+        return new PropertyOf($f($this->object), $f($this->property));
     }
 
-    public function value() : string {
-        return $this->value;
+    public function object() {
+        return $this->object;
+    }
+
+    public function property() {
+        return $this->property;
     }
 }

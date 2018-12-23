@@ -22,36 +22,39 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS;
 
 /**
- * Represents a member expression: a["b"]
+ * Factory for JS-Nodes
  */
-class Member extends Node {
-    /**
-     * @var mixed
-     */
-    protected $object;
+class Factory {
+    public function literal($value) : Node {
+        if (is_string($value)) {
+            return new StringLiteral($value);
+        }
 
-    /**
-     * @var mixed
-     */
-    protected $member;
-
-    public function __construct($object, $member) {
-        $this->object = $object;
-        $this->member = $member;
+        throw new \LogicException("Unknown literal type '".gettype($value)."'");
     }
 
-    /**
-     * @return Node (specificially the implementing class)
-     */
-    public function fmap(callable $f) {
-        return new Member($f($this->object), $f($this->member));
+    public function identifier(string $value) : Node {
+        return new Identifier($value);
     }
 
-    public function object() {
-        return $this->object;
+    public function block(Node ...$stmts) : Node {
+        $stmts = array_map(function($s) {
+            if (!($s instanceof Statement)) {
+                return new Statement($s);
+            }
+            return $s;
+        }, $stmts);
+        if (count($stmts) === 1) {
+            return $stmts[0];
+        }
+        return new Block($stmts);
     }
 
-    public function member() {
-        return $this->member;
+    public function call(Expression $callee, Expression ...$parameters) {
+        return new Call($callee, $parameters);
+    }
+
+    public function propertyOf(Expression $object, Expression $property) {
+        return new PropertyOf($object, $property);
     }
 }

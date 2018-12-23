@@ -28,6 +28,7 @@ use PhpParser\BuilderFactory;
 
 class CompilerTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {
+        $this->js_factory = new JS\Factory();
         $this->builder = new BuilderFactory;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->compiler = new Compiler\Compiler(
@@ -51,7 +52,8 @@ PHP
 
         $result = $this->compiler->compileAST($ast);
 
-        $expected = new JS\StringLiteral($id);
+        $f = $this->js_factory;
+        $expected = $f->block($f->literal($id));
         $this->assertEquals($expected, $result);
     }
 }

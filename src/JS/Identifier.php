@@ -24,7 +24,7 @@ namespace Lechimp\PHP_JS\JS;
 /**
  * Represents an identifier: a
  */
-class Identifier extends Node {
+class Identifier extends Node implements Expression {
     /**
      * @var string
      */

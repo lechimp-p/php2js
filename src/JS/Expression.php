@@ -21,27 +21,5 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP_JS\JS;
 
-/**
- * Represents a string literal: "a"
- */
-class StringLiteral extends Node implements Expression {
-    /**
-     * @var string
-     */
-    protected $value;
-
-    public function __construct(string $value) {
-        $this->value = $value;
-    }
-
-    /**
-     * @return Node (specifically the implementing class)
-     */
-    public function fmap(callable $f) {
-        return $this;
-    }
-
-    public function value() : string {
-        return $this->value;
-    }
+interface Expression {
 }

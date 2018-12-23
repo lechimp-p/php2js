@@ -60,8 +60,8 @@ class Compiler {
                     return "\"{$v->value()}\"";
                 case JS\Identifier::class:
                     return $v->value();
-                case JS\Member::class:
-                    return "{$v->object()}[{$v->member()}]";
+                case JS\PropertyOf::class:
+                    return "{$v->object()}[{$v->property()}]";
                 case JS\Call::class:
                     $params = join(",", $v->parameters());
                     return "{$v->callee()}($params)";
@@ -74,33 +74,22 @@ class Compiler {
     }
 
     public function compileAST(PhpNode ...$from) : JS\Node {
-        $stmts = array_map(function(PhpNode $n) {
-            return Recursion::cata($n, function(PhpNode $n) {
+        $f = new JS\Factory();
+        $stmts = array_map(function(PhpNode $n) use ($f) {
+            return Recursion::cata($n, function(PhpNode $n) use ($f) {
                 switch (get_class($n)) {
                     case PhpNode\Scalar\String_::class:
-                        return new JS\StringLiteral($n->value);
+                        return $f->literal($n->value);
                     case PhpNode\Stmt\Echo_::class:
-                        return new JS\Statement(
-                            new JS\Call(
-                                new JS\Member(
-                                    new JS\Identifier("console"),
-                                    new JS\StringLiteral("log")
-                                ),
-                                $n->exprs
-                            )
+                        return $f->call(
+                            $f->propertyOf($f->identifier("console"), $f->literal("log")),
+                            ...$n->exprs
                         );
                     default:
                         throw new \LogicException("Unknown class '".get_class($n)."'");
                 }
             });
         }, $from);
-
-        if (count($stmts) == 0) {
-            throw new \LogicException("Expected at least on resulting statement.");
-        }
-        if (count($stmts) == 1) {
-            return $stmts[0];
-        }
-        return new JS\Block($stmts);
+        return $f->block(...$stmts);
     }
 }
