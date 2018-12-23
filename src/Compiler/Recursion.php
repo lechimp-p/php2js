@@ -24,7 +24,7 @@ namespace Lechimp\PHP_JS\Compiler;
 use PhpParser\Node;
 
 /**
- * Recursion schemas on PHP-AST.
+ * Recursion schemes on PHP-AST.
  */
 class Recursion {
     /**
