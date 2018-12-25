@@ -54,23 +54,8 @@ class Compiler {
 
         $js_ast = $this->compileAST(...$php_ast);
 
-        return $js_ast->cata(function ($v) : string {
-            switch (get_class($v)) {
-                case JS\StringLiteral::class:
-                    return "\"{$v->value()}\"";
-                case JS\Identifier::class:
-                    return $v->value();
-                case JS\PropertyOf::class:
-                    return "{$v->object()}[{$v->property()}]";
-                case JS\Call::class:
-                    $params = join(",", $v->parameters());
-                    return "{$v->callee()}($params)";
-                case JS\Statement::class:
-                    return "{$v->which()};";
-                default:
-                    throw new \LogicException("Unknown class '".get_class($v)."'");
-            }
-        });
+        $printer = new JS\Printer;
+        return $printer->print($js_ast);
     }
 
     public function compileAST(PhpNode ...$from) : JS\Node {
