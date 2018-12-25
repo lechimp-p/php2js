@@ -31,7 +31,7 @@ class Identifier extends Node implements Expression {
     protected $value;
 
     public function __construct(string $value) {
-        if (!preg_match('/[_$a-zA-Z][_$a-zA-Z0-9]+/', $value)) {
+        if (!preg_match('/[_$a-zA-Z][_$a-zA-Z0-9]*/', $value)) {
             throw new \InvalidArgumentException(
                 "This '$value' is not a valid identifier."
             );
