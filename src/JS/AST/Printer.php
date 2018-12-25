@@ -58,4 +58,14 @@ class Printer {
     protected function print_Statement(Node $original, Node $n) {
         return "{$n->which()};";
     }
+
+    protected function print_Block(Node $original, Node $n) {
+        return join("\n", $n->which());
+    }
+
+    protected function print_Function_(Node $original, Node $n) {
+        $params = join(", ", $n->parameters());
+        $block = str_replace("\n", "\n    ", $n->block());
+        return "function($params) {\n$block\n}";
+    }
 }

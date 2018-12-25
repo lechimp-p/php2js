@@ -50,6 +50,17 @@ class Factory {
         return new Block($stmts);
     }
 
+    public function function_(array $parameters, Block $block) {
+        foreach ($parameters as $p) {
+            if (!($p instanceof Identifier)) {
+                throw new InvalidArgumentException(
+                    "Expected Identifiers as parameters"
+                );
+            }
+        }
+        return new Function_($parameters, $block);
+    }
+
     public function call(Expression $callee, Expression ...$parameters) {
         return new Call($callee, $parameters);
     }
