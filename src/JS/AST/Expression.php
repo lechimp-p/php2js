@@ -19,31 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS;
+namespace Lechimp\PHP_JS\JS\AST;
 
-/**
- * Represents a block of statements: a; b; c;
- */
-class Block extends Node {
-    /**
-     * @var array
-     */
-    protected $which;
-
-    public function __construct(array $which) {
-        $this->which = $which;
-    }
-
-    /**
-     * @return Node (specifically the implementing class)
-     */
-    public function fmap(callable $f) {
-        return new Block(
-            array_map($f, $this->which)
-        );
-    }
-
-    public function which() : array {
-        return $this->which;
-    }
+interface Expression {
 }

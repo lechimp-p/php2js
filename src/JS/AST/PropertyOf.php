@@ -19,31 +19,39 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS;
+namespace Lechimp\PHP_JS\JS\AST;
 
 /**
- * Represents a statment: a;
+ * Represents a property access: a["b"]
  */
-class Statement extends Node {
+class PropertyOf extends Node implements Expression {
     /**
      * @var mixed
      */
-    protected $which;
+    protected $object;
 
-    public function __construct($which) {
-        $this->which = $which;
+    /**
+     * @var mixed
+     */
+    protected $property;
+
+    public function __construct($object, $property) {
+        $this->object = $object;
+        $this->property = $property;
     }
 
     /**
-     * @return Node (specifically the implementing class)
+     * @return Node (specificially the implementing class)
      */
     public function fmap(callable $f) {
-        return new Statement(
-            $f($this->which)
-        );
+        return new PropertyOf($f($this->object), $f($this->property));
     }
 
-    public function which() {
-        return $this->which;
+    public function object() {
+        return $this->object;
+    }
+
+    public function property() {
+        return $this->property;
     }
 }

@@ -36,19 +36,19 @@ class Compiler {
     protected $parser;
 
     /**
-     * @var JS\Factory
+     * @var JS\AST\Factory
      */
     protected $js_factory;
 
     /**
-     * @var JS\Printer
+     * @var JS\AST\Printer
      */
     protected $js_printer;
 
     public function __construct(
         Parser $parser,
-        JS\Factory $js_factory,
-        JS\Printer $js_printer
+        JS\AST\Factory $js_factory,
+        JS\AST\Printer $js_printer
     ) {
         $this->parser = $parser;
         $this->js_factory = $js_factory;
@@ -73,7 +73,7 @@ class Compiler {
         return $this->js_printer->print($js_ast);
     }
 
-    public function compileAST(PhpNode ...$from) : JS\Node {
+    public function compileAST(PhpNode ...$from) : JS\AST\Node {
         $prefix_len = strrpos(PhpNode\Node::class, "\\") + 1;
         $stmts = array_map(function(PhpNode $n) use ($prefix_len) {
             return Recursion::cata($n, function(PhpNode $n) use ($prefix_len) {

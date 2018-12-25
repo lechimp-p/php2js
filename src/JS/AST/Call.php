@@ -19,34 +19,42 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS;
+namespace Lechimp\PHP_JS\JS\AST;
 
 /**
- * Represents an identifier: a
+ * Represents a call to something: a(1,2,3)
  */
-class Identifier extends Node implements Expression {
+class Call extends Node implements Expression {
     /**
-     * @var string
+     * @var mixed
      */
-    protected $value;
+    protected $callee;
 
-    public function __construct(string $value) {
-        if (!preg_match('/[_$a-zA-Z][_$a-zA-Z0-9]+/', $value)) {
-            throw new \InvalidArgumentException(
-                "This '$value' is not a valid identifier."
-            );
-        }
-        $this->value = $value;
+    /**
+     * @var array
+     */
+    protected $parameters;
+
+    public function __construct($callee, array $parameters) {
+        $this->callee = $callee;
+        $this->parameters = $parameters;
     }
 
     /**
      * @return Node (specifically the implementing class)
      */
     public function fmap(callable $f) {
-        return $this;
+        return new Call(
+            $f($this->callee),
+            array_map($f, $this->parameters)
+        );
     }
 
-    public function value() : string {
-        return $this->value;
+    public function callee() {
+        return $this->callee;
+    }
+
+    public function parameters() {
+        return $this->parameters;
     }
 }

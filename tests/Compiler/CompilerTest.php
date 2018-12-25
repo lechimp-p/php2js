@@ -28,13 +28,13 @@ use PhpParser\BuilderFactory;
 
 class CompilerTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {
-        $this->js_factory = new JS\Factory();
+        $this->js_factory = new JS\AST\Factory();
         $this->builder = new BuilderFactory;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->compiler = new Compiler\Compiler(
             $this->parser,
             $this->js_factory,
-            new JS\Printer
+            new JS\AST\Printer
         );
     }
 

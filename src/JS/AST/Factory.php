@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS;
+namespace Lechimp\PHP_JS\JS\AST;
 
 /**
  * Factory for JS-Nodes

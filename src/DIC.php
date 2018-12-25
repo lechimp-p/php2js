@@ -54,11 +54,11 @@ class DIC extends Container {
         };
 
         $this["js.factory"] = function($c) {
-            return new JS\Factory();
+            return new JS\AST\Factory();
         };
 
         $this["js.printer"] = function($c) {
-            return new JS\Printer();
+            return new JS\AST\Printer();
         };
     }
 }

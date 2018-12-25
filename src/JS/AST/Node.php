@@ -19,39 +19,32 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS;
+namespace Lechimp\PHP_JS\JS\AST;
 
 /**
- * Represents a property access: a["b"]
+ * Basic node in JS-AST.
  */
-class PropertyOf extends Node implements Expression {
+abstract class Node {
     /**
-     * @var mixed
+     * @return Node (specifically the implementing class)
      */
-    protected $object;
+    abstract public function fmap(callable $f);
 
     /**
-     * @var mixed
+     * @return  mixed
      */
-    protected $property;
-
-    public function __construct($object, $property) {
-        $this->object = $object;
-        $this->property = $property;
+    public function cata(callable $f) {
+        return $f($this->fmap(function($v) use ($f) {
+            return $v->cata($f);
+        }));
     }
 
     /**
-     * @return Node (specificially the implementing class)
+     * @return  mixed
      */
-    public function fmap(callable $f) {
-        return new PropertyOf($f($this->object), $f($this->property));
-    }
-
-    public function object() {
-        return $this->object;
-    }
-
-    public function property() {
-        return $this->property;
+    public function para(callable $f) {
+        return $f($this, $this->fmap(function($v) use ($f) {
+            return $v->para($f);
+        }));
     }
 }

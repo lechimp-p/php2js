@@ -19,42 +19,31 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS;
+namespace Lechimp\PHP_JS\JS\AST;
 
 /**
- * Represents a call to something: a(1,2,3)
+ * Represents a block of statements: a; b; c;
  */
-class Call extends Node implements Expression {
-    /**
-     * @var mixed
-     */
-    protected $callee;
-
+class Block extends Node {
     /**
      * @var array
      */
-    protected $parameters;
+    protected $which;
 
-    public function __construct($callee, array $parameters) {
-        $this->callee = $callee;
-        $this->parameters = $parameters;
+    public function __construct(array $which) {
+        $this->which = $which;
     }
 
     /**
      * @return Node (specifically the implementing class)
      */
     public function fmap(callable $f) {
-        return new Call(
-            $f($this->callee),
-            array_map($f, $this->parameters)
+        return new Block(
+            array_map($f, $this->which)
         );
     }
 
-    public function callee() {
-        return $this->callee;
-    }
-
-    public function parameters() {
-        return $this->parameters;
+    public function which() : array {
+        return $this->which;
     }
 }

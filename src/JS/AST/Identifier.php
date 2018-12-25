@@ -19,18 +19,23 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS;
+namespace Lechimp\PHP_JS\JS\AST;
 
 /**
- * Represents a string literal: "a"
+ * Represents an identifier: a
  */
-class StringLiteral extends Node implements Expression {
+class Identifier extends Node implements Expression {
     /**
      * @var string
      */
     protected $value;
 
     public function __construct(string $value) {
+        if (!preg_match('/[_$a-zA-Z][_$a-zA-Z0-9]+/', $value)) {
+            throw new \InvalidArgumentException(
+                "This '$value' is not a valid identifier."
+            );
+        }
         $this->value = $value;
     }
 

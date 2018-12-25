@@ -19,17 +19,17 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\JS;
+namespace Lechimp\PHP_JS\Test\JS\AST;
 
 use Lechimp\PHP_JS\JS;
 
-class LNil extends JS\Node {
+class LNil extends JS\AST\Node {
     public function fmap(callable $f) {
         return $this;
     }
 }
 
-class LCon extends JS\Node {
+class LCon extends JS\AST\Node {
     public $value = null;
     public $next = null;
     function __construct($v, $n) {
@@ -69,7 +69,7 @@ class NodeTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function test_para() {
-        $result = $this->list->para(function(JS\Node $n, $v) {
+        $result = $this->list->para(function(JS\AST\Node $n, $v) {
             if ($v instanceof LNil) {
                 return [1, [$v]];
             }
