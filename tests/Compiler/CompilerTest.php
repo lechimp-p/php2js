@@ -32,7 +32,9 @@ class CompilerTest extends \PHPUnit\Framework\TestCase {
         $this->builder = new BuilderFactory;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->compiler = new Compiler\Compiler(
-            $this->parser
+            $this->parser,
+            $this->js_factory,
+            new JS\Printer
         );
     }
 
@@ -43,7 +45,7 @@ echo "Hello World!";
 PHP
 );
 
-        $this->assertEquals("console[\"log\"](\"Hello World!\");", trim($result));
+        $this->assertEquals("console.log(\"Hello World!\");", trim($result));
     }
 
     public function test_compile_literal_string() {
@@ -54,6 +56,20 @@ PHP
 
         $f = $this->js_factory;
         $expected = $f->block($f->literal($id));
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_compile_echo() {
+        $id = uniqid();
+        $ast = new \PhpParser\Node\Stmt\Echo_([$this->builder->val($id)]);
+
+        $result = $this->compiler->compileAST($ast);
+
+        $f = $this->js_factory;
+        $expected = $f->block($f->call(
+            $f->propertyOf($f->identifier("console"), $f->identifier("log")),
+            $f->literal($id)
+        ));
         $this->assertEquals($expected, $result);
     }
 }

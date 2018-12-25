@@ -42,13 +42,23 @@ class DIC extends Container {
 
         $this["compiler"] = function($c) {
             return new Compiler\Compiler(
-                $c["compiler.parser"]
+                $c["compiler.parser"],
+                $c["js.factory"],
+                $c["js.printer"]
             );
         };
 
         $this["compiler.parser"] = function($c) {
             return (new ParserFactory)
                 ->create(ParserFactory::PREFER_PHP7);
+        };
+
+        $this["js.factory"] = function($c) {
+            return new JS\Factory();
+        };
+
+        $this["js.printer"] = function($c) {
+            return new JS\Printer();
         };
     }
 }

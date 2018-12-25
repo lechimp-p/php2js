@@ -35,8 +35,24 @@ class Compiler {
      */
     protected $parser;
 
-    public function __construct(Parser $parser) {
+    /**
+     * @var JS\Factory
+     */
+    protected $js_factory;
+
+    /**
+     * @var JS\Printer
+     */
+    protected $js_printer;
+
+    public function __construct(
+        Parser $parser,
+        JS\Factory $js_factory,
+        JS\Printer $js_printer
+    ) {
         $this->parser = $parser;
+        $this->js_factory = $js_factory;
+        $this->js_printer = $js_printer;
     }
 
     public function compileFile(string $filename) : string {
@@ -54,27 +70,33 @@ class Compiler {
 
         $js_ast = $this->compileAST(...$php_ast);
 
-        $printer = new JS\Printer;
-        return $printer->print($js_ast);
+        return $this->js_printer->print($js_ast);
     }
 
     public function compileAST(PhpNode ...$from) : JS\Node {
-        $f = new JS\Factory();
-        $stmts = array_map(function(PhpNode $n) use ($f) {
-            return Recursion::cata($n, function(PhpNode $n) use ($f) {
-                switch (get_class($n)) {
-                    case PhpNode\Scalar\String_::class:
-                        return $f->literal($n->value);
-                    case PhpNode\Stmt\Echo_::class:
-                        return $f->call(
-                            $f->propertyOf($f->identifier("console"), $f->literal("log")),
-                            ...$n->exprs
-                        );
-                    default:
-                        throw new \LogicException("Unknown class '".get_class($n)."'");
-                }
+        $prefix_len = strrpos(PhpNode\Node::class, "\\") + 1;
+        $stmts = array_map(function(PhpNode $n) use ($prefix_len) {
+            return Recursion::cata($n, function(PhpNode $n) use ($prefix_len) {
+                $class = str_replace("\\", "_", substr(get_class($n), $prefix_len));
+                $method = "compile_$class";
+                return $this->$method($n);
             });
         }, $from);
-        return $f->block(...$stmts);
+        return $this->js_factory->block(...$stmts);
+    }
+
+    public function compile_Scalar_String_(PhpNode $n) {
+        return $this->js_factory->literal($n->value);
+    }
+
+    public function compile_Stmt_Echo_(PhpNode $n) {
+        $f = $this->js_factory;
+        return $f->call(
+            $f->propertyOf(
+                $f->identifier("console"),
+                $f->identifier("log")
+            ),
+            ...$n->exprs
+        );
     }
 }
