@@ -46,16 +46,18 @@ class LCon extends JS\Node {
 }
 
 class NodeTest extends \PHPUnit\Framework\TestCase {
-    public function test_cata() {
-        $llist = new LCon(
+    public function setUp() {
+        $this->list = new LCon(
             3,
             new LCon(
                 7,
                 new LNil
             )
         );
+    }
 
-        $result = $llist->cata(function($v) {
+    public function test_cata() {
+        $result = $this->list->cata(function($v) {
             if ($v instanceof LNil) {
                 return 1;
             }
