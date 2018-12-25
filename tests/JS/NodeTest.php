@@ -67,4 +67,22 @@ class NodeTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals(21, $result);
     }
+
+    public function test_para() {
+        $result = $this->list->para(function(JS\Node $n, $v) {
+            if ($v instanceof LNil) {
+                return [1, [$v]];
+            }
+
+            list($val, $nodes) = $v->next;
+            $nodes[] = $n;
+            return [$v->value * $val, $nodes];
+        });
+        $expected_nodes = [new LNil, new LCon(7, new LNil), $this->list];
+
+        list($val, $nodes) = $result;
+
+        $this->assertEquals(21, $val);
+        $this->assertEquals($expected_nodes, $nodes);
+    }
 }

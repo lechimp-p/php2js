@@ -38,4 +38,13 @@ abstract class Node {
             return $v->cata($f);
         }));
     }
+
+    /**
+     * @return  mixed
+     */
+    public function para(callable $f) {
+        return $f($this, $this->fmap(function($v) use ($f) {
+            return $v->para($f);
+        }));
+    }
 }
