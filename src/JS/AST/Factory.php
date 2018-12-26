@@ -68,4 +68,8 @@ class Factory {
     public function propertyOf(Expression $object, Expression $property) {
         return new PropertyOf($object, $property);
     }
+
+    public function nop() {
+        return new Nop();
+    }
 }
