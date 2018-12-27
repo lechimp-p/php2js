@@ -52,6 +52,9 @@ class Printer {
 
     protected function print_Call(Node $original, Node $n) {
         $params = join(", ", $n->parameters());
+        if ($original->callee() instanceof Function_) {
+            return "({$n->callee()})($params)";
+        }
         return "{$n->callee()}($params)";
     }
 
@@ -66,6 +69,6 @@ class Printer {
     protected function print_Function_(Node $original, Node $n) {
         $params = join(", ", $n->parameters());
         $block = str_replace("\n", "\n    ", $n->block());
-        return "function($params) {\n$block\n}";
+        return "function($params) {\n    $block\n}";
     }
 }

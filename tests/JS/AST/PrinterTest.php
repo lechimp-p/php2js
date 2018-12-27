@@ -89,4 +89,55 @@ class PrinterTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals("foo(bar, baz)", $result); 
     }
+
+    public function test_print_function() {
+        $f = $this->factory;
+        $ast = $f->function_(
+            [$f->identifier("a"), $f->identifier("b")],
+            $f->block(
+                $this->factory->call(
+                    $this->factory->identifier("foo"),
+                    $this->factory->identifier("a")
+                ),
+                $this->factory->call(
+                    $this->factory->identifier("bar"),
+                    $this->factory->identifier("b")
+                )
+            )
+        );
+
+        $result = $this->printer->print($ast);
+
+        $expected = <<<JS
+function(a, b) {
+    foo(a);
+    bar(b);
+}
+JS;
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_print_directly_called_function() {
+        $f = $this->factory;
+        $ast = $f->call(
+            $f->function_(
+                [],
+                $f->block(
+                    $this->factory->call(
+                        $this->factory->identifier("foo"),
+                        $this->factory->identifier("a")
+                    )
+                )
+            )
+        );
+
+        $result = $this->printer->print($ast);
+
+        $expected = <<<JS
+(function() {
+    foo(a);
+})()
+JS;
+        $this->assertEquals($expected, $result);
+    }
 }
