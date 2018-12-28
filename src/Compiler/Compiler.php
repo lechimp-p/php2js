@@ -57,31 +57,35 @@ class Compiler {
     }
 
     public function compile(string $filename) : string {
-        $base_ast = $this->preprocessAST(
-            ...$this->parseFile($filename)
-        );
-        $dependencies = $this->getDependencies(...$base_ast);
-        $result = $this->getResults(...$base_ast);
+        list($deps, $result) = $this->compileFile($filename);
 
-        $compiled_dependencies = [];
-        while(count($dependencies) > 0) {
-            $dep = array_shift($dependencies);
-            if (array_key_exists($dep, $compiled_dependencies)) {
+        $compiled_deps = [];
+        while(count($deps) > 0) {
+            $dep = array_shift($deps);
+            if (array_key_exists($dep, $compiled_deps)) {
                 continue;
             }
+
             $filename = $this->getDependencySourceFile($dep);
-            $dep_ast = $this->preprocessAST(
-                $this->parseFile($filename)
-            );
-            $result = $result->append($this->getResults($dep_ast));
-            $dependencies = array_merge(
-                $dependencies,
-                $this->getDependencies($dep_ast)
-            );
-            $compiled_dependencies[$dep] = true;
+
+            list($new_deps, $new_result) = $this->compileFile($filename);
+            $result = $result->append($new_result);
+            $deps = array_merge($deps, $new_deps);
+
+            $compiled_deps[$dep] = true;
         }
 
         return $this->compileResult($result);
+    }
+
+    protected function compileFile(string $filename) : array {
+        $ast = $this->preprocessAST(
+            ...$this->parseFile($filename)
+        );
+        return [
+            $this->getDependencies(...$ast),
+            $this->getResults(...$ast)
+        ];
     }
 
     protected function parseFile(string $filename) : array {
@@ -94,8 +98,10 @@ class Compiler {
     }
 
     protected function preprocessAST(PhpNode ...$nodes) : array {
-        return $this->checkAST(
-            ...$this->simplifyAST(...$nodes)
+        return $this->annotateAST(
+            ...$this->checkAST(
+                ...$this->simplifyAST(...$nodes)
+            )
         );
     }
 
@@ -121,6 +127,10 @@ class Compiler {
         // Check if new with variable class name is called.
         // Check if static call or var fetch with variable class name is used.
         // Check if variable function is called.
+        return $nodes;
+    }
+
+    protected function annotateAST(PhpNode ...$nodes) : array {
         return $nodes;
     }
 
