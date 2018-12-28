@@ -55,6 +55,10 @@ class Results {
         return $clone;
     }
 
+    public function getFullyQualifiedClassNames() {
+        return array_keys($this->classes);
+    }
+
     /**
      * @return Node\Stmt\Class_[]
      */

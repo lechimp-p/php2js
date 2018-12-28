@@ -153,6 +153,10 @@ class Compiler {
     }
 
     protected function getResults(PhpNode ...$nodes) : Results {
-        return new Results();
+        $collector = new CollectResults();
+        $t = new NodeTraverser();
+        $t->addVisitor($collector);
+        $t->traverse($nodes);
+        return $collector->getResults();
     }
 }

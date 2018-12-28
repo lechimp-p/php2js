@@ -38,6 +38,10 @@ class CompilerForTest extends Compiler\Compiler {
     public function _annotateAST($nodes) {
         return $this->annotateAST(...$nodes);
     }
+
+    public function _getResults($nodes) {
+        return $this->getResults(...$nodes);
+    }
 }
 
 class CompilerTest extends \PHPUnit\Framework\TestCase {
@@ -108,4 +112,23 @@ PHP
             $my_class->getAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME)
         );
     }
+
+    public function test_getResults() {
+        $ast = $this->compiler->_annotateAST(
+            $this->parser->parse(<<<'PHP'
+<?php
+
+class Foo {
+}
+
+PHP
+            )
+        );
+
+
+        $result = $this->compiler->_getResults($ast);
+
+        $this->assertEquals(["\\Foo"], $result->getFullyQualifiedClassNames());
+    }
+
 }
