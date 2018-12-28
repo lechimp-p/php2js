@@ -31,20 +31,67 @@ class Recursion {
      * @return mixed
      */
     static public function cata(Node $n, callable $f) {
+        return $f(self::fmap($n, function($v) use ($f) {
+            return self::cata($v, $f);
+        }));
+    }
+
+    /**
+     * @return mixed
+     */
+    static public function para(Node $n, callable $f) {
+        return $f($n, self::fmap($n, function($v) use ($f) {
+            return self::para($v, $f);
+        }));
+    }
+
+    /**
+     * @return Node of the same type that was passed in.
+     */
+    static public function fmap(Node $n, callable $f) {
         switch (get_class($n)) {
             case Node\Scalar\String_::class:
+            case Node\Identifier::class:
+            case Node\Name::class:
+            case Node\Name\FullyQualified::class:
+            case Node\Name\Relative::class:
                 break;
             case Node\Stmt\Echo_::class:
                 $n = clone $n;
                 $n->exprs = array_map(function($e) use ($f) {
-                    return Recursion::cata($e, $f);
+                    return $f($e);
                 }, $n->exprs);
+                break;
+            case Node\Stmt\Class_::class:
+                $n = clone $n;
+                $n->name = $f($n->name);
+                if ($n->extends !== null) {
+                    $n->extends = $f($n->extends);
+                }
+                $n->implements = array_map(function($i) use ($f) {
+                    return $f($i);
+                }, $n->implements);
+                $n->stmts = array_map(function($s) use ($f) {
+                    return $f($s);
+                }, $n->stmts);
+                break;
+            case Node\Stmt\ClassMethod::class:
+                $n = clone $n;
+                $n->name = Recursion::fmap($n->name, $f);
+                $n->params = array_map(function($p) use ($f) {
+                    return $f($p);
+                }, $n->params);
+                if ($n->returnType !== null) {
+                    $n->returnType = $f($n->returnType);
+                }
+                $n->stmts = array_map(function($s) use ($f) {
+                    return $f($s);
+                }, $n->stmts);
                 break;
             default:
                 throw new \LogicException("Unknown class '".get_class($n)."'");
         }
-
-        return $f($n); 
+        return $n;
     }
 }
 

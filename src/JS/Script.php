@@ -19,19 +19,14 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS\AST;
+namespace Lechimp\PHP_JS\JS;
 
 /**
- * Represents a no-operation: ;
+ * This is the interface that needs to be implemented for a javascript-script.
  */
-class Nop extends Statement {
-    public function __construct() {
-    }
-
+interface Script {
     /**
-     * @return Node (specifically the implementing class)
+     * This is the method that will be executed.
      */
-    public function fmap(callable $f) {
-        return $this;
-    }
+    public function execute();
 }

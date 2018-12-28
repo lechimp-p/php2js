@@ -41,11 +41,18 @@ class CompilerTest extends \PHPUnit\Framework\TestCase {
     public function test_smoke() {
         $result = $this->compiler->compile(<<<PHP
 <?php
-echo "Hello World!";
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    public function execute() {
+        echo "Hello World!";
+    }
+}
 PHP
 );
 
-        $this->assertEquals("console.log(\"Hello World!\");", trim($result));
+        $this->assertEquals("(function() {\n    console.log(\"Hello World!\");\n})();", trim($result));
     }
 
     public function test_compile_literal_string() {
@@ -71,5 +78,15 @@ PHP
             $f->literal($id)
         ));
         $this->assertEquals($expected, $result);
+    }
+
+    public function test_compile_throws_on_non_script_class() {
+        $this->expectException(Compiler\Exception::class);
+
+        $result = $this->compiler->compile(<<<PHP
+<?php
+echo "Hello World!";
+PHP
+);
     }
 }

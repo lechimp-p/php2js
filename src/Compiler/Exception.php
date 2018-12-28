@@ -19,19 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS\AST;
+namespace Lechimp\PHP_JS\Compiler;
 
-/**
- * Represents a no-operation: ;
- */
-class Nop extends Statement {
-    public function __construct() {
-    }
-
-    /**
-     * @return Node (specifically the implementing class)
-     */
-    public function fmap(callable $f) {
-        return $this;
-    }
+class Exception extends \RuntimeException {
 }

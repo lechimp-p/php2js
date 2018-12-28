@@ -44,9 +44,6 @@ class Factory {
             }
             return $s;
         }, $stmts);
-        if (count($stmts) === 1) {
-            return $stmts[0];
-        }
         return new Block($stmts);
     }
 
