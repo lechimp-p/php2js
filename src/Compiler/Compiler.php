@@ -61,6 +61,8 @@ class Compiler {
     public function compile(string $filename) : string {
         list($deps, $result) = $this->compileFile($filename);
 
+        // TODO: Check if there is one class implementing Script now.
+
         $compiled_deps = [];
         while(count($deps) > 0) {
             $dep = array_shift($deps);
@@ -76,6 +78,8 @@ class Compiler {
 
             $compiled_deps[$dep] = true;
         }
+
+        // TODO: Check if there is still only one class implementing Script now.
 
         return $this->compileResult($result);
     }
@@ -126,10 +130,10 @@ class Compiler {
     }
 
     protected function checkAST(PhpNode ...$nodes) : array {
-        // Check if new with variable class name is called.
-        // Check if static call or var fetch with variable class name is used.
-        // Check if variable function is called.
-        // Check if anonymous classes are used.
+        // TODO: Check if new with variable class name is called.
+        // TODO: Check if static call or var fetch with variable class name is used.
+        // TODO: Check if variable function is called.
+        // TODO: Check if anonymous classes are used.
         return $nodes;
     }
 
