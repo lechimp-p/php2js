@@ -49,47 +49,20 @@ class Recursion {
      * @return Node of the same type that was passed in.
      */
     static public function fmap(Node $n, callable $f) {
-        switch (get_class($n)) {
-            case Node\Scalar\String_::class:
-            case Node\Identifier::class:
-            case Node\Name::class:
-            case Node\Name\FullyQualified::class:
-            case Node\Name\Relative::class:
-                break;
-            case Node\Stmt\Echo_::class:
-                $n = clone $n;
-                $n->exprs = array_map(function($e) use ($f) {
-                    return $f($e);
-                }, $n->exprs);
-                break;
-            case Node\Stmt\Class_::class:
-                $n = clone $n;
-                $n->name = $f($n->name);
-                if ($n->extends !== null) {
-                    $n->extends = $f($n->extends);
-                }
-                $n->implements = array_map(function($i) use ($f) {
-                    return $f($i);
-                }, $n->implements);
-                $n->stmts = array_map(function($s) use ($f) {
+        $n = clone $n;
+        foreach ($n->getSubNodeNames() as $name) {
+            $sub = $n->$name;
+            if ($sub instanceof Node) {
+                $n->$name = $f($sub);
+            }
+            elseif(is_array($sub)) {
+                $n->$name = array_map(function($s) use ($f) {
+                    if (!($s instanceof Node)) {
+                        return $s;
+                    }
                     return $f($s);
-                }, $n->stmts);
-                break;
-            case Node\Stmt\ClassMethod::class:
-                $n = clone $n;
-                $n->name = Recursion::fmap($n->name, $f);
-                $n->params = array_map(function($p) use ($f) {
-                    return $f($p);
-                }, $n->params);
-                if ($n->returnType !== null) {
-                    $n->returnType = $f($n->returnType);
-                }
-                $n->stmts = array_map(function($s) use ($f) {
-                    return $f($s);
-                }, $n->stmts);
-                break;
-            default:
-                throw new \LogicException("Unknown class '".get_class($n)."'");
+                }, $sub);
+            }
         }
         return $n;
     }
