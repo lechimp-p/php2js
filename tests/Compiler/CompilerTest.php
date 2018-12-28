@@ -23,70 +23,52 @@ namespace Lechimp\PHP_JS\Test\Compiler;
 
 use Lechimp\PHP_JS\Compiler;
 use Lechimp\PHP_JS\JS;
-use PhpParser\ParserFactory;
 use PhpParser\BuilderFactory;
+use PhpParser\ParserFactory;
+use PhpParser\Node as PhpNode;
+
+class CompilerForTest extends Compiler\Compiler {
+    public function __construct() {
+    }
+
+    public function _getDependencies($nodes) {
+        return $this->getDependencies(...$nodes);
+    }
+}
 
 class CompilerTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {
-        $this->js_factory = new JS\AST\Factory();
         $this->builder = new BuilderFactory;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        $this->compiler = new Compiler\Compiler(
-            $this->parser,
-            $this->js_factory,
-            new JS\AST\Printer
-        );
+        $this->compiler = new CompilerForTest();
     }
 
-    public function test_smoke() {
-        $result = $this->compiler->compile(<<<PHP
+    public function test_getDependencies() {
+        $ast = $this->parser->parse(<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+class Foo extends Bar implements Baz {
+    public function __construct(Dependency $dep) {
+        $foo = 0;
+        some_function();
+        new Foobar;
+    }
 
-class TestScript implements Script {
-    public function execute() {
-        echo "Hello World!";
+    public function bla(Blaw $b) : Blub {
+        Bleen::grue();
+        return Grue::$foo;
     }
 }
+
 PHP
-);
+        );
 
-        $this->assertEquals("(function() {\n    console.log(\"Hello World!\");\n})();", trim($result));
-    }
+        $expected = ["Bar", "Baz", "Dependency", "some_function", "Foobar", "Blub", "Blaw", "Bleen", "Grue"];
+        sort($expected);
 
-    public function test_compile_literal_string() {
-        $id = uniqid();
-        $ast = $this->builder->val($id);
+        $result = $this->compiler->_getDependencies($ast);
+        sort($result);
 
-        $result = $this->compiler->compileAST($ast);
-
-        $f = $this->js_factory;
-        $expected = $f->block($f->literal($id));
         $this->assertEquals($expected, $result);
-    }
-
-    public function test_compile_echo() {
-        $id = uniqid();
-        $ast = new \PhpParser\Node\Stmt\Echo_([$this->builder->val($id)]);
-
-        $result = $this->compiler->compileAST($ast);
-
-        $f = $this->js_factory;
-        $expected = $f->block($f->call(
-            $f->propertyOf($f->identifier("console"), $f->identifier("log")),
-            $f->literal($id)
-        ));
-        $this->assertEquals($expected, $result);
-    }
-
-    public function test_compile_throws_on_non_script_class() {
-        $this->expectException(Compiler\Exception::class);
-
-        $result = $this->compiler->compile(<<<PHP
-<?php
-echo "Hello World!";
-PHP
-);
     }
 }

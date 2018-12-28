@@ -56,132 +56,83 @@ class Compiler {
         $this->js_printer = $js_printer;
     }
 
-    public function compileFile(string $filename) : string {
+    public function compile(string $filename) : string {
+        $base_ast = $this->preprocessAST(
+            ...$this->parseFile($filename)
+        );
+        $dependencies = $this->getDependencies(...$base_ast);
+        $result = $this->getResults(...$base_ast);
+
+        $compiled_dependencies = [];
+        while(count($dependencies) > 0) {
+            $dep = array_shift($dependencies);
+            if (array_key_exists($dep, $compiled_dependencies)) {
+                continue;
+            }
+            $filename = $this->getDependencySourceFile($dep);
+            $dep_ast = $this->preprocessAST(
+                $this->parseFile($filename)
+            );
+            $result = $result->append($this->getResults($dep_ast));
+            $dependencies = array_merge(
+                $dependencies,
+                $this->getDependencies($dep_ast)
+            );
+            $compiled_dependencies[$dep] = true;
+        }
+
+        return $this->compileResult($result);
+    }
+
+    protected function parseFile(string $filename) : array {
         if (!file_exists($filename)) {
             throw new \InvalidArgumentException(
                 "Could not find file '$filename'"
             );
         }
-
-        return $this->compile(file_get_contents($filename));
+        return $this->parser->parse(file_get_contents($filename));
     }
 
-    public function compile(string $php) : string {
-        $php_ast = $this->parser->parse($php);
-
-        $simplification_pipeline = $this->getSimplificationPipeline();
-        foreach ($simplification_pipeline as $t) {
-            $php_ast = $t->traverse($php_ast);
-        }
-
-        $this->checkScriptAST(...$php_ast);
-
-        $js_ast = $this->compileAST(...$php_ast);
-
-        return $this->js_printer->print($js_ast);
+    protected function preprocessAST(PhpNode ...$nodes) : array {
+        return $this->checkAST(
+            ...$this->simplifyAST(...$nodes)
+        );
     }
 
-    protected function getSimplificationPipeline() : array {
+    protected function simplifyAST(PhpNode ...$nodes) : array {
         $name_resolver = new NodeTraverser();
         $name_resolver->addVisitor(new NodeVisitor\NameResolver);
 
         $remove_use_namespace = new NodeTraverser();
         $remove_use_namespace->addVisitor(new RemoveUseNamespace());
 
-        return [
+        $pipeline = [
             $name_resolver,
             $remove_use_namespace
         ];
-    }
 
-    public function compileAST(PhpNode ...$from) : JS\AST\Node {
-        $prefix_len = strrpos(PhpNode\Node::class, "\\") + 1;
-        $stmts = array_map(function(PhpNode $n) use ($prefix_len) {
-            return Recursion::cata($n, function(PhpNode $n) use ($prefix_len) {
-                $class = str_replace("\\", "_", substr(get_class($n), $prefix_len));
-                $method = "compile_$class";
-                return $this->$method($n);
-            });
-        }, $from);
-        return $this->js_factory->block(...$stmts);
-    }
-
-    protected function checkScriptAST(PhpNode ...$php_ast) {
-        $class = null;
-
-        foreach ($php_ast as $n) {
-            if ($n instanceof PhpNode\Stmt\Class_) {
-                $class = $n;
-                continue;
-            }
-            throw new Exception(
-                "Found unexpected '".get_class($n)."' on top level."
-            );
+        foreach($pipeline as $p) {
+            $nodes = $p->traverse($nodes);
         }
-
-        if ($class === null) {
-            throw new Exception(
-                "Did not find expected class on top level"
-            );
-        }
-
-        if (!$this->implementsScriptInterface($class)) {
-            throw new Exception(
-                "Did not find expected class that implements '".JS\Script::class."' on top level"
-            );
-        }
+        return $nodes;
     }
 
-    protected function implementsScriptInterface(PhpNode\Stmt\Class_ $class) {
-        foreach ($class->implements as $i) {
-            if ((string)$i === JS\Script::class) {
-                return true;
-            }
-        }
-        return false;
+    protected function checkAST(PhpNode ...$nodes) : array {
+        // Check if new with variable class name is called.
+        // Check if static call or var fetch with variable class name is used.
+        // Check if variable function is called.
+        return $nodes;
     }
 
-    // LOW-LEVEL-COMPILATION
-
-    public function compile_Scalar_String_(PhpNode $n) {
-        return $this->js_factory->literal($n->value);
+    protected function getDependencies(PhpNode ...$nodes) : array {
+        $collector = new CollectDependencies();
+        $t = new NodeTraverser();
+        $t->addVisitor($collector);
+        $t->traverse($nodes);
+        return $collector->getDependencies();
     }
 
-    public function compile_Identifier(PhpNode $n) {
-        return $this->js_factory->identifier($n->name);
-    }
-
-    public function compile_Name_FullyQualified(PhpNode $n) {
-        return $this->js_factory->identifier(join("_", $n->parts));
-    }
-
-    public function compile_Stmt_ClassMethod(PhpNode $n) {
-        return [$n->name, $this->js_factory->function_(
-            $n->params,
-            $this->js_factory->block(...$n->stmts)
-        )];
-    }
-
-    public function compile_Stmt_Class_(PhpNode $n) {
-        assert($this->implementsScriptInterface($n));
-        assert(count($n->stmts) === 0);
-        $m = array_shift($n->stmts);
-        assert(is_array($m));
-        assert(count($m) === 2);
-        assert(is_string($m[0]));
-        assert($m[0] === "execute");
-        assert($m[1] instanceof JS\AST\Function_);
-        return $this->js_factory->call($m[1]);
-    }
-
-    public function compile_Stmt_Echo_(PhpNode $n) {
-        $f = $this->js_factory;
-        return $f->call(
-            $f->propertyOf(
-                $f->identifier("console"),
-                $f->identifier("log")
-            ),
-            ...$n->exprs
-        );
+    protected function getResults(PhpNode ...$nodes) : Results {
+        return new Results();
     }
 }
