@@ -37,12 +37,12 @@ class Results {
     }
 
     public function addClass(Node\Stmt\Class_ $class) : Results {
-        if (!$class->hasAttribute("fully_qualified_name")) {
+        if (!$class->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
             throw new \LogicException(
                 "Class for Result should have fully qualified name."
             );
         }
-        $fqn = $class->getAttribute("fully_qualified_name");
+        $fqn = $class->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME);
 
         if (isset($this->classes[$fqn])) {
             throw new Exception(

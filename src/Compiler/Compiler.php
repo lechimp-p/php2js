@@ -31,6 +31,8 @@ use Lechimp\PHP_JS\JS;
  * Compile PHP to JS.
  */
 class Compiler {
+    const ATTR_FULLY_QUALIFIED_NAME = "fully_qualified_name";
+
     /**
      * @var Parser
      */
@@ -107,7 +109,7 @@ class Compiler {
 
     protected function simplifyAST(PhpNode ...$nodes) : array {
         $name_resolver = new NodeTraverser();
-        $name_resolver->addVisitor(new NodeVisitor\NameResolver);
+        $name_resolver->addVisitor(new NodeVisitor\NameResolver());
 
         $remove_use_namespace = new NodeTraverser();
         $remove_use_namespace->addVisitor(new RemoveUseNamespace());
@@ -127,11 +129,15 @@ class Compiler {
         // Check if new with variable class name is called.
         // Check if static call or var fetch with variable class name is used.
         // Check if variable function is called.
+        // Check if anonymous classes are used.
         return $nodes;
     }
 
     protected function annotateAST(PhpNode ...$nodes) : array {
-        return $nodes;
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new AnnotateFullyQualifiedName());
+
+        return $traverser->traverse($nodes);
     }
 
     protected function getDependencies(PhpNode ...$nodes) : array {

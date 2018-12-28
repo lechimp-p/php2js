@@ -34,6 +34,10 @@ class CompilerForTest extends Compiler\Compiler {
     public function _getDependencies($nodes) {
         return $this->getDependencies(...$nodes);
     }
+
+    public function _annotateAST($nodes) {
+        return $this->annotateAST(...$nodes);
+    }
 }
 
 class CompilerTest extends \PHPUnit\Framework\TestCase {
@@ -70,5 +74,38 @@ PHP
         sort($result);
 
         $this->assertEquals($expected, $result);
+    }
+
+    public function test_annotate_class_with_fully_qualified_name() {
+        $my_class_name = "CLASS_NAME";
+        $ast = $this->builder->class($my_class_name)->getNode();
+
+        list($result) = $this->compiler->_annotateAST([$ast]);
+
+        $this->assertTrue($result->hasAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
+        $this->assertEquals("\\$my_class_name", $result->getAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
+    }
+
+    public function test_annotate_class_in_namespace_with_fully_qualified_name() {
+        $my_namespace_name = "NAMESPACE_NAME";
+        $my_nested_namespace = "NESTED_NAMESPACE";
+        $my_class_name = "CLASS_NAME";
+        $my_class = $this->builder->class($my_class_name)->getNode();
+        $ast = $this->builder
+            ->namespace($my_namespace_name)
+            ->addStmt($this->builder
+                ->namespace($my_nested_namespace)
+                ->addStmt($my_class)
+                ->getNode()
+            )
+            ->getNode();
+
+        $this->compiler->_annotateAST([$ast]);
+
+        $this->assertTrue($my_class->hasAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
+        $this->assertEquals(
+            "$my_namespace_name\\$my_nested_namespace\\$my_class_name",
+            $my_class->getAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME)
+        );
     }
 }
