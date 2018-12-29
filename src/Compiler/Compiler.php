@@ -70,11 +70,16 @@ class Compiler {
                 continue;
             }
 
-            $filename = $this->getDependencySourceFile($dep);
+            if ($this->isInternalDependency($dep)) {
+                // TODO: Treat internal dependencies correctly.
+            }
+            else {
+                $filename = $this->getDependencySourceFile($dep);
 
-            list($new_deps, $new_result) = $this->compileFile($filename);
-            $result = $result->append($new_result);
-            $deps = array_merge($deps, $new_deps);
+                list($new_deps, $new_result) = $this->compileFile($filename);
+                $result = $result->append($new_result);
+                $deps = array_merge($deps, $new_deps);
+            };
 
             $compiled_deps[$dep] = true;
         }
@@ -158,5 +163,43 @@ class Compiler {
         $t->addVisitor($collector);
         $t->traverse($nodes);
         return $collector->getResults();
+    }
+
+    protected function isInternalDependency(string $dep) {
+        // TODO: implement me
+        return true;
+    }
+
+    protected function compileResult(Results $results) {
+        $js = $this->js_factory;
+
+        $classes = $results->getFullyQualifiedClassNames();
+        $smts = [];
+
+        $class_compiler = new ClassCompiler($this->js_factory); 
+        foreach ($classes as $cls) {
+            $stmts[] = $class_compiler->compile($results->getClass($cls)); 
+        }
+
+        $script_classes = $results->getClassesThatImplement(JS\Script::class);
+        assert(count($script_classes) === 1);
+
+        $script_class = $js->identifier(
+            $class_compiler->normalizeFQN(
+                array_pop($script_classes)->getAttribute(self::ATTR_FULLY_QUALIFIED_NAME)
+            )
+        );
+        $script = $js->identifier("script");
+        $stmts[] = $js->assignVar(
+            $script,
+            $js->call(
+                $js->propertyOf($script_class, $js->identifier("__construct"))
+            )
+        );
+        $stmts[] = $js->call(
+            $js->propertyOf($script, $js->identifier($class_compiler->normalizeMethodName("execute")))
+        );
+
+        return $this->js_printer->print($js->block(...$stmts));
     }
 }

@@ -49,6 +49,37 @@ class CompilerTest extends \PHPUnit\Framework\TestCase {
         $this->builder = new BuilderFactory;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->compiler = new CompilerForTest();
+
+        $this->js_factory = new JS\AST\Factory();
+        $this->js_printer = new JS\AST\Printer();
+
+        $this->real_compiler = new Compiler\Compiler(
+            $this->parser,
+            $this->js_factory,
+            $this->js_printer
+        );
+    }
+
+    public function test_smoke() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename, 
+<<<PHP
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    public function execute() {
+        echo "Hello World!";
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertInternalType("string", $result);
+        $this->assertRegExp("/.*console.log\\(\"Hello World!\"\\);.*/ms", $result);
     }
 
     public function test_getDependencies() {

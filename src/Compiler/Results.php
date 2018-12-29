@@ -59,6 +59,15 @@ class Results {
         return array_keys($this->classes);
     }
 
+    public function getClass(string $fully_qualified_name) {
+        if (!isset($this->classes[$fully_qualified_name])) {
+            throw new \LogicException(
+                "Unknown class '$fully_qualified_name'"
+            );
+        }
+        return $this->classes[$fully_qualified_name];
+    }
+
     /**
      * @return Node\Stmt\Class_[]
      */
