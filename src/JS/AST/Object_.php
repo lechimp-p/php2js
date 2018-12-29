@@ -22,36 +22,26 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS\AST;
 
 /**
- * Represents an identifier: a
+ * Represents an object construction in literal notation: { "a" : "b" }
  */
-class Identifier extends Node implements Expression {
+class Object_ extends Node implements Expression {
     /**
-     * @var string
+     * @var array<string|int, mixed> 
      */
-    protected $value;
+    protected $fields;
 
-    public function __construct(string $value) {
-        if (!preg_match('/[_$a-zA-Z][_$a-zA-Z0-9]*/', $value)) {
-            throw new \InvalidArgumentException(
-                "This '$value' is not a valid identifier."
-            );
-        }
-        $this->value = $value;
+    public function __construct(array $fields) {
+        $this->fields = $fields;
     }
 
     /**
-     * @return Node (specifically the implementing class)
+     * @return Node (specificially the implementing class)
      */
     public function fmap(callable $f) {
-        return $this;
+        return new Object_(array_map($f, $this->fields));
     }
 
-    public function value() : string {
-        return $this->value;
-    }
-
-    // To accomodate PHPParser
-    public function toLowerString() : string {
-        return strtolower($this->value);
+    public function fields() {
+        return $this->fields;
     }
 }

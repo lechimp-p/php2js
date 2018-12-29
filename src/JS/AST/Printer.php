@@ -71,4 +71,26 @@ class Printer {
         $block = str_replace("\n", "\n    ", $n->block());
         return "function($params) {\n    $block\n}";
     }
+
+    protected function print_AssignVar(Node $original, Node $n) {
+        return "var {$n->name()} = {$n->value()}";
+    }
+
+    protected function print_Assign(Node $original, Node $n) {
+        return "{$n->name()} = {$n->value()}";
+    }
+
+    protected function print_Object_(Node $original, Node $n) {
+        $fields = $n->fields();
+        return "{\n".
+            join(",\n", array_map(function($k, $v) {
+                $v = str_replace("\n", "\n    ", $v);
+                return "    \"$k\" : $v";
+            }, array_keys($fields), $fields)).
+        "\n}";
+    }
+
+    protected function print_Return_(Node $original, Node $n) {
+        return "return {$n->value()}";
+    }
 }

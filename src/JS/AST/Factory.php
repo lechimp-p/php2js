@@ -47,7 +47,7 @@ class Factory {
         return new Block($stmts);
     }
 
-    public function function_(array $parameters, Block $block) {
+    public function function_(array $parameters, Block $block) : Node {
         foreach ($parameters as $p) {
             if (!($p instanceof Identifier)) {
                 throw new InvalidArgumentException(
@@ -58,15 +58,31 @@ class Factory {
         return new Function_($parameters, $block);
     }
 
-    public function call(Expression $callee, Expression ...$parameters) {
+    public function call(Expression $callee, Expression ...$parameters) : Node {
         return new Call($callee, $parameters);
     }
 
-    public function propertyOf(Expression $object, Expression $property) {
+    public function propertyOf(Expression $object, Expression $property) : Node {
         return new PropertyOf($object, $property);
     }
 
-    public function nop() {
+    public function assignVar(Identifier $name, Expression $value) : Node {
+        return new AssignVar($name, $value);
+    }
+
+    public function assign(Expression $expr, Expression $value) : Node {
+        return new Assign($expr, $value);
+    }
+
+    public function object_(array $fields) : Node {
+        return new Object_($fields);
+    }
+
+    public function return_(Expression $expr) : Node {
+        return new Return_($expr);
+    }
+
+    public function nop() : Node {
         return new Nop();
     }
 }

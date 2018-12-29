@@ -22,36 +22,36 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS\AST;
 
 /**
- * Represents an identifier: a
+ * Represents an assignment to a var: var a = b
  */
-class Identifier extends Node implements Expression {
+class AssignVar extends Node {
     /**
-     * @var string
+     * @var mixed
+     */
+    protected $name;
+
+    /**
+     * @var mixed
      */
     protected $value;
 
-    public function __construct(string $value) {
-        if (!preg_match('/[_$a-zA-Z][_$a-zA-Z0-9]*/', $value)) {
-            throw new \InvalidArgumentException(
-                "This '$value' is not a valid identifier."
-            );
-        }
+    public function __construct($name, $value) {
+        $this->name = $name;
         $this->value = $value;
     }
 
     /**
-     * @return Node (specifically the implementing class)
+     * @return Node (specificially the implementing class)
      */
     public function fmap(callable $f) {
-        return $this;
+        return new AssignVar($f($this->name), $f($this->value));
     }
 
-    public function value() : string {
+    public function name() {
+        return $this->name;
+    }
+
+    public function value() {
         return $this->value;
-    }
-
-    // To accomodate PHPParser
-    public function toLowerString() : string {
-        return strtolower($this->value);
     }
 }

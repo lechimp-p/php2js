@@ -22,36 +22,26 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS\AST;
 
 /**
- * Represents an identifier: a
+ * Represents a return: return a
  */
-class Identifier extends Node implements Expression {
+class Return_ extends Node {
     /**
-     * @var string
+     * @var mixed
      */
     protected $value;
 
-    public function __construct(string $value) {
-        if (!preg_match('/[_$a-zA-Z][_$a-zA-Z0-9]*/', $value)) {
-            throw new \InvalidArgumentException(
-                "This '$value' is not a valid identifier."
-            );
-        }
+    public function __construct($value) {
         $this->value = $value;
     }
 
     /**
-     * @return Node (specifically the implementing class)
+     * @return Node (specificially the implementing class)
      */
     public function fmap(callable $f) {
-        return $this;
+        return new Return_($f($this->value));
     }
 
-    public function value() : string {
+    public function value() {
         return $this->value;
-    }
-
-    // To accomodate PHPParser
-    public function toLowerString() : string {
-        return strtolower($this->value);
     }
 }

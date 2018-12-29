@@ -140,4 +140,74 @@ JS;
 JS;
         $this->assertEquals($expected, $result);
     }
+
+    public function test_print_assign_var() {
+        $f = $this->factory;
+
+        $ast = $f->assignVar($f->identifier("foo"), $f->literal("bar"));
+
+        $result = $this->printer->print($ast);
+        $expected = "var foo = \"bar\"";
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_print_assign() {
+        $f = $this->factory;
+
+        $ast = $f->assign(
+            $f->propertyOf($f->identifier("foo"), $f->identifier("bar")),
+            $f->literal("baz")
+        );
+
+        $result = $this->printer->print($ast);
+        $expected = "foo.bar = \"baz\"";
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_print_object() {
+        $f = $this->factory;
+
+        $ast = $f->object_([
+            "foo" => $f->function_(
+                [$f->identifier("a"), $f->identifier("b")],
+                $f->block(
+                    $this->factory->call(
+                        $this->factory->identifier("foo"),
+                        $this->factory->identifier("a")
+                    ),
+                    $this->factory->call(
+                        $this->factory->identifier("bar"),
+                        $this->factory->identifier("b")
+                    )
+                )
+            ),
+            "bar" => $f->literal("bar")
+        ]);
+
+        $result = $this->printer->print($ast);
+
+        $expected = <<<JS
+{
+    "foo" : function(a, b) {
+        foo(a);
+        bar(b);
+    },
+    "bar" : "bar"
+}
+JS;
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_print_return() {
+        $f = $this->factory;
+
+        $ast = $f->return_($f->literal("foobar"));
+
+        $result = $this->printer->print($ast);
+        $expected = "return \"foobar\"";
+
+        $this->assertEquals($expected, $result);
+    }
 }
