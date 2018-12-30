@@ -32,8 +32,14 @@ class Results {
      */
     protected $classes;
 
+    /**
+     * @var array
+     */
+    protected $visibilities;
+
     public function __construct() {
         $this->classes = [];
+        $this->visibilities = [];
     }
 
     public function addClass(Node\Stmt\Class_ $class) : Results {
@@ -83,5 +89,47 @@ class Results {
                 return false;
             }
         );
+    }
+
+    /**
+     * @var string One of: Compiler::ATTR_PUBLIC, Compiler::ATTR_PROTECTED, Compiler::ATTR_PRIVATE
+     */
+    public function getVisibility(string $fully_qualified_class_name, string $method_or_property) : string {
+        if (isset($this->visibilities[$fully_qualified_class_name])
+        && isset($this->visibilities[$fully_qualified_class_name][$method_or_property])) {
+            return $this->visibilities[$fully_qualified_class_name][$method_or_property];
+        }
+
+        $class = $this->getClass($fully_qualified_class_name);
+        $visibility = null;
+        foreach ($class->stmts as $stmt) {
+            if ($stmt instanceof Node\Stmt\ClassMethod) {
+                if ((string)$stmt->name === $method_or_property) {
+                    $visibility = Compiler::getVisibilityConst($stmt);
+                    break;
+                }
+            }
+            elseif ($stmt instanceof Node\Stmt\Property) {
+                foreach ($stmt->props as $p) {
+                    if ((string)$p->name == $method_or_property) {
+                        $visibility = Compiler::getVisibilityConst($stmt);
+                        break;
+                    }
+                }
+            }
+            else {
+                throw new \LogicException(
+                    "I do not understand this statement in a class: '".get_class($stmt)."'"
+                );
+            }
+        }
+
+        if ($visibility === null) {
+            throw new \LogicException(
+                "Could not determine visibility for '$fully_qualified_class_name::$method_or_property'"
+            );
+        }
+
+        return $visibility;
     }
 }

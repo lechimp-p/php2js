@@ -32,6 +32,9 @@ use Lechimp\PHP_JS\JS;
  */
 class Compiler {
     const ATTR_FULLY_QUALIFIED_NAME = "fully_qualified_name";
+    const ATTR_PUBLIC = "public";
+    const ATTR_PROTECTED = "protected";
+    const ATTR_PRIVATE = "private";
 
     /**
      * @var Parser
@@ -220,7 +223,6 @@ class Compiler {
         return $stmts;
     }
 
-
     static public function normalizeFQN(string $name) {
         return str_replace("\\", "_", $name);    
     }
@@ -231,5 +233,20 @@ class Compiler {
 
     static public function normalizePropertyName(string $name) {
         return "p_$name";
+    }
+
+    static public function getVisibilityConst(PhpNode $n) {
+        if ($n->isPublic()) {
+            return self::ATTR_PUBLIC;
+        }
+        elseif ($n->isProtected()) {
+            return self::ATTR_PROTECTED;
+        }
+        elseif ($n->isPrivate()) {
+            return self::ATTR_PRIVATE;
+        }
+        throw new \LogicException(
+            "Method or property is neither public, nor protected, nor private"
+        );
     }
 }

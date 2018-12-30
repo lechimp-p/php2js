@@ -114,20 +114,7 @@ class ClassCompiler {
 
     public function compile_Stmt_ClassMethod(PhpNode $n) {
         $js = $this->js_factory;
-        if ($n->isPublic()) {
-            $access = "public";
-        }
-        elseif ($n->isProtected()) {
-            $access = "protected";
-        }
-        elseif ($n->isPrivate()) {
-            $access = "private";
-        }
-        else {
-            throw new \LogicException(
-                "Method is neither public, nor protected, nor private."
-            );
-        }
+        $visibility = Compiler::getVisibilityConst($n);
 
         if ($n->isMagic() || $n->isStatic() || $n->isAbstract()) {
             throw new \LogicException(
@@ -137,7 +124,7 @@ class ClassCompiler {
 
         return $js->assign(
             $js->propertyOf(
-                $js->identifier($access),
+                $js->identifier($visibility),
                 $js->identifier(Compiler::normalizeMethodName($n->name->value()))
             ),
             $js->function_(
