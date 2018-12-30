@@ -63,13 +63,16 @@ class CompilerTest extends \PHPUnit\Framework\TestCase {
     public function test_smoke() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename, 
-<<<PHP
+<<<'PHP'
 <?php
 
 use Lechimp\PHP_JS\JS\Script;
 
 class TestScript implements Script {
+    protected $foo;
+
     public function execute() {
+        $this->foo = "bar";
         echo "Hello World!";
     }
 }

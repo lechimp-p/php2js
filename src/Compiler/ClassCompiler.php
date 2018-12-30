@@ -199,6 +199,13 @@ class ClassCompiler {
         );
     }
 
+    public function compile_Expr_Assign(PhpNode $n) {
+        return $this->js_factory->assign(
+            $n->var,
+            $n->expr
+        );
+    }
+
     public function compile_Stmt_Echo_(PhpNode $n) {
         $f = $this->js_factory;
         return $f->call(
