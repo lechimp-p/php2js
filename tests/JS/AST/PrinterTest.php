@@ -210,4 +210,15 @@ JS;
 
         $this->assertEquals($expected, $result);
     }
+
+    public function test_print_undefined() {
+        $f = $this->factory;
+
+        $ast = $f->undefined();
+
+        $result = $this->printer->print($ast);
+        $expected = "undefined";
+
+        $this->assertEquals($expected, $result);
+    }
 }

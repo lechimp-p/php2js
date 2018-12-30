@@ -82,6 +82,10 @@ class Factory {
         return new Return_($expr);
     }
 
+    public function undefined() : Node {
+        return $this->identifier("undefined");
+    }
+
     public function nop() : Node {
         return new Nop();
     }
