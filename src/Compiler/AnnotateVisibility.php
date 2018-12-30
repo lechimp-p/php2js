@@ -47,7 +47,8 @@ class AnnotateVisibility extends NodeVisitorAbstract {
         if ($n instanceof Node\Stmt\Class_) {
             $this->in_class = $n->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME);
         }
-        if ($n instanceof Node\Expr\PropertyFetch) {
+        if ($n instanceof Node\Expr\PropertyFetch
+        ||  $n instanceof Node\Expr\MethodCall) {
             if ($this->in_class === null) {
                 return;
             }

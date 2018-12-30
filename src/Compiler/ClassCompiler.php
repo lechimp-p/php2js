@@ -147,6 +147,10 @@ class ClassCompiler {
         );
     }
 
+    public function compile_Stmt_Expression(PhpNode $n) {
+        return $n->expr;
+    }
+
     public function compile_Stmt_Property(PhpNode $n) {
         $js = $this->js_factory;
         $visibility = $js->identifier(Compiler::getVisibilityConst($n));
@@ -185,6 +189,13 @@ class ClassCompiler {
         return $js->propertyOf(
             $source,
             $n->name
+        );
+    }
+
+    public function compile_Expr_MethodCall(PhpNode $n) {
+        return $this->js_factory->call(
+            $this->compile_Expr_PropertyFetch($n),
+            ...$n->args
         );
     }
 

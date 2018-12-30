@@ -188,7 +188,7 @@ PHP
     }
 
 
-    public function test_use_visibility() {
+    public function test_use_visibility_for_properties() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,
 <<<'PHP'
@@ -213,5 +213,29 @@ PHP
         $this->assertInternalType("string", $result);
         $this->assertRegExp("/.*console.log\\(protected.protected_var\\);.*/ms", $result);
         $this->assertRegExp("/.*console.log\\(private.private_var\\);.*/ms", $result);
+    }
+
+    public function test_use_visibility_for_methods() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,
+<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected function a_method() {}
+
+    public function execute() {
+        $this->a_method();
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertInternalType("string", $result);
+        $this->assertRegExp("/protected.a_method\\(\\).*/ms", $result);
     }
 }
