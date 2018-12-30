@@ -82,6 +82,10 @@ class Printer {
 
     protected function print_Object_(Node $original, Node $n) {
         $fields = $n->fields();
+        if (count($fields) === 0) {
+            return "{}";
+        }
+
         return "{\n".
             join(",\n", array_map(function($k, $v) {
                 $v = str_replace("\n", "\n    ", $v);
