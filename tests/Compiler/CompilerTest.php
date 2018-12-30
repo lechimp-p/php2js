@@ -186,8 +186,8 @@ PHP
         $result = $this->real_compiler->compile($filename);
 
         $this->assertInternalType("string", $result);
-        $this->assertRegExp("/.*protected.protected_var = undefined.*/ms", $result);
-        $this->assertRegExp("/.*private.private_var = undefined.*/ms", $result);
+        $this->assertRegExp("/.*protected.protected_var = null.*/ms", $result);
+        $this->assertRegExp("/.*private.private_var = null.*/ms", $result);
     }
 
 

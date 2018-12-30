@@ -86,6 +86,10 @@ class Factory {
         return $this->identifier("undefined");
     }
 
+    public function null_() : Node {
+        return $this->identifier("null");
+    }
+
     public function nop() : Node {
         return new Nop();
     }

@@ -227,7 +227,7 @@ class Compiler {
             )
         );
         $stmts[] = $js->call(
-            $js->propertyOf($script, $js->identifier(self::normalizeMethodName("execute")))
+            $js->propertyOf($script, $js->identifier("execute"))
         );
 
         return $stmts;
@@ -235,14 +235,6 @@ class Compiler {
 
     static public function normalizeFQN(string $name) {
         return str_replace("\\", "_", $name);    
-    }
-
-    static public function normalizeMethodName(string $name) {
-        return "m_$name";
-    }
-
-    static public function normalizePropertyName(string $name) {
-        return "p_$name";
     }
 
     static public function getVisibilityConst(PhpNode $n) {

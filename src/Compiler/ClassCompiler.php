@@ -138,7 +138,7 @@ class ClassCompiler {
         return $js->assign(
             $js->propertyOf(
                 $js->identifier($visibility),
-                $js->identifier(Compiler::normalizeMethodName($n->name->value()))
+                $js->identifier($n->name->value())
             ),
             $js->function_(
                 $n->params,
@@ -157,7 +157,7 @@ class ClassCompiler {
         return $js->block(...array_map(function($p) use ($js, $visibility) {
             return $js->assign(
                 $js->propertyOf($visibility, $p->name),
-                $js->undefined()
+                $js->null_()
             );
         }, $n->props));
     }
