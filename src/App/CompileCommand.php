@@ -53,6 +53,6 @@ class CompileCommand extends Command {
     protected function execute(InputInterface $input, OutputInterface $output) {
         $filename = $input->getArgument(self::FILE_ARG);
 
-        $output->writeln($this->compiler->compileFile($filename));
+        $output->writeln($this->compiler->compile($filename));
     }
 }
