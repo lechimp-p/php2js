@@ -39,7 +39,7 @@ class Factory {
 
     public function block(Node ...$stmts) : Node {
         $stmts = array_map(function($s) {
-            if (!($s instanceof Statement)) {
+            if (!($s instanceof Statement || $s instanceof Block)) {
                 return new Statement($s);
             }
             return $s;
