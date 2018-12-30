@@ -125,6 +125,13 @@ class Results {
         }
 
         if ($visibility === null) {
+            if ($class->extends !== null) {
+                $visibility = $this->getVisibility((string)$class->extends, $method_or_property);
+                if (in_array($visibility, [Compiler::ATTR_PUBLIC, Compiler::ATTR_PROTECTED])) {
+                    return $visibility;
+                }
+            }
+
             throw new \LogicException(
                 "Could not determine visibility for '$fully_qualified_class_name::$method_or_property'"
             );
