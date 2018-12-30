@@ -86,7 +86,7 @@ class Compiler {
 
         // TODO: Check if there is still only one class implementing Script now.
 
-        return $this->compileResult($result);
+        return $this->compileResults($result);
     }
 
     protected function compileFile(string $filename) : array {
@@ -170,26 +170,43 @@ class Compiler {
         return true;
     }
 
-    protected function compileResult(Results $results) {
-        $js = $this->js_factory;
+    protected function compileResults(Results $results) {
+        return $this->js_printer->print(
+            $this->js_factory->block(
+                ...array_merge(
+                    $this->compileClassesFromResults($results),
+                    $this->compileScriptInvocationFromResults($results)
+                )
+            )
+        );
+    }
 
+    protected function compileClassesFromResults(Results $results) {
         $classes = $results->getFullyQualifiedClassNames();
-        $smts = [];
+        $stmts = [];
 
         $class_compiler = new ClassCompiler($this->js_factory); 
         foreach ($classes as $cls) {
             $stmts[] = $class_compiler->compile($results->getClass($cls)); 
         }
 
+        return $stmts;
+    }
+
+    protected function compileScriptInvocationFromResults(Results $results) {
+        $js = $this->js_factory;
+        $stmts = [];
+
         $script_classes = $results->getClassesThatImplement(JS\Script::class);
         assert(count($script_classes) === 1);
 
         $script_class = $js->identifier(
-            $class_compiler->normalizeFQN(
+            self::normalizeFQN(
                 array_pop($script_classes)->getAttribute(self::ATTR_FULLY_QUALIFIED_NAME)
             )
         );
         $script = $js->identifier("script");
+
         $stmts[] = $js->assignVar(
             $script,
             $js->call(
@@ -197,9 +214,22 @@ class Compiler {
             )
         );
         $stmts[] = $js->call(
-            $js->propertyOf($script, $js->identifier($class_compiler->normalizeMethodName("execute")))
+            $js->propertyOf($script, $js->identifier(self::normalizeMethodName("execute")))
         );
 
-        return $this->js_printer->print($js->block(...$stmts));
+        return $stmts;
+    }
+
+
+    static public function normalizeFQN(string $name) {
+        return str_replace("\\", "_", $name);    
+    }
+
+    static public function normalizeMethodName(string $name) {
+        return "m_$name";
+    }
+
+    static public function normalizePropertyName(string $name) {
+        return "p_$name";
     }
 }

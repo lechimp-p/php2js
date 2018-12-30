@@ -65,7 +65,7 @@ class ClassCompiler {
         $create_class = $js->identifier("create_class");
 
         return $js->assignVar(
-            $js->identifier($this->normalizeFQN($name)),
+            $js->identifier(Compiler::normalizeFQN($name)),
             $js->call($js->function_([], $js->block(
                 $js->assignVar(
                     $construct_raw,
@@ -138,7 +138,7 @@ class ClassCompiler {
         return $js->assign(
             $js->propertyOf(
                 $js->identifier($access),
-                $js->identifier($this->normalizeMethodName($n->name->value()))
+                $js->identifier(Compiler::normalizeMethodName($n->name->value()))
             ),
             $js->function_(
                 $n->params,
@@ -156,17 +156,5 @@ class ClassCompiler {
             ),
             ...$n->exprs
         );
-    }
-
-    public function normalizeFQN(string $name) {
-        return str_replace("\\", "_", $name);    
-    }
-
-    public function normalizeMethodName(string $name) {
-        return "m_$name";
-    }
-
-    public function normalizePropertyName(string $name) {
-        return "p_$name";
     }
 }
