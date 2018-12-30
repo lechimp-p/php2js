@@ -44,6 +44,11 @@ class ClassCompiler {
     }
 
     public function compile(PhpNode\Stmt\Class_ $class) : JS\AST\Node {
+        if (!$class->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
+            throw new \LogicException(
+                "Class should have fully qualified name to be compiled."
+            );
+        }
         $prefix_len = strrpos(PhpNode\Node::class, "\\") + 1;
         return Recursion::cata($class, function(PhpNode $n) use ($prefix_len) {
             $class = str_replace("\\", "_", substr(get_class($n), $prefix_len));
@@ -108,6 +113,14 @@ class ClassCompiler {
         return $this->js_factory->identifier($n->name);
     }
 
+    public function compile_VarLikeIdentifier(PhpNode $n) {
+        return $this->js_factory->identifier($n->name);
+    }
+
+    public function compile_Expr_Variable(PhpNode $n) {
+        return $this->js_factory->identifier($n->name);
+    }
+
     public function compile_Name_FullyQualified(PhpNode $n) {
         return $this->js_factory->identifier(join("_", $n->parts));
     }
@@ -131,6 +144,47 @@ class ClassCompiler {
                 $n->params,
                 $js->block(...$n->stmts)
             )
+        );
+    }
+
+    public function compile_Stmt_Property(PhpNode $n) {
+        $js = $this->js_factory;
+        $visibility = $js->identifier(Compiler::getVisibilityConst($n));
+        return $js->block(...array_map(function($p) use ($js, $visibility) {
+            return $js->assign(
+                $js->propertyOf($visibility, $p->name),
+                $js->undefined()
+            );
+        }, $n->props));
+    }
+
+    public function compile_Stmt_PropertyProperty(PhpNode $n) {
+        if ($n->default !== null) {
+            throw new \LogicException(
+                "Currently cannot compile default values for properties."
+            );
+        }
+        return $n;
+    }
+
+    public function compile_Expr_PropertyFetch(PhpNode $n) {
+        $js = $this->js_factory;
+        if ($n->var->value() === "this") {
+            if (!$n->hasAttribute(Compiler::ATTR_VISIBILITY)) {
+                throw new \LogicException(
+                    "Property access to \$this should have attribute for visibility."
+                );
+            }
+            $visibility = $n->getAttribute(Compiler::ATTR_VISIBILITY);
+            $source = $js->identifier($visibility);
+        }
+        else {
+            $source = $n->var;
+        }
+
+        return $js->propertyOf(
+            $source,
+            $n->name
         );
     }
 

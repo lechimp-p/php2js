@@ -32,6 +32,7 @@ use Lechimp\PHP_JS\JS;
  */
 class Compiler {
     const ATTR_FULLY_QUALIFIED_NAME = "fully_qualified_name";
+    const ATTR_VISIBILITY = "visibility";
     const ATTR_PUBLIC = "public";
     const ATTR_PROTECTED = "protected";
     const ATTR_PRIVATE = "private";
@@ -142,6 +143,7 @@ class Compiler {
         // TODO: Check if static call or var fetch with variable class name is used.
         // TODO: Check if variable function is called.
         // TODO: Check if anonymous classes are used.
+        // TODO: Check if this is accessed with a property expression (instead of a name)
         return $nodes;
     }
 
@@ -188,9 +190,16 @@ class Compiler {
         $classes = $results->getFullyQualifiedClassNames();
         $stmts = [];
 
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new AnnotateVisibility($results));
+
         $class_compiler = new ClassCompiler($this->js_factory); 
         foreach ($classes as $cls) {
-            $stmts[] = $class_compiler->compile($results->getClass($cls)); 
+            $stmts[] = $class_compiler->compile(
+                $traverser->traverse(
+                    [$results->getClass($cls)]
+                )[0]
+            );
         }
 
         return $stmts;

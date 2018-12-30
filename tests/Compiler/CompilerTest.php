@@ -162,4 +162,56 @@ PHP
         $this->assertEquals(["\\Foo"], $result->getFullyQualifiedClassNames());
     }
 
+    public function test_compile_properties() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,
+<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $protected_var;
+    private $private_var;
+
+    public function execute() {
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertInternalType("string", $result);
+        $this->assertRegExp("/.*protected.protected_var = undefined.*/ms", $result);
+        $this->assertRegExp("/.*private.private_var = undefined.*/ms", $result);
+    }
+
+
+    public function test_use_visibility() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,
+<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $protected_var;
+    private $private_var;
+
+    public function execute() {
+        echo $this->protected_var;
+        echo $this->private_var;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertInternalType("string", $result);
+        $this->assertRegExp("/.*console.log\\(protected.protected_var\\);.*/ms", $result);
+        $this->assertRegExp("/.*console.log\\(private.private_var\\);.*/ms", $result);
+    }
 }
