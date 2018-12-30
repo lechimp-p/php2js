@@ -157,17 +157,14 @@ class ClassCompiler {
         return $js->block(...array_map(function($p) use ($js, $visibility) {
             return $js->assign(
                 $js->propertyOf($visibility, $p->name),
-                $js->null_()
+                $p->default === null
+                    ? $js->null_()
+                    : $p->default
             );
         }, $n->props));
     }
 
     public function compile_Stmt_PropertyProperty(PhpNode $n) {
-        if ($n->default !== null) {
-            throw new \LogicException(
-                "Currently cannot compile default values for properties."
-            );
-        }
         return $n;
     }
 

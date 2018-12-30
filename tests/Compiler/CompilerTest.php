@@ -241,4 +241,28 @@ PHP
         $this->assertInternalType("string", $result);
         $this->assertRegExp("/protected.a_method\\(\\).*/ms", $result);
     }
+
+    public function test_property_with_default() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,
+<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $foo = "bar" ;
+
+    public function execute() {
+        echo $this->foo;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*protected.foo = \"bar\".*/ms", $result);
+        $this->assertInternalType("string", $result);
+    }
 }
