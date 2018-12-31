@@ -145,6 +145,7 @@ class Compiler {
         // TODO: Check if anonymous classes are used.
         // TODO: Check if this is accessed with a property expression (instead of a name)
         // TODO: Check if there are methods and properties that have the same name.
+        // TODO: Check if only declared variables are used.
         return $nodes;
     }
 

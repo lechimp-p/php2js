@@ -185,7 +185,6 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertInternalType("string", $result);
         $this->assertRegExp("/.*protected.protected_var = null.*/ms", $result);
         $this->assertRegExp("/.*private.private_var = null.*/ms", $result);
     }
@@ -213,7 +212,6 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertInternalType("string", $result);
         $this->assertRegExp("/.*console.log\\(protected.protected_var\\);.*/ms", $result);
         $this->assertRegExp("/.*console.log\\(private.private_var\\);.*/ms", $result);
     }
@@ -238,7 +236,6 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertInternalType("string", $result);
         $this->assertRegExp("/protected.a_method\\(\\).*/ms", $result);
     }
 
@@ -263,6 +260,59 @@ PHP
         $result = $this->real_compiler->compile($filename);
 
         $this->assertRegExp("/.*protected.foo = \"bar\".*/ms", $result);
-        $this->assertInternalType("string", $result);
+    }
+
+    public function test_function_with_param() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,
+<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    public function execute() {
+        $this->echo("Hello World!");
+    }
+
+    protected function echo($string) {
+        echo $string;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*protected.echo\\s+=\\s+function\\(string\\).*/ms", $result);
+    }
+
+    public function test_use_public_constructor() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,
+<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $foo;
+
+    public function __construct($foo) {
+        $this->foo = $foo;
+    }
+
+    public function execute() {
+        echo $this->foo;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*protected.foo = foo.*/ms", $result);
+        $this->assertRegExp("/.*\"construct\"\\s+:\\s+function\\(foo\\)*/ms", $result);
+        $this->assertRegExp("/.*return public.*/ms", $result);
     }
 }

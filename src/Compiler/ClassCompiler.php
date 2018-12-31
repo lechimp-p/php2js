@@ -57,6 +57,15 @@ class ClassCompiler {
         });
     }
 
+    protected function compileRecursive(PhpNode $n) {
+        $prefix_len = strrpos(PhpNode\Node::class, "\\") + 1;
+        return Recursion::cata($class, function(PhpNode $n) use ($prefix_len) {
+            $class = str_replace("\\", "_", substr(get_class($n), $prefix_len));
+            $method = "compile_$class";
+            return $this->$method($n);
+        });
+    }
+
     public function compile_Stmt_Class_(PhpNode $n) {
         $js = $this->js_factory;
 
@@ -69,6 +78,24 @@ class ClassCompiler {
         $private = $js->identifier("private");
         $create_class = $js->identifier("create_class");
 
+
+        list($constructor, $methods, $properties) = $this->sortMethods($n->stmts);
+
+        if ($constructor === null) {
+            $constructor = $js->function_([], $js->block(
+                $js->return_($public)
+            ));
+        }
+        else {
+            $constructor = $js->function_(
+                $constructor->parameters(),
+                $js->block(
+                    $constructor->block(),
+                    $js->return_($public)
+                )
+            );
+        }
+
         return $js->assignVar(
             $js->identifier(Compiler::normalizeFQN($name)),
             $js->call($js->function_([], $js->block(
@@ -78,11 +105,10 @@ class ClassCompiler {
                         $js->assignVar($public, $js->object_([])),
                         $js->assignVar($protected, $js->object_([])),
                         $js->assignVar($private, $js->object_([])),
-                        $js->block(...$n->stmts),
+                        $js->block(...$properties),
+                        $js->block(...$methods),
                         $js->return_($js->object_([
-                            "construct" => $js->function_([], $js->block(
-                                $js->return_($public)
-                            )),
+                            "construct" => $constructor,
                             "public" => $public,
                             "protected" => $protected
                         ]))
@@ -105,6 +131,34 @@ class ClassCompiler {
         );
     }
 
+    protected function sortMethods(array $nodes) {
+        $js = $this->js_factory;
+
+        $constructor = null;
+        $methods = [];
+        $properties = [];
+        foreach ($nodes as $n) {
+            list($n, $compiled) = $n;
+            if ($n instanceof PhpNode\Stmt\ClassMethod) {
+                if ($n->name->toLowerString() === "__construct") {
+                    $constructor = $compiled->value();
+                }
+                else {
+                    $methods[] = $compiled;
+                }
+            }
+            elseif ($n instanceof PhpNode\Stmt\Property) {
+                $properties[] = $compiled;
+            }
+            else {
+                throw new \LogicException(
+                    "Cannot process '".get_class($n)."'"
+                );
+            }
+        }
+        return [$constructor, $methods, $properties];
+    }
+
     public function compile_Scalar_String_(PhpNode $n) {
         return $this->js_factory->literal($n->value);
     }
@@ -125,26 +179,48 @@ class ClassCompiler {
         return $this->js_factory->identifier(join("_", $n->parts));
     }
 
+    public function compile_Arg(PhpNode $n) {
+        if ($n->unpack || $n->byRef) {
+            throw new \LogicException(
+                "Cannot compile unpacked arguments or arguments passed by reference."
+            );
+        }
+
+        return $n->value;
+    }
+
+    public function compile_Param(PhpNode $n) {
+        if (isset($n->type) || $n->byRef || $n->variadic || isset($n->default)) {
+            throw new \LogicException(
+                "Cannot compile typed, variadic, pass-by-ref or defaulted parameter."
+            );
+        }
+        return $n->var;
+    }
+
     public function compile_Stmt_ClassMethod(PhpNode $n) {
         $js = $this->js_factory;
         $visibility = Compiler::getVisibilityConst($n);
 
-        if ($n->isMagic() || $n->isStatic() || $n->isAbstract()) {
+        if (($n->isMagic() && $n->name->toLowerString() !== "__construct") || $n->isStatic() || $n->isAbstract()) {
             throw new \LogicException(
                 "Cannot compile magic, static or abstract methods."
             );
         }
 
-        return $js->assign(
-            $js->propertyOf(
-                $js->identifier($visibility),
-                $js->identifier($n->name->value())
-            ),
-            $js->function_(
-                $n->params,
-                $js->block(...$n->stmts)
+        return [
+            $n,
+            $js->assign(
+                $js->propertyOf(
+                    $js->identifier($visibility),
+                    $js->identifier($n->name->value())
+                ),
+                $js->function_(
+                    $n->params,
+                    $js->block(...$n->stmts)
+                )
             )
-        );
+        ];
     }
 
     public function compile_Stmt_Expression(PhpNode $n) {
@@ -154,14 +230,17 @@ class ClassCompiler {
     public function compile_Stmt_Property(PhpNode $n) {
         $js = $this->js_factory;
         $visibility = $js->identifier(Compiler::getVisibilityConst($n));
-        return $js->block(...array_map(function($p) use ($js, $visibility) {
-            return $js->assign(
-                $js->propertyOf($visibility, $p->name),
-                $p->default === null
-                    ? $js->null_()
-                    : $p->default
-            );
-        }, $n->props));
+        return [
+            $n,
+            $js->block(...array_map(function($p) use ($n, $js, $visibility) {
+                return $js->assign(
+                    $js->propertyOf($visibility, $p->name),
+                    $p->default === null
+                        ? $js->null_()
+                        : $p->default
+                );
+            }, $n->props))
+        ];
     }
 
     public function compile_Stmt_PropertyProperty(PhpNode $n) {
