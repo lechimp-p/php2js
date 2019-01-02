@@ -26,17 +26,17 @@ use PhpParser\NodeVisitorAbstract;
 
 class AnnotateVisibility extends NodeVisitorAbstract {
     /**
-     * @var Results
+     * @var Registry
      */
-    protected $results;
+    protected $registry;
 
     /**
      * @var string|null
      */
     protected $in_class = null;
 
-    public function __construct(Results $results) {
-        $this->results = $results;
+    public function __construct(Registry $registry) {
+        $this->registry = $registry;
     }
 
     public function beforeTraverse(array $nodes) {
@@ -62,7 +62,7 @@ class AnnotateVisibility extends NodeVisitorAbstract {
             }
             $n->setAttribute(
                 Compiler::ATTR_VISIBILITY,
-                $this->results->getVisibility($this->in_class, (string)$n->name)
+                $this->registry->getVisibility($this->in_class, (string)$n->name)
             );
         }
     }

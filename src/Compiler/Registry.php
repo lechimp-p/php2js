@@ -26,7 +26,7 @@ use PhpParser\Node;
 /**
  * Collects results of the compilation.
  */
-class Results {
+class Registry {
     /**
      * @var Node\Stmt\Class_[]
      */
@@ -42,7 +42,10 @@ class Results {
         $this->visibilities = [];
     }
 
-    public function addClass(Node\Stmt\Class_ $class) : Results {
+    /**
+     * @return void
+     */
+    public function addClass(Node\Stmt\Class_ $class) {
         if (!$class->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
             throw new \LogicException(
                 "Class for Result should have fully qualified name."
@@ -56,9 +59,7 @@ class Results {
             );
         }
 
-        $clone = clone $this;
-        $clone->classes[$fqn] = $class;
-        return $clone;
+        $this->classes[$fqn] = $class;
     }
 
     public function getFullyQualifiedClassNames() {

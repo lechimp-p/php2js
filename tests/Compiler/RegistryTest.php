@@ -21,14 +21,14 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP_JS\Test\Compiler;
 
-use Lechimp\PHP_JS\Compiler\Results;
+use Lechimp\PHP_JS\Compiler\Registry;
 use Lechimp\PHP_JS\Compiler\Compiler;
 use PhpParser\ParserFactory;
 
-class ResultsTest extends \PHPUnit\Framework\TestCase {
+class RegistryTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        $this->results = new Results();
+        $this->registry = new Registry();
     }
 
     public function test_getVisibility() {
@@ -53,7 +53,9 @@ PHP
         $class = array_shift($ast);
         $class->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "MyClass");
 
-        $r = $this->results->addClass($class);
+        $r = $this->registry;
+        $r->addClass($class);
+
         $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyClass", "var_public_property"));
         $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyClass", "public_property"));
         $this->assertEquals(Compiler::ATTR_PROTECTED, $r->getVisibility("MyClass", "protected_property"));
@@ -87,7 +89,8 @@ PHP
 
         $class = array_shift($ast);
         $class->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "MyClass");
-        $r = $this->results->addClass($class);
+        $r = $this->registry;
+        $r->addClass($class);
 
         $ast = $this->parser->parse(<<<'PHP'
 <?php
@@ -100,8 +103,7 @@ PHP
 
         $class = array_shift($ast);
         $class->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "MyExtendedClass");
-        $r = $r->addClass($class);
-
+        $r->addClass($class);
 
         $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "var_public_property"));
         $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "public_property"));

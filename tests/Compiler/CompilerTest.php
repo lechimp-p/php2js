@@ -39,8 +39,8 @@ class CompilerForTest extends Compiler\Compiler {
         return $this->annotateAST(...$nodes);
     }
 
-    public function _getResults($nodes) {
-        return $this->getResults(...$nodes);
+    public function _getRegistry($nodes) {
+        return $this->getRegistry(...$nodes);
     }
 }
 
@@ -147,7 +147,7 @@ PHP
         );
     }
 
-    public function test_getResults() {
+    public function test_getRegistry() {
         $ast = $this->compiler->_annotateAST(
             $this->parser->parse(<<<'PHP'
 <?php
@@ -160,7 +160,7 @@ PHP
         );
 
 
-        $result = $this->compiler->_getResults($ast);
+        $result = $this->compiler->_getRegistry($ast);
 
         $this->assertEquals(["\\Foo"], $result->getFullyQualifiedClassNames());
     }

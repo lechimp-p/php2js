@@ -81,7 +81,7 @@ class Compiler {
                 $filename = $this->getDependencySourceFile($dep);
 
                 list($new_deps, $new_result) = $this->compileFile($filename);
-                $result = $result->append($new_result);
+                $result->addClass($new_result);
                 $deps = array_merge($deps, $new_deps);
             };
 
@@ -90,7 +90,7 @@ class Compiler {
 
         // TODO: Check if there is still only one class implementing Script now.
 
-        return $this->compileResults($result);
+        return $this->compileRegistry($result);
     }
 
     protected function compileFile(string $filename) : array {
@@ -99,7 +99,7 @@ class Compiler {
         );
         return [
             $this->getDependencies(...$ast),
-            $this->getResults(...$ast)
+            $this->getRegistry(...$ast)
         ];
     }
 
@@ -164,12 +164,12 @@ class Compiler {
         return $collector->getDependencies();
     }
 
-    protected function getResults(PhpNode ...$nodes) : Results {
-        $collector = new CollectResults();
+    protected function getRegistry(PhpNode ...$nodes) : Registry {
+        $filler = new FillRegistry();
         $t = new NodeTraverser();
-        $t->addVisitor($collector);
+        $t->addVisitor($filler);
         $t->traverse($nodes);
-        return $collector->getResults();
+        return $filler->getRegistry();
     }
 
     protected function isInternalDependency(string $dep) {
@@ -177,29 +177,29 @@ class Compiler {
         return true;
     }
 
-    protected function compileResults(Results $results) {
+    protected function compileRegistry(Registry $registry) {
         return $this->js_printer->print(
             $this->js_factory->block(
                 ...array_merge(
-                    $this->compileClassesFromResults($results),
-                    $this->compileScriptInvocationFromResults($results)
+                    $this->compileClassesFromRegistry($registry),
+                    $this->compileScriptInvocationFromRegistry($registry)
                 )
             )
         );
     }
 
-    protected function compileClassesFromResults(Results $results) {
-        $classes = $results->getFullyQualifiedClassNames();
+    protected function compileClassesFromRegistry(Registry $registry) {
+        $classes = $registry->getFullyQualifiedClassNames();
         $stmts = [];
 
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new AnnotateVisibility($results));
+        $traverser->addVisitor(new AnnotateVisibility($registry));
 
         $class_compiler = new ClassCompiler($this->js_factory); 
         foreach ($classes as $cls) {
             $stmts[] = $class_compiler->compile(
                 $traverser->traverse(
-                    [$results->getClass($cls)]
+                    [$registry->getClass($cls)]
                 )[0]
             );
         }
@@ -207,11 +207,11 @@ class Compiler {
         return $stmts;
     }
 
-    protected function compileScriptInvocationFromResults(Results $results) {
+    protected function compileScriptInvocationFromRegistry(Registry $registry) {
         $js = $this->js_factory;
         $stmts = [];
 
-        $script_classes = $results->getClassesThatImplement(JS\Script::class);
+        $script_classes = $registry->getClassesThatImplement(JS\Script::class);
         assert(count($script_classes) === 1);
 
         $script_class = $js->identifier(

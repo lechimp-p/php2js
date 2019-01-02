@@ -24,25 +24,25 @@ namespace Lechimp\PHP_JS\Compiler;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class CollectResults extends NodeVisitorAbstract {
+class FillRegistry extends NodeVisitorAbstract {
     /**
-     * @var Results|null
+     * @var Registry|null
      */
-    protected $results = null;
+    protected $registry = null;
 
-    public function getResults() : Results {
-        return $this->results;
+    public function getRegistry() : Registry {
+        return $this->registry;
     }
 
     public function beforeTraverse(array $nodes) {
-        $this->results = new Results();
+        $this->registry = new Registry();
 
     }
 
     public function enterNode(Node $n) {
         switch (get_class($n)) {
             case Node\Stmt\Class_::class:
-                $this->results = $this->results->addClass($n);
+                $this->registry->addClass($n);
                 break;
         }
     }
