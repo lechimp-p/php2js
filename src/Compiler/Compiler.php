@@ -63,7 +63,7 @@ class Compiler {
     }
 
     public function compile(string $filename) : string {
-        list($deps, $result) = $this->compileFile($filename);
+        list($deps, $registry) = $this->compileFile($filename);
 
         // TODO: Check if there is one class implementing Script now.
 
@@ -74,14 +74,14 @@ class Compiler {
                 continue;
             }
 
-            if ($this->isInternalDependency($dep)) {
-                // TODO: Treat internal dependencies correctly.
+            if ($this->isCustomDependency($dep)) {
+                $this->addCustomDependencyToRegistry($dep, $registry);
             }
             else {
                 $filename = $this->getDependencySourceFile($dep);
 
-                list($new_deps, $new_result) = $this->compileFile($filename);
-                $result->addClass($new_result);
+                list($new_deps, $new_registry) = $this->compileFile($filename);
+                $registry->append($new_registry);
                 $deps = array_merge($deps, $new_deps);
             };
 
@@ -90,7 +90,7 @@ class Compiler {
 
         // TODO: Check if there is still only one class implementing Script now.
 
-        return $this->compileRegistry($result);
+        return $this->compileRegistry($registry);
     }
 
     protected function compileFile(string $filename) : array {
@@ -172,11 +172,6 @@ class Compiler {
         return $filler->getRegistry();
     }
 
-    protected function isInternalDependency(string $dep) {
-        // TODO: implement me
-        return true;
-    }
-
     protected function compileRegistry(Registry $registry) {
         return $this->js_printer->print(
             $this->js_factory->block(
@@ -194,6 +189,8 @@ class Compiler {
 
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new AnnotateVisibility($registry));
+        // TODO: Check compliance with interfaces.
+        // TODO: Check compliance with extended classes.
 
         $class_compiler = new ClassCompiler($this->js_factory); 
         foreach ($classes as $cls) {
@@ -251,5 +248,20 @@ class Compiler {
         throw new \LogicException(
             "Method or property is neither public, nor protected, nor private"
         );
+    }
+
+    protected static $custom_dependencies = [
+        JS\Script::class
+    ];
+
+    protected function isCustomDependency(string $dep) {
+        return in_array($dep, self::$custom_dependencies);
+    }
+
+    protected function addCustomDependencyToRegistry(string $dep, Registry $registry) {
+    }
+
+    protected function getDependencySourceFile(string $dep) {
+        throw new \LogicException("Implement me!");
     }
 }
