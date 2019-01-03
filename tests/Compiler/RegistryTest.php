@@ -24,11 +24,32 @@ namespace Lechimp\PHP_JS\Test\Compiler;
 use Lechimp\PHP_JS\Compiler\Registry;
 use Lechimp\PHP_JS\Compiler\Compiler;
 use PhpParser\ParserFactory;
+use PhpParser\BuilderFactory;
 
 class RegistryTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $this->builder = new BuilderFactory;
         $this->registry = new Registry();
+    }
+
+    public function test_append() {
+        $my_class_name1 = "MY_CLASS_ONE";
+        $my_class1 = $this->builder->class($my_class_name1)->getNode();
+        $my_class1->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name1);
+        $my_class_name2 = "MY_CLASS_TWO";
+        $my_class2 = $this->builder->class($my_class_name2)->getNode();
+        $my_class2->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name2);
+
+        $registry1 = new Registry();
+        $registry1->addClass($my_class1);
+
+        $registry2 = new Registry();
+        $registry2->addClass($my_class2);
+
+        $registry1->append($registry2);
+
+        $this->assertEquals([$my_class_name1, $my_class_name2], $registry1->getFullyQualifiedClassNames());  
     }
 
     public function test_getVisibility() {

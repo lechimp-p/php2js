@@ -45,6 +45,15 @@ class Registry {
     /**
      * @return void
      */
+    public function append(Registry $other) {
+        foreach ($other->getFullyQualifiedClassNames() as $class) {
+            $this->addClass($other->getClass($class));
+        }
+    }
+
+    /**
+     * @return void
+     */
     public function addClass(Node\Stmt\Class_ $class) {
         if (!$class->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
             throw new \LogicException(
