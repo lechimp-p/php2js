@@ -39,6 +39,10 @@ class CompilerForTest extends Compiler\Compiler {
         return $this->annotateAST(...$nodes);
     }
 
+    public function _simplifyAST($nodes) {
+        return $this->simplifyAST(...$nodes);
+    }
+
     public function _getRegistry($nodes) {
         return $this->getRegistry(...$nodes);
     }
@@ -62,8 +66,7 @@ class CompilerTest extends \PHPUnit\Framework\TestCase {
 
     public function test_smoke() {
         $filename = tempnam("/tmp", "php.js");
-        file_put_contents($filename, 
-<<<'PHP'
+        file_put_contents($filename,<<<'PHP'
 <?php
 
 use Lechimp\PHP_JS\JS\Script;
@@ -110,6 +113,16 @@ PHP
 
         $result = $this->compiler->_getDependencies($ast);
         sort($result);
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_getDependencies_of_script_class() {
+        $ast = $this->builder->class("SOME_CLASS")->getNode();
+        $ast->setAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES, ["Window"]);
+
+        $expected = ["Window"];
+        $result = $this->compiler->_getDependencies([$ast]);
 
         $this->assertEquals($expected, $result);
     }
@@ -167,8 +180,7 @@ PHP
 
     public function test_compile_properties() {
         $filename = tempnam("/tmp", "php.js");
-        file_put_contents($filename,
-<<<'PHP'
+        file_put_contents($filename,<<<'PHP'
 <?php
 
 use Lechimp\PHP_JS\JS\Script;
@@ -192,8 +204,7 @@ PHP
 
     public function test_use_visibility_for_properties() {
         $filename = tempnam("/tmp", "php.js");
-        file_put_contents($filename,
-<<<'PHP'
+        file_put_contents($filename,<<<'PHP'
 <?php
 
 use Lechimp\PHP_JS\JS\Script;
@@ -218,8 +229,7 @@ PHP
 
     public function test_use_visibility_for_methods() {
         $filename = tempnam("/tmp", "php.js");
-        file_put_contents($filename,
-<<<'PHP'
+        file_put_contents($filename,<<<'PHP'
 <?php
 
 use Lechimp\PHP_JS\JS\Script;
@@ -241,8 +251,7 @@ PHP
 
     public function test_property_with_default() {
         $filename = tempnam("/tmp", "php.js");
-        file_put_contents($filename,
-<<<'PHP'
+        file_put_contents($filename,<<<'PHP'
 <?php
 
 use Lechimp\PHP_JS\JS\Script;
@@ -264,8 +273,7 @@ PHP
 
     public function test_function_with_param() {
         $filename = tempnam("/tmp", "php.js");
-        file_put_contents($filename,
-<<<'PHP'
+        file_put_contents($filename,<<<'PHP'
 <?php
 
 use Lechimp\PHP_JS\JS\Script;
@@ -289,16 +297,16 @@ PHP
 
     public function test_use_public_constructor() {
         $filename = tempnam("/tmp", "php.js");
-        file_put_contents($filename,
-<<<'PHP'
+        file_put_contents($filename,<<<'PHP'
 <?php
 
 use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP_JS\JS\API\Window;
 
 class TestScript implements Script {
     protected $foo;
 
-    public function __construct($foo) {
+    public function __construct(Window $foo) {
         $this->foo = $foo;
     }
 
@@ -314,5 +322,72 @@ PHP
         $this->assertRegExp("/.*protected.foo = foo.*/ms", $result);
         $this->assertRegExp("/.*\"construct\"\\s+:\\s+function\\(foo\\)*/ms", $result);
         $this->assertRegExp("/.*return public.*/ms", $result);
+    }
+
+    public function test_inject_script_dependencies() {
+
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP_JS\JS\API\Window;
+
+class TestScript implements Script {
+    protected $window;
+
+    public function __construct(Window $window) {
+        $this->window = $window;
+    }
+
+    public function execute() {
+        $this->window->alert("Hello World!");
+    }
+}
+PHP
+        );
+
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*protected.window = window.*/ms", $result);
+        $this->assertRegExp("/.*\"construct\"\\s+:\\s+function\\(window\\)*/ms", $result);
+        $this->assertRegExp("/.*TestScript.__construct\\(_WindowImpl.__construct\\(\\)\\);.*/", $result);
+        $this->assertRegExp("/.*var _WindowImpl = \\(function\\(\\) {.*/", $result);
+    }
+
+    public function test_annotate_dependencies_of_script_class() {
+        $ast = $this->parser->parse(<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP_JS\JS\API\Window;
+
+class TestScript implements Script {
+    protected $window;
+
+    public function __construct(Window $window) {
+        $this->window = $window;
+    }
+
+    public function execute() {
+        $this->window->alert("Hello World!");
+    }
+}
+
+PHP
+        );
+
+        $this->compiler->_simplifyAST($ast);
+        $this->compiler->_annotateAST($ast);
+        array_shift($ast); // USE-Statement
+        array_shift($ast); // USE-Statement
+        $my_class = array_shift($ast);
+
+        $this->assertTrue($my_class->hasAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES));
+        $this->assertEquals(
+            [JS\API\Window::class],
+            $my_class->getAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES)
+        );
     }
 }

@@ -249,7 +249,7 @@ class ClassCompiler {
 
     public function compile_Expr_PropertyFetch(PhpNode $n) {
         $js = $this->js_factory;
-        if ($n->var->value() === "this") {
+        if ($n->var instanceof JS\AST\Identifier && $n->var->value() === "this") {
             if (!$n->hasAttribute(Compiler::ATTR_VISIBILITY)) {
                 throw new \LogicException(
                     "Property access to \$this should have attribute for visibility."

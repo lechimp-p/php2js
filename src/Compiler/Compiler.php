@@ -36,6 +36,7 @@ class Compiler {
     const ATTR_PUBLIC = "public";
     const ATTR_PROTECTED = "protected";
     const ATTR_PRIVATE = "private";
+    const ATTR_SCRIPT_DEPENDENCIES = "script_dependencies";
 
     /**
      * @var Parser
@@ -63,7 +64,7 @@ class Compiler {
     }
 
     public function compile(string $filename) : string {
-        list($deps, $registry) = $this->compileFile($filename);
+        list($deps, $registry) = $this->ingestFile($filename);
 
         // TODO: Check if there is one class implementing Script now.
 
@@ -74,16 +75,20 @@ class Compiler {
                 continue;
             }
 
-            if ($this->isCustomDependency($dep)) {
-                $this->addCustomDependencyToRegistry($dep, $registry);
+            if (self::isCustomDependency($dep)) {
+                list($new_deps, $new_registry) = $this->ingestDependency($dep);
             }
             else {
                 $filename = $this->getDependencySourceFile($dep);
+                list($new_deps, $new_registry) = $this->ingestFile($filename);
+            }
 
-                list($new_deps, $new_registry) = $this->compileFile($filename);
+            if ($new_registry !== null) {
                 $registry->append($new_registry);
+            }
+            if ($new_deps !== null) {
                 $deps = array_merge($deps, $new_deps);
-            };
+            }
 
             $compiled_deps[$dep] = true;
         }
@@ -93,7 +98,7 @@ class Compiler {
         return $this->compileRegistry($registry);
     }
 
-    protected function compileFile(string $filename) : array {
+    protected function ingestFile(string $filename) : array {
         $ast = $this->preprocessAST(
             ...$this->parseFile($filename)
         );
@@ -152,6 +157,7 @@ class Compiler {
     protected function annotateAST(PhpNode ...$nodes) : array {
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new AnnotateFullyQualifiedName());
+        $traverser->addVisitor(new AnnotateScriptDependencies());
 
         return $traverser->traverse($nodes);
     }
@@ -210,18 +216,35 @@ class Compiler {
 
         $script_classes = $registry->getClassesThatImplement(JS\Script::class);
         assert(count($script_classes) === 1);
+        $php_script_class = array_pop($script_classes);
 
         $script_class = $js->identifier(
             self::normalizeFQN(
-                array_pop($script_classes)->getAttribute(self::ATTR_FULLY_QUALIFIED_NAME)
+                $php_script_class->getAttribute(self::ATTR_FULLY_QUALIFIED_NAME)
             )
         );
         $script = $js->identifier("script");
 
+        if ($php_script_class->hasAttribute(self::ATTR_SCRIPT_DEPENDENCIES)) {
+            $dependencies = array_map(function($name) use ($js) {
+                $names = explode("\\", $name);
+                $name = array_pop($names);
+                return $js->call(
+                    $js->propertyOf(
+                        $js->identifier("_{$name}Impl"),
+                        $js->identifier("__construct")
+                    )
+                );
+            }, $php_script_class->getAttribute(self::ATTR_SCRIPT_DEPENDENCIES));
+        }
+        else {
+            $dependencies = [];
+        }
         $stmts[] = $js->assignVar(
             $script,
             $js->call(
-                $js->propertyOf($script_class, $js->identifier("__construct"))
+                $js->propertyOf($script_class, $js->identifier("__construct")),
+                ...$dependencies
             )
         );
         $stmts[] = $js->call(
@@ -251,14 +274,28 @@ class Compiler {
     }
 
     protected static $custom_dependencies = [
-        JS\Script::class
+        JS\Script::class => null,
+        JS\API\Window::class => __DIR__."/API/WindowImpl.php"
     ];
 
-    protected function isCustomDependency(string $dep) {
-        return in_array($dep, self::$custom_dependencies);
+    static public function isCustomDependency(string $dep) {
+        return array_key_exists($dep, self::$custom_dependencies);
     }
 
-    protected function addCustomDependencyToRegistry(string $dep, Registry $registry) {
+    protected function ingestDependency(string $dep) {
+        //TODO: add JS\Script to the interfaces that classes are checked against.
+
+        if ($dep === JS\API\Window::class) {
+            $ast = $this->annotateAST(
+                ...$this->simplifyAST(
+                    ...$this->parseFile(self::$custom_dependencies[$dep])
+                )
+            );
+            return [
+                $this->getDependencies(...$ast),
+                $this->getRegistry(...$ast)
+            ];
+        }
     }
 
     protected function getDependencySourceFile(string $dep) {

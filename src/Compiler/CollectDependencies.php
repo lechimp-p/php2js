@@ -47,6 +47,12 @@ class CollectDependencies extends NodeVisitorAbstract {
                 foreach ($n->implements as $i) {
                     $this->dependencies[] = (string)$i;
                 }
+                if ($n->hasAttribute(Compiler::ATTR_SCRIPT_DEPENDENCIES)) {
+                    $this->dependencies = array_merge(
+                        $this->dependencies,
+                        $n->getAttribute(Compiler::ATTR_SCRIPT_DEPENDENCIES)
+                    );
+                }
                 break;
             case Node\Stmt\ClassMethod::class:
                 if ($n->returnType instanceof Node\Name) {
