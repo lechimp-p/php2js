@@ -25,5 +25,8 @@ declare(strict_types=1);
  * JS\API\Window interface. Do not use it yourself.
  */
 class WindowImpl {
+    public function alert($message) {
+        $window->alert($message); 
+    }
 }
 
