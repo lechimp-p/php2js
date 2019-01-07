@@ -27,5 +27,12 @@ use Lechimp\PHP_JS\JS\API\Document;
  * JS\API\Document interface. Do not use it yourself.
  */
 class DocumentImpl implements Document {
+    /**
+     * Get an HTML-Node by its id.
+     *
+     * @return null|Html\Element
+     */
+    public function getElementById(string $id) {
+    }
 }
 

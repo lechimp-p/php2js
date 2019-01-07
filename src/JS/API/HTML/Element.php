@@ -19,16 +19,17 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS\API;
+namespace Lechimp\PHP_JS\JS\API\HTML;
 
 /**
- * The browsers document API.
+ * An HTML-Element.
  */
-interface Document {
+interface Element {
+    public function getInnerHTML() : string;
+
     /**
-     * Get an HTML-Node by its id.
-     *
-     * @return null|Html\Element
+     * @return void
      */
-    public function getElementById(string $id);
+    public function setInnerHTML(string innerHtml)
+     
 }
