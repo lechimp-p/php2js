@@ -19,16 +19,16 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS\API\HTML;
+namespace Lechimp\PHP_JS\Test\Compiler\API\HTML;
 
-/**
- * An HTML-Element.
- */
-interface Element {
-    public function getInnerHTML() : string;
+require_once(__DIR__."/../../../../src/Compiler/API/HTML/ElementImpl.php");
 
-    /**
-     * @return void
-     */
-    public function setInnerHTML(string $innerHtml);
+use Lechimp\PHP_JS\JS\API\HTML;
+
+class ElementImplTest extends \PHPUnit\Framework\TestCase {
+    public function test_smoke() {
+        $impl = new \HTML\ElementImpl();
+
+        $this->assertInstanceOf(HTML\Element::class, $impl);
+    }
 }

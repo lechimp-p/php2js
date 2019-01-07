@@ -19,16 +19,23 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS\API\HTML;
+namespace HTML;
+
+use Lechimp\PHP_JS\JS\API\HTML\Element;
 
 /**
- * An HTML-Element.
+ * ATTENTION: This is not supposed to work in a PHP-environment.
+ * This is just a stub that gets compiled to JS to implement the
+ * JS\API\HTML\Element interface. Do not use it yourself.
  */
-interface Element {
-    public function getInnerHTML() : string;
+class ElementImpl implements Element{
+    public function getInnerHTML() : string {
+    }
 
     /**
      * @return void
      */
-    public function setInnerHTML(string $innerHtml);
+    public function setInnerHTML(string $innerHtml) {
+    }
 }
+
