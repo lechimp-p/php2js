@@ -19,16 +19,20 @@
 
 declare(strict_types=1);
 
-use Lechimp\PHP_JS\JS\API\Window;
+namespace Lechimp\PHP_JS\Compiler;
 
-/**
- * ATTENTION: This is not supposed to work in a PHP-environment.
- * This is just a stub that gets compiled to JS to implement the
- * JS\API\Window interface. Do not use it yourself.
- */
-class WindowImpl implements Window {
-    public function alert(string $message) {
-        $window->alert($message); 
+use PhpParser\Node;
+use PhpParser\NodeVisitorAbstract;
+use PhpParser\NodeTraverser;
+
+class RemoveTypeHints extends NodeVisitorAbstract {
+    public function enterNode(Node $n) {
+        if ($n instanceof Node\Stmt\ClassMethod) {
+            $n->returnType = null;
+        }
+        if ($n instanceof Node\Param) {
+            $n->type = null;
+        }
+        return $n;
     }
 }
-

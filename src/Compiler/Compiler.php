@@ -286,10 +286,16 @@ class Compiler {
     protected function ingestDependency(string $dep) {
         //TODO: add JS\Script to the interfaces that classes are checked against.
 
+        $collector = new RemoveTypeHints();
+        $t = new NodeTraverser();
+        $t->addVisitor($collector);
+
         if (in_array($dep, [JS\API\Window::class, JS\API\Document::class])) {
             $ast = $this->annotateAST(
-                ...$this->simplifyAST(
-                    ...$this->parseFile(self::$custom_dependencies[$dep])
+                ...$t->traverse(
+                    $this->simplifyAST(
+                        ...$this->parseFile(self::$custom_dependencies[$dep])
+                    )
                 )
             );
             return [

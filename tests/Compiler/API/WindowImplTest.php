@@ -19,16 +19,16 @@
 
 declare(strict_types=1);
 
+namespace Lechimp\PHP_JS\Test\Compiler\API;
+
+require_once(__DIR__."/../../../src/Compiler/API/WindowImpl.php");
+
 use Lechimp\PHP_JS\JS\API\Window;
 
-/**
- * ATTENTION: This is not supposed to work in a PHP-environment.
- * This is just a stub that gets compiled to JS to implement the
- * JS\API\Window interface. Do not use it yourself.
- */
-class WindowImpl implements Window {
-    public function alert(string $message) {
-        $window->alert($message); 
+class WindowImplTest extends \PHPUnit\Framework\TestCase {
+    public function test_smoke() {
+        $impl = new \WindowImpl();
+
+        $this->assertInstanceOf(Window::class, $impl);
     }
 }
-

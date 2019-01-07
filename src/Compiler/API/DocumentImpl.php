@@ -19,11 +19,13 @@
 
 declare(strict_types=1);
 
+use Lechimp\PHP_JS\JS\API\Document;
+
 /**
  * ATTENTION: This is not supposed to work in a PHP-environment.
  * This is just a stub that gets compiled to JS to implement the
  * JS\API\Document interface. Do not use it yourself.
  */
-class DocumentImpl {
+class DocumentImpl implements Document {
 }
 
