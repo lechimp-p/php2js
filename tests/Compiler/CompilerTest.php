@@ -362,12 +362,15 @@ PHP
 
 use Lechimp\PHP_JS\JS\Script;
 use Lechimp\PHP_JS\JS\API\Window;
+use Lechimp\PHP_JS\JS\API\Document;
 
 class TestScript implements Script {
     protected $window;
+    protected $document;
 
-    public function __construct(Window $window) {
+    public function __construct(Window $window, Document $document) {
         $this->window = $window;
+        $this->document = $document;
     }
 
     public function execute() {
@@ -382,11 +385,12 @@ PHP
         $this->compiler->_annotateAST($ast);
         array_shift($ast); // USE-Statement
         array_shift($ast); // USE-Statement
+        array_shift($ast); // USE-Statement
         $my_class = array_shift($ast);
 
         $this->assertTrue($my_class->hasAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES));
         $this->assertEquals(
-            [JS\API\Window::class],
+            [JS\API\Window::class, JS\API\Document::class],
             $my_class->getAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES)
         );
     }
