@@ -49,17 +49,12 @@ class ClassCompiler {
                 "Class should have fully qualified name to be compiled."
             );
         }
-        $prefix_len = strrpos(PhpNode\Node::class, "\\") + 1;
-        return Recursion::cata($class, function(PhpNode $n) use ($prefix_len) {
-            $class = str_replace("\\", "_", substr(get_class($n), $prefix_len));
-            $method = "compile_$class";
-            return $this->$method($n);
-        });
+        return $this->compileRecursive($class);
     }
 
     protected function compileRecursive(PhpNode $n) {
         $prefix_len = strrpos(PhpNode\Node::class, "\\") + 1;
-        return Recursion::cata($class, function(PhpNode $n) use ($prefix_len) {
+        return Recursion::cata($n, function(PhpNode $n) use ($prefix_len) {
             $class = str_replace("\\", "_", substr(get_class($n), $prefix_len));
             $method = "compile_$class";
             return $this->$method($n);
@@ -167,6 +162,10 @@ class ClassCompiler {
         return $this->js_factory->identifier($n->name);
     }
 
+    public function compile_Name(PhpNode $n) {
+        return $this->js_factory->identifier("$n");
+    }
+
     public function compile_VarLikeIdentifier(PhpNode $n) {
         return $this->js_factory->identifier($n->name);
     }
@@ -177,6 +176,16 @@ class ClassCompiler {
 
     public function compile_Name_FullyQualified(PhpNode $n) {
         return $this->js_factory->identifier(join("_", $n->parts));
+    }
+
+    public function compile_Expr_ConstFetch(PhpNode $n) {
+        $js = $this->js_factory;
+        if ($n->name->value() !== "null") {
+            throw new \LogicException(
+                "Can only compile 'null' constant."
+            );
+        }
+        return $n->name;
     }
 
     public function compile_Arg(PhpNode $n) {
