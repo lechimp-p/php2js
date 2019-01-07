@@ -275,7 +275,8 @@ class Compiler {
 
     protected static $custom_dependencies = [
         JS\Script::class => null,
-        JS\API\Window::class => __DIR__."/API/WindowImpl.php"
+        JS\API\Window::class => __DIR__."/API/WindowImpl.php",
+        JS\API\Document::class => __DIR__."/API/DocumentImpl.php"
     ];
 
     static public function isCustomDependency(string $dep) {
@@ -285,7 +286,7 @@ class Compiler {
     protected function ingestDependency(string $dep) {
         //TODO: add JS\Script to the interfaces that classes are checked against.
 
-        if ($dep === JS\API\Window::class) {
+        if (in_array($dep, [JS\API\Window::class, JS\API\Document::class])) {
             $ast = $this->annotateAST(
                 ...$this->simplifyAST(
                     ...$this->parseFile(self::$custom_dependencies[$dep])
