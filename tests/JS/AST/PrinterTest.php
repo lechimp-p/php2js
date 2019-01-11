@@ -243,4 +243,17 @@ JS;
 
         $this->assertEquals($expected, $result);
     }
+
+    public function test_print_if() {
+        $f = $this->factory;
+
+        $ast = $f->if_($f->null_(), $f->block(
+            $f->call($f->identifier("foo"))
+        ));
+
+        $result = $this->printer->print($ast);
+        $expected = "if (null) {\n    foo();\n}";
+
+        $this->assertEquals($expected, $result);
+    }
 }

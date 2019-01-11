@@ -97,4 +97,8 @@ class Factory {
     public function identical(Expression $left, Expression $right) : Node {
         return new BinaryOp("===", $left, $right);
     }
+
+    public function if_(Expression $condition, Block $block) : Node {
+        return new If_($condition, $block);
+    }
 }

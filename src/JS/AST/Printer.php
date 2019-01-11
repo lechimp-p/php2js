@@ -101,4 +101,9 @@ class Printer {
     protected function print_BinaryOp(Node $original, Node $n) {
         return "{$n->left()} === {$n->right()}";
     }
+
+    protected function print_If_(Node $original, Node $n) {
+        $b = str_replace("\n", "\n    ", $n->block());
+        return "if ({$n->condition()}) {\n    $b\n}";
+    }
 }
