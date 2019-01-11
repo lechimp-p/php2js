@@ -221,4 +221,26 @@ JS;
 
         $this->assertEquals($expected, $result);
     }
+
+    public function test_print_null() {
+        $f = $this->factory;
+
+        $ast = $f->null_();
+
+        $result = $this->printer->print($ast);
+        $expected = "null";
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_print_identical() {
+        $f = $this->factory;
+
+        $ast = $f->identical($f->null_(), $f->undefined());
+
+        $result = $this->printer->print($ast);
+        $expected = "null === undefined";
+
+        $this->assertEquals($expected, $result);
+    }
 }

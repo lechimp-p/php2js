@@ -93,4 +93,8 @@ class Factory {
     public function nop() : Node {
         return new Nop();
     }
+
+    public function identical(Expression $left, Expression $right) : Node {
+        return new BinaryOp("===", $left, $right);
+    }
 }

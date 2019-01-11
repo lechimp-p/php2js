@@ -97,4 +97,8 @@ class Printer {
     protected function print_Return_(Node $original, Node $n) {
         return "return {$n->value()}";
     }
+
+    protected function print_BinaryOp(Node $original, Node $n) {
+        return "{$n->left()} === {$n->right()}";
+    }
 }
