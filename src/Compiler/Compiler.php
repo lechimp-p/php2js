@@ -276,7 +276,9 @@ class Compiler {
     protected static $custom_dependencies = [
         JS\Script::class => null,
         JS\API\Window::class => __DIR__."/API/WindowImpl.php",
-        JS\API\Document::class => __DIR__."/API/DocumentImpl.php"
+        JS\API\Document::class => __DIR__."/API/DocumentImpl.php",
+        JS\API\HTML\Element::class => null,
+        \HTML\ElementImpl::class => __DIR__."/API/HTML/ElementImpl.php"
     ];
 
     static public function isCustomDependency(string $dep) {
@@ -290,7 +292,7 @@ class Compiler {
         $t = new NodeTraverser();
         $t->addVisitor($collector);
 
-        if (in_array($dep, [JS\API\Window::class, JS\API\Document::class])) {
+        if (isset(self::$custom_dependencies[$dep])) {
             $ast = $this->annotateAST(
                 ...$t->traverse(
                     $this->simplifyAST(
@@ -306,6 +308,6 @@ class Compiler {
     }
 
     protected function getDependencySourceFile(string $dep) {
-        throw new \LogicException("Implement me!");
+        throw new \LogicException("Implement me: $dep!");
     }
 }

@@ -188,6 +188,32 @@ class ClassCompiler {
         return $n->name;
     }
 
+    public function compile_Expr_BinaryOp_Identical(PhpNode $n) {
+        return $this->js_factory->identical($n->left, $n->right);
+    }
+
+    public function compile_Expr_MethodCall(PhpNode $n) {
+        return $this->js_factory->call(
+            $this->compile_Expr_PropertyFetch($n),
+            ...$n->args
+        );
+    }
+
+    public function compile_Expr_Assign(PhpNode $n) {
+        return $this->js_factory->assign(
+            $n->var,
+            $n->expr
+        );
+    }
+
+    public function compile_Expr_New_(PhpNode $n) {
+        $f = $this->js_factory;
+        return $f->call(
+            $f->propertyOf($n->class, $f->identifier("__construct")),
+            ...$n->args
+        );
+    }
+
     public function compile_Arg(PhpNode $n) {
         if ($n->unpack || $n->byRef) {
             throw new \LogicException(
@@ -277,20 +303,6 @@ class ClassCompiler {
         );
     }
 
-    public function compile_Expr_MethodCall(PhpNode $n) {
-        return $this->js_factory->call(
-            $this->compile_Expr_PropertyFetch($n),
-            ...$n->args
-        );
-    }
-
-    public function compile_Expr_Assign(PhpNode $n) {
-        return $this->js_factory->assign(
-            $n->var,
-            $n->expr
-        );
-    }
-
     public function compile_Stmt_Echo_(PhpNode $n) {
         $f = $this->js_factory;
         return $f->call(
@@ -300,5 +312,14 @@ class ClassCompiler {
             ),
             ...$n->exprs
         );
+    }
+
+    public function compile_Stmt_Return_(PhpNode $n) {
+        return $this->js_factory->return_($n->expr);
+    }
+
+    public function compile_Stmt_If_(PhpNode $n) {
+        $f = $this->js_factory;
+        return $f->if_($n->cond, $f->block(...$n->stmts));
     }
 }

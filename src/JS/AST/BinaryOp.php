@@ -24,7 +24,7 @@ namespace Lechimp\PHP_JS\JS\AST;
 /**
  * Represents some binary operation.
  */
-class BinaryOp extends Node {
+class BinaryOp extends Node implements Expression {
     protected static $valid = ["==="];
 
     /**

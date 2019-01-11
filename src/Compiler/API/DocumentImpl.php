@@ -33,6 +33,11 @@ class DocumentImpl implements Document {
      * @return null|Html\Element
      */
     public function getElementById(string $id) {
+        $result = $document->getElementById($id);
+        if ($result === null) {
+            return null;
+        }
+        return new \HTML\ElementImpl($result);
     }
 }
 
