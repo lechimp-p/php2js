@@ -200,6 +200,7 @@ class ClassCompiler {
     }
 
     public function compile_Expr_Assign(PhpNode $n) {
+        // TODO: declare all new variables in a block with "var";
         return $this->js_factory->assign(
             $n->var,
             $n->expr
