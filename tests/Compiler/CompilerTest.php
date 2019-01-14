@@ -64,6 +64,9 @@ class CompilerTest extends \PHPUnit\Framework\TestCase {
         );
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_smoke() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -88,6 +91,9 @@ PHP
         $this->assertRegExp("/.*console.log\\(\"Hello World!\"\\);.*/ms", $result);
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_getDependencies() {
         $ast = $this->parser->parse(<<<'PHP'
 <?php
@@ -117,6 +123,9 @@ PHP
         $this->assertEquals($expected, $result);
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_getDependencies_of_script_class() {
         $ast = $this->builder->class("SOME_CLASS")->getNode();
         $ast->setAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES, ["Window"]);
@@ -127,6 +136,9 @@ PHP
         $this->assertEquals($expected, $result);
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_annotate_class_with_fully_qualified_name() {
         $my_class_name = "CLASS_NAME";
         $ast = $this->builder->class($my_class_name)->getNode();
@@ -137,6 +149,9 @@ PHP
         $this->assertEquals("\\$my_class_name", $result->getAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_annotate_class_in_namespace_with_fully_qualified_name() {
         $my_namespace_name = "NAMESPACE_NAME";
         $my_nested_namespace = "NESTED_NAMESPACE";
@@ -160,6 +175,9 @@ PHP
         );
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_getRegistry() {
         $ast = $this->compiler->_annotateAST(
             $this->parser->parse(<<<'PHP'
@@ -178,6 +196,9 @@ PHP
         $this->assertEquals(["\\Foo"], $result->getFullyQualifiedClassNames());
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_compile_properties() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -202,6 +223,9 @@ PHP
     }
 
 
+//-------------------
+// TEST
+//-------------------
     public function test_use_visibility_for_properties() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -227,6 +251,9 @@ PHP
         $this->assertRegExp("/.*console.log\\(private.private_var\\);.*/ms", $result);
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_use_visibility_for_methods() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -249,6 +276,9 @@ PHP
         $this->assertRegExp("/protected.a_method\\(\\).*/ms", $result);
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_property_with_default() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -271,6 +301,9 @@ PHP
         $this->assertRegExp("/.*protected.foo = \"bar\".*/ms", $result);
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_function_with_param() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -295,6 +328,9 @@ PHP
         $this->assertRegExp("/.*protected.echo\\s+=\\s+function\\(string\\).*/ms", $result);
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_use_public_constructor() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -324,6 +360,9 @@ PHP
         $this->assertRegExp("/.*return public.*/ms", $result);
     }
 
+//-------------------
+// TEST
+//-------------------
     public function test_inject_script_dependencies() {
 
         $filename = tempnam("/tmp", "php.js");
@@ -356,6 +395,10 @@ PHP
         $this->assertRegExp("/.*var _WindowImpl = \\(function\\(\\) {.*/", $result);
     }
 
+
+//-------------------
+// TEST
+//-------------------
     public function test_annotate_dependencies_of_script_class() {
         $ast = $this->parser->parse(<<<'PHP'
 <?php
