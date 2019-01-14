@@ -29,13 +29,24 @@ use Lechimp\PHP_JS\JS\API\HTML\Element;
  * JS\API\HTML\Element interface. Do not use it yourself.
  */
 class ElementImpl implements Element{
+    /**
+     * @var JS-native-HTML-Element
+     */
+    protected $element = null;
+
+    public function __construct($element) {
+        $this->element = $element;
+    }
+
     public function getInnerHTML() : string {
+        return $this->element->innerHTML;
     }
 
     /**
      * @return void
      */
-    public function setInnerHTML(string $innerHtml) {
+    public function setInnerHTML(string $innerHTML) {
+        $this->element->innerHTML = $innerHTML;
     }
 }
 

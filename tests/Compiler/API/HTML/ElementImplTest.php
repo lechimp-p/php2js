@@ -21,14 +21,49 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP_JS\Test\Compiler\API\HTML;
 
-require_once(__DIR__."/../../../../src/Compiler/API/HTML/ElementImpl.php");
-
 use Lechimp\PHP_JS\JS\API\HTML;
+use Lechimp\PHP_JS\JS\API\Document;
+use Lechimp\PHP_JS\Compiler\ClassCompiler;
+use Lechimp\PHP_JS\Compiler\Compiler;
+use Lechimp\PHP_JS\Compiler\AnnotateFullyQualifiedName;
+use Lechimp\PHP_JS\Compiler\AnnotateVisibility;
+use Lechimp\PHP_JS\Compiler\RemoveTypeHints;
+use Lechimp\PHP_JS\Compiler\Registry;
+use Lechimp\PHP_JS\JS;
+use PhpParser\NodeTraverser;
+use PhpParser\ParserFactory;
 
 class ElementImplTest extends \PHPUnit\Framework\TestCase {
+    const LOCATION = __DIR__."/../../../../src/Compiler/API/HTML/ElementImpl.php";
+
     public function test_smoke() {
-        $impl = new \HTML\ElementImpl();
+        require_once(self::LOCATION);
+
+        $impl = new \HTML\ElementImpl(null);
 
         $this->assertInstanceOf(HTML\Element::class, $impl);
+    }
+
+    public function test_compile() {
+        $js = new JS\AST\Factory();
+        $compiler = new ClassCompiler($js);
+        $registry = $this->createMock(Registry::class);
+
+        $registry->expects($this->atLeastOnce())
+            ->method("getVisibility")
+            ->with("HTML\ElementImpl", "element")
+            ->willReturn(Compiler::ATTR_PROTECTED);
+
+        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $t = new NodeTraverser();
+        $t->addVisitor(new AnnotateFullyQualifiedName());
+        $t->addVisitor(new AnnotateVisibility($registry));
+        $t->addVisitor(new RemoveTypeHints());
+        $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
+        $ast[1]->stmts[1]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\HTML\ElementImpl");
+
+        $result = $compiler->compile($ast[1]->stmts[1]);
+
+        $this->assertInstanceOf(JS\AST\Node::class, $result);
     }
 }
