@@ -1,1 +1,2 @@
-./vendor/bin/phpunit --bootstrap vendor/autoload.php $@ tests
+./run_php_tests.sh
+./run_js_tests.sh
