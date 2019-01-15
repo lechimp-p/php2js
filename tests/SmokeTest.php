@@ -23,6 +23,6 @@ namespace Lechimp\PHP_JS\Test;
 
 class SmokeTest extends \PHPUnit\Framework\TestCase {
     public function testApp() {
-        require_once(__DIR__."/../php.js.php");
+        require_once(__DIR__."/../php2js.php");
     }
 }
