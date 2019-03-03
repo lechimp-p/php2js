@@ -22,12 +22,12 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\Test\Compiler\Dependency;
 
 use Lechimp\PHP_JS\Compiler\Dependency\Locator;
-use Lechimp\PHP_JS\Compiler\Dependency\Delegator;
+use Lechimp\PHP_JS\Compiler\Dependency\DelegatorLocator;
 
-class DependencyTest extends \PHPUnit\Framework\TestCase {
+class DelegatorLocatorTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {
         $this->inner = $this->createMock(Locator::class);
-        $this->delegator = new Delegator($this->inner);
+        $this->delegator = new DelegatorLocator($this->inner);
     }
 
     public function test_isInternalDependency_delegates() {

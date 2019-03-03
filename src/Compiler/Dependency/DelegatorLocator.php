@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP_JS\Compiler\Dependency;
 
-class Delegator implements Locator {
+class DelegatorLocator implements Locator {
     /**
      * @var Locator
      */
