@@ -32,7 +32,7 @@ class NullLocator implements Locator {
     /**
      * @inheritdocs
      */
-    public function getFilenameOfDependency(string $name) : string {
+    public function getFilenameOfDependency(string $name) {
         throw new UnknownDependencyException($name);
     }
 }

@@ -53,14 +53,33 @@ class Compiler {
      */
     protected $js_printer;
 
+    /**
+     * @var Dependency\Locator
+     */
+    protected $dependency_locator;
+
+    protected static $internal_dependencies = [
+        JS\Script::class => null,
+        JS\API\Window::class => __DIR__."/API/WindowImpl.php",
+        JS\API\Document::class => __DIR__."/API/DocumentImpl.php",
+        JS\API\HTML\Element::class => null,
+        \HTML\ElementImpl::class => __DIR__."/API/HTML/ElementImpl.php"
+    ];
+
     public function __construct(
         Parser $parser,
         JS\AST\Factory $js_factory,
-        JS\AST\Printer $js_printer
+        JS\AST\Printer $js_printer,
+        Dependency\Locator $locator
     ) {
         $this->parser = $parser;
         $this->js_factory = $js_factory;
         $this->js_printer = $js_printer;
+        $this->dependency_locator = new Dependency\LocateByList(
+            $locator,
+            true,
+            self::$internal_dependencies
+        );
     }
 
     public function compile(string $filename) : string {
@@ -75,11 +94,15 @@ class Compiler {
                 continue;
             }
 
-            if (self::isCustomDependency($dep)) {
-                list($new_deps, $new_registry) = $this->ingestDependency($dep);
+            $filename = $this->dependency_locator->getFilenameOfDependency($dep);
+            if ($this->dependency_locator->isInternalDependency($dep)) {
+                if (is_null($filename)) {
+                    $compiled_deps[$dep] = true;
+                    continue;
+                }
+                list($new_deps, $new_registry) = $this->ingestInternalDependency($filename);
             }
             else {
-                $filename = $this->getDependencySourceFile($dep);
                 list($new_deps, $new_registry) = $this->ingestFile($filename);
             }
 
@@ -101,6 +124,26 @@ class Compiler {
     protected function ingestFile(string $filename) : array {
         $ast = $this->preprocessAST(
             ...$this->parseFile($filename)
+        );
+        return [
+            $this->getDependencies(...$ast),
+            $this->getRegistry(...$ast)
+        ];
+    }
+
+    protected function ingestInternalDependency(string $filename) {
+        //TODO: add JS\Script to the interfaces that classes are checked against.
+
+        $collector = new RemoveTypeHints();
+        $t = new NodeTraverser();
+        $t->addVisitor($collector);
+
+        $ast = $this->annotateAST(
+            ...$t->traverse(
+                $this->simplifyAST(
+                    ...$this->parseFile($filename)
+                )
+            )
         );
         return [
             $this->getDependencies(...$ast),
@@ -271,43 +314,5 @@ class Compiler {
         throw new \LogicException(
             "Method or property is neither public, nor protected, nor private"
         );
-    }
-
-    protected static $custom_dependencies = [
-        JS\Script::class => null,
-        JS\API\Window::class => __DIR__."/API/WindowImpl.php",
-        JS\API\Document::class => __DIR__."/API/DocumentImpl.php",
-        JS\API\HTML\Element::class => null,
-        \HTML\ElementImpl::class => __DIR__."/API/HTML/ElementImpl.php"
-    ];
-
-    static public function isCustomDependency(string $dep) {
-        return array_key_exists($dep, self::$custom_dependencies);
-    }
-
-    protected function ingestDependency(string $dep) {
-        //TODO: add JS\Script to the interfaces that classes are checked against.
-
-        $collector = new RemoveTypeHints();
-        $t = new NodeTraverser();
-        $t->addVisitor($collector);
-
-        if (isset(self::$custom_dependencies[$dep])) {
-            $ast = $this->annotateAST(
-                ...$t->traverse(
-                    $this->simplifyAST(
-                        ...$this->parseFile(self::$custom_dependencies[$dep])
-                    )
-                )
-            );
-            return [
-                $this->getDependencies(...$ast),
-                $this->getRegistry(...$ast)
-            ];
-        }
-    }
-
-    protected function getDependencySourceFile(string $dep) {
-        throw new \LogicException("Implement me: $dep!");
     }
 }

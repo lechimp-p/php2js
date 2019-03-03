@@ -42,7 +42,7 @@ class LocateByList extends DelegatorLocator {
      * @inheritdocs
      */
     public function isInternalDependency(string $name) : bool {
-        if (isset($this->list[$name])) {
+        if (array_key_exists($name, $this->list)) {
             return $this->is_internal;
         }
         return $this->inner->isInternalDependency($name);
@@ -51,8 +51,8 @@ class LocateByList extends DelegatorLocator {
     /**
      * @inheritdocs
      */
-    public function getFilenameOfDependency(string $name) : string {
-        if (isset($this->list[$name])) {
+    public function getFilenameOfDependency(string $name) {
+        if (array_key_exists($name, $this->list)) {
             return $this->list[$name];
         }
         return $this->inner->getFilenameOfDependency($name);

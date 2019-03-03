@@ -60,7 +60,8 @@ class CompilerTest extends \PHPUnit\Framework\TestCase {
         $this->real_compiler = new Compiler\Compiler(
             $this->parser,
             $this->js_factory,
-            $this->js_printer
+            $this->js_printer,
+            new Compiler\Dependency\NullLocator()
         );
     }
 

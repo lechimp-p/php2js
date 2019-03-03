@@ -44,13 +44,18 @@ class DIC extends Container {
             return new Compiler\Compiler(
                 $c["compiler.parser"],
                 $c["js.factory"],
-                $c["js.printer"]
+                $c["js.printer"],
+                $c["js.compiler.dependency.locator"]
             );
         };
 
         $this["compiler.parser"] = function($c) {
             return (new ParserFactory)
                 ->create(ParserFactory::PREFER_PHP7);
+        };
+
+        $this["js.compiler.dependency.locator"] = function($c) {
+            return new Compiler\Dependency\NullLocator();
         };
 
         $this["js.factory"] = function($c) {

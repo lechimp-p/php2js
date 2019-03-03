@@ -29,6 +29,7 @@ interface Locator {
 
     /**
      * @throw UnknownDependencyException if dependency is not known
+     * @return string|null
      */
-    public function getFilenameOfDependency(string $name) : string;
+    public function getFilenameOfDependency(string $name);
 }

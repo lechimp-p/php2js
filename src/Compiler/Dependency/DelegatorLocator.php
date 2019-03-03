@@ -41,7 +41,7 @@ class DelegatorLocator implements Locator {
     /**
      * @inheritdocs
      */
-    public function getFilenameOfDependency(string $name) : string {
+    public function getFilenameOfDependency(string $name) {
         return $this->inner->getFilenameOfDependency($name);
     }
 }
