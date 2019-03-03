@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Compiler;
+namespace Lechimp\PHP_JS\Compiler\Dependency;
 
 use Lechimp\PHP_JS\Compiler\Exception;
 

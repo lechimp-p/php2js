@@ -21,14 +21,19 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP_JS\Compiler\Dependency;
 
-interface Locator {
+class NullLocator implements Locator {
     /**
-     * @throw UnknownDependencyException if dependency is not known
+     * @inheritdocs
      */
-    public function isInternalDependency(string $name) : bool;
+    public function isInternalDependency(string $name) : bool {
+        throw new UnknownDependencyException($name);
+    }
 
     /**
-     * @throw UnknownDependencyException if dependency is not known
+     * @inheritdocs
      */
-    public function getFilenameOfDependency(string $name) : string;
+    public function getFilenameOfDependency(string $name) : string {
+        throw new UnknownDependencyException($name);
+    }
 }
+

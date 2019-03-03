@@ -19,16 +19,25 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Compiler\Dependency;
+namespace Lechimp\PHP_JS\Test\Compiler\Dependency;
 
-interface Locator {
-    /**
-     * @throw UnknownDependencyException if dependency is not known
-     */
-    public function isInternalDependency(string $name) : bool;
+use Lechimp\PHP_JS\Compiler\Dependency\NullLocator;
+use Lechimp\PHP_JS\Compiler\Dependency\UnknownDependencyException;
 
-    /**
-     * @throw UnknownDependencyException if dependency is not known
-     */
-    public function getFilenameOfDependency(string $name) : string;
+class NullLocatorTest extends \PHPUnit\Framework\TestCase {
+    public function setUp() {
+        $this->null = new NullLocator();
+    }
+
+    public function test_isInternalDependency_throws() {
+        $this->expectException(UnknownDependencyException::class);
+
+        $this->null->isInternalDependency("foo");
+    }
+
+    public function test_getFilenameOfDependency_throws() {
+        $this->expectException(UnknownDependencyException::class);
+
+        $this->null->getFilenameOfDependency("foo");
+    }
 }
