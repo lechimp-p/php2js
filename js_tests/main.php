@@ -1,6 +1,6 @@
 <?php
 
-use Lechimp\PHP_JS\JS\Test\ComparisonTest;
+use Lechimp\PHP_JS\JS_Tests\ComparisonTest;
 
 class MyScript implements Lechimp\PHP_JS\JS\Script {
     public function execute() {
