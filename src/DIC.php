@@ -36,26 +36,21 @@ class DIC extends Container {
 
         $this["command.compile"] = function($c) {
             return new App\CompileCommand(
-                $c["compiler"]
+                $c["compiler.factory"]
             );
         };
 
-        $this["compiler"] = function($c) {
-            return new Compiler\Compiler(
+        $this["compiler.factory"] = function($c) {
+            return new Compiler\Factory(
                 $c["compiler.parser"],
                 $c["js.factory"],
-                $c["js.printer"],
-                $c["js.compiler.dependency.locator"]
+                $c["js.printer"]
             );
         };
 
         $this["compiler.parser"] = function($c) {
             return (new ParserFactory)
                 ->create(ParserFactory::PREFER_PHP7);
-        };
-
-        $this["js.compiler.dependency.locator"] = function($c) {
-            return new Compiler\Dependency\NullLocator();
         };
 
         $this["js.factory"] = function($c) {
