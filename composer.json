@@ -22,7 +22,7 @@
     "require": {
         "nikic/php-parser" : "4.*.*",
         "pimple/pimple" : "3.2.*",
-        "symfony/console" : "3.3.*",
+        "symfony/console" : "3.4.*",
         "psr/log" : "1.0.0",
         "composer/composer" : "1.8.4"
     },
