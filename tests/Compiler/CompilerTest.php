@@ -438,4 +438,36 @@ PHP
             $my_class->getAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES)
         );
     }
+
+//-------------------
+// TEST
+//-------------------
+    public function test_compile_true_and_false() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $foo;
+    protected $bar;
+
+    public function __construct() {
+    }
+
+    public function execute() {
+        $this->foo = true;
+        $this->bar = false;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*protected.foo = true.*/ms", $result);
+        $this->assertRegExp("/.*protected.bar = false.*/ms", $result);
+    }
+
 }

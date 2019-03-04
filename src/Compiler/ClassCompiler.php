@@ -180,9 +180,9 @@ class ClassCompiler {
 
     public function compile_Expr_ConstFetch(PhpNode $n) {
         $js = $this->js_factory;
-        if ($n->name->value() !== "null") {
+        if (!in_array($n->name->value(), ["null", "true", "false"])) {
             throw new \LogicException(
-                "Can only compile 'null' constant."
+                "Can only compile 'null', 'true' or 'false' constants."
             );
         }
         return $n->name;
