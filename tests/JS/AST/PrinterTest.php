@@ -256,4 +256,19 @@ JS;
 
         $this->assertEquals($expected, $result);
     }
+
+    public function test_print_ternary_operator() {
+        $f = $this->factory;
+
+        $ast = $f->ternary(
+            $f->identifier("true"),
+            $f->literal("true"),
+            $f->literal("false")
+        );
+
+        $result = $this->printer->print($ast);
+        $expected = "(true) ? (\"true\") : (\"false\")";
+
+        $this->assertEquals($expected, $result);
+    }
 }

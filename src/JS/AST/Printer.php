@@ -106,4 +106,8 @@ class Printer {
         $b = str_replace("\n", "\n    ", $n->block());
         return "if ({$n->condition()}) {\n    $b\n}";
     }
+
+    protected function print_Ternary(Node $original, Node $n) {
+        return "({$n->if_()}) ? ({$n->then_()}) : ({$n->else_()})";
+    }
 }

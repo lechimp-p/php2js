@@ -101,4 +101,8 @@ class Factory {
     public function if_(Expression $condition, Block $block) : Node {
         return new If_($condition, $block);
     }
+
+    public function ternary(Expression $if, Expression $then, Expression $else) : Node {
+        return new Ternary($if, $then, $else);
+    }
 }
