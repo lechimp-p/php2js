@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\JS\AST;
 
 /**
- * Represents some binary operation.
+ * Represents some unary operation.
  */
 class UnaryOp extends Node implements Expression {
     protected static $valid = ["!"];
