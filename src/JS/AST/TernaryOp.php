@@ -24,7 +24,7 @@ namespace Lechimp\PHP_JS\JS\AST;
 /**
  * Represents a ternary operator: if ? then : else
  */
-class Ternary extends Node implements Expression {
+class TernaryOp extends Node implements Expression {
     /**
      * @var mixed
      */
@@ -50,7 +50,7 @@ class Ternary extends Node implements Expression {
      * @return Node (specificially the implementing class)
      */
     public function fmap(callable $f) {
-        return new Ternary($f($this->if), $f($this->then), $f($this->else));
+        return new TernaryOp($f($this->if), $f($this->then), $f($this->else));
     }
 
     public function if_() {

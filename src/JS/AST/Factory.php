@@ -103,6 +103,6 @@ class Factory {
     }
 
     public function ternary(Expression $if, Expression $then, Expression $else) : Node {
-        return new Ternary($if, $then, $else);
+        return new TernaryOp($if, $then, $else);
     }
 }

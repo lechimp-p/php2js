@@ -107,7 +107,7 @@ class Printer {
         return "if ({$n->condition()}) {\n    $b\n}";
     }
 
-    protected function print_Ternary(Node $original, Node $n) {
+    protected function print_TernaryOp(Node $original, Node $n) {
         return "({$n->if_()}) ? ({$n->then_()}) : ({$n->else_()})";
     }
 }
