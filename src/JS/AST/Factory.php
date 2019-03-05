@@ -113,4 +113,8 @@ class Factory {
     public function ternary(Expression $if, Expression $then, Expression $else) : Node {
         return new TernaryOp($if, $then, $else);
     }
+
+    public function not(Expression $other) {
+        return new UnaryOp("!", $other);
+    }
 }

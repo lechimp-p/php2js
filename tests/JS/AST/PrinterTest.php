@@ -271,4 +271,17 @@ JS;
 
         $this->assertEquals($expected, $result);
     }
+
+    public function test_print_not() {
+        $f = $this->factory;
+
+        $ast = $f->not(
+            $f->identifier("true")
+        );
+
+        $result = $this->printer->print($ast);
+        $expected = "!(true)";
+
+        $this->assertEquals($expected, $result);
+    }
 }

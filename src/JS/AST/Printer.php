@@ -102,6 +102,10 @@ class Printer {
         return "({$n->left()}) {$n->which()} ({$n->right()})";
     }
 
+    protected function print_UnaryOp(Node $original, Node $n) {
+        return "{$n->which()}({$n->other()})";
+    }
+
     protected function print_If_(Node $original, Node $n) {
         $b = str_replace("\n", "\n    ", $n->block());
         return "if ({$n->condition()}) {\n    $b\n}";
