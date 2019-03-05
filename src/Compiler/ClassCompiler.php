@@ -192,6 +192,14 @@ class ClassCompiler {
         return $this->js_factory->identical($n->left, $n->right);
     }
 
+    public function compile_Expr_BinaryOp_Concat(PhpNode $n) {
+        $f = $this->js_factory;
+        return $f->call(
+            $f->propertyOf($n->left, $f->identifier("concat")),
+            $n->right
+        );
+    }
+
     public function compile_Expr_MethodCall(PhpNode $n) {
         return $this->js_factory->call(
             $this->compile_Expr_PropertyFetch($n),
