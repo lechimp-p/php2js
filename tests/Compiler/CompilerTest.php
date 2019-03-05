@@ -611,4 +611,30 @@ PHP
 
         $this->assertRegExp("/.*protected.foobar = [!]\\(protected.foobar\\).*/ms", $result);
     }
+
+//-------------------
+// TEST
+//-------------------
+    public function test_compile_number() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    public function __construct() {
+    }
+
+    public function execute() {
+        echo 1;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*console.log\\(1\\).*/ms", $result);
+    }
 }

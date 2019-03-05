@@ -158,6 +158,13 @@ class ClassCompiler {
         return $this->js_factory->literal($n->value);
     }
 
+    public function compile_Scalar_LNumber(PhpNode $n) {
+        if ($n->getAttribute("kind") != 10) {
+            throw new \LogicException("Cannot compile LNumbers with kind != 10");
+        }
+        return $this->js_factory->literal($n->value);
+    }
+
     public function compile_Identifier(PhpNode $n) {
         return $this->js_factory->identifier($n->name);
     }
