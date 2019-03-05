@@ -24,7 +24,7 @@ namespace Lechimp\PHP_JS\JS\AST;
 /**
  * Represents a ternary operator: if ? then : else
  */
-class Ternary extends Node {
+class Ternary extends Node implements Expression {
     /**
      * @var mixed
      */

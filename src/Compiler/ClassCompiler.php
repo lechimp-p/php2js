@@ -223,6 +223,14 @@ class ClassCompiler {
         );
     }
 
+    public function compile_Expr_Ternary(PhpNode $n) {
+        return $this->js_factory->ternary(
+            $n->cond,
+            $n->if,
+            $n->else
+        );
+    }
+
     public function compile_Arg(PhpNode $n) {
         if ($n->unpack || $n->byRef) {
             throw new \LogicException(
