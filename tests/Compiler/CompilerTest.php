@@ -583,4 +583,32 @@ PHP
 
         $this->assertRegExp("/.*protected.foobar.foreach\\(function\\(value\\) \\{\\s+console.log\\(value\\);\\s+\\}.*/ms", $result);
     }
+
+//-------------------
+// TEST
+//-------------------
+    public function test_compile_not() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $foobar;
+
+    public function __construct() {
+    }
+
+    public function execute() {
+        $this->foobar = !$this->foobar;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*protected.foobar = [!]\\(protected.foobar\\).*/ms", $result);
+    }
 }

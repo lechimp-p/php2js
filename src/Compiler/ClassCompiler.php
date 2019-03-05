@@ -214,6 +214,12 @@ class ClassCompiler {
         );
     }
 
+    public function compile_Expr_BooleanNot(PhpNode $n) {
+        return $this->js_factory->not(
+            $n->expr
+        );
+    }
+
     public function compile_Expr_MethodCall(PhpNode $n) {
         return $this->js_factory->call(
             $this->compile_Expr_PropertyFetch($n),
