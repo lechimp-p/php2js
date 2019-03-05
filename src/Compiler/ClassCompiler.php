@@ -353,4 +353,24 @@ class ClassCompiler {
         $f = $this->js_factory;
         return $f->if_($n->cond, $f->block(...$n->stmts));
     }
+
+    public function compile_Stmt_Foreach_(PhpNode $n) {
+        if ($n->keyVar || $n->byRef) {
+            throw new \LogicException(
+                "Cannot compile foreach with key or by-ref."
+            );
+        }
+
+        $f = $this->js_factory;
+        return $f->call(
+            $f->propertyOf(
+                $n->expr,
+                $f->identifier("foreach")
+            ),
+            $f->function_(
+                [$n->valueVar],
+                $f->block(...$n->stmts)
+            )
+        );
+    }
 }
