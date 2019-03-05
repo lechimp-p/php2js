@@ -239,7 +239,7 @@ JS;
         $ast = $f->identical($f->null_(), $f->undefined());
 
         $result = $this->printer->print($ast);
-        $expected = "null === undefined";
+        $expected = "(null) === (undefined)";
 
         $this->assertEquals($expected, $result);
     }

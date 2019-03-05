@@ -98,6 +98,14 @@ class Factory {
         return new BinaryOp("===", $left, $right);
     }
 
+    public function and_(Expression $left, Expression $right) : Node {
+        return new BinaryOp("&&", $left, $right);
+    }
+
+    public function or_(Expression $left, Expression $right) : Node {
+        return new BinaryOp("||", $left, $right);
+    }
+
     public function if_(Expression $condition, Block $block) : Node {
         return new If_($condition, $block);
     }

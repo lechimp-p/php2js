@@ -200,6 +200,20 @@ class ClassCompiler {
         );
     }
 
+    public function compile_Expr_BinaryOp_BooleanAnd(PhpNode $n) {
+        return $this->js_factory->and_(
+            $n->left,
+            $n->right
+        );
+    }
+
+    public function compile_Expr_BinaryOp_BooleanOr(PhpNode $n) {
+        return $this->js_factory->or_(
+            $n->left,
+            $n->right
+        );
+    }
+
     public function compile_Expr_MethodCall(PhpNode $n) {
         return $this->js_factory->call(
             $this->compile_Expr_PropertyFetch($n),

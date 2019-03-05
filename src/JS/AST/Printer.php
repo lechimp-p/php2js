@@ -99,7 +99,7 @@ class Printer {
     }
 
     protected function print_BinaryOp(Node $original, Node $n) {
-        return "{$n->left()} === {$n->right()}";
+        return "({$n->left()}) {$n->which()} ({$n->right()})";
     }
 
     protected function print_If_(Node $original, Node $n) {
