@@ -29,6 +29,9 @@ class Factory {
         if (is_string($value)) {
             return new StringLiteral($value);
         }
+        if (is_int($value)) {
+            return new IntLiteral($value);
+        }
 
         throw new \LogicException("Unknown literal type '".gettype($value)."'");
     }

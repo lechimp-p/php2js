@@ -38,6 +38,14 @@ class PrinterTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("\"foo\"", $result); 
     }
 
+    public function test_print_int() {
+        $ast = $this->factory->literal(1);
+
+        $result = $this->printer->print($ast);
+
+        $this->assertEquals(1, $result);
+    }
+
     public function test_print_identifier() {
         $ast = $this->factory->identifier("foo");
 

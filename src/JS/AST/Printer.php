@@ -38,6 +38,10 @@ class Printer {
         return "\"{$n->value()}\"";
     }
 
+    protected function print_IntLiteral(Node $original, Node $n) {
+        return "{$n->value()}";
+    }
+
     protected function print_Identifier(Node $original, Node $n) {
         return $n->value();
     }
