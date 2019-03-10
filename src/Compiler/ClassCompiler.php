@@ -227,6 +227,17 @@ class ClassCompiler {
         );
     }
 
+    public function compile_Expr_Exit_(PhpNode $n) {
+        $f = $this->js_factory;
+        return $f->call(
+            $f->propertyOf(
+                $f->identifier("process"),
+                $f->identifier("exit")
+            ),
+            $n->expr
+        );
+    }
+
     public function compile_Expr_MethodCall(PhpNode $n) {
         return $this->js_factory->call(
             $this->compile_Expr_PropertyFetch($n),

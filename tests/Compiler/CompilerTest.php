@@ -637,4 +637,30 @@ PHP
 
         $this->assertRegExp("/.*console.log\\(1\\).*/ms", $result);
     }
+
+//-------------------
+// TEST
+//-------------------
+    public function test_compile_exit() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    public function __construct() {
+    }
+
+    public function execute() {
+        exit(1);
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*process.exit\\(1\\).*/ms", $result);
+    }
 }
