@@ -42,5 +42,16 @@ class PhpArray {
      */
     public function push($value) {
         $this->array->push($value);
+        return $this;
+    }
+
+    /**
+     * Call the provided function with every element of the array.
+     *
+     * @param   \Closure    $f
+     * @return  null
+     */
+    public function foreach($f) {
+        $this->array->forEach($f);
     }
 }
