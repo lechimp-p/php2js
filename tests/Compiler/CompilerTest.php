@@ -278,7 +278,7 @@ PHP
     }
 
 //------------------------------------------------------------------------------
-// TEST
+// TEST: Property with Default
 //------------------------------------------------------------------------------
     public function test_property_with_default() {
         $filename = tempnam("/tmp", "php.js");
