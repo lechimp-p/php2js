@@ -691,4 +691,32 @@ PHP
 
         $this->assertRegExp("/.*PhpArray\\.__construct\\(\\)\\.push\\(\"one\"\\)\\.push\\(\"two\"\\)\\.push\\(\"three\"\\);.*/ms", $result);
     }
+
+//------------------------------------------------------------------------------
+// TEST: Compile Linebreak
+//------------------------------------------------------------------------------
+    public function test_compile_linebreak() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $n;
+
+    public function __construct() {
+    }
+
+    public function execute() {
+        $this->n = "\n";
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*protected\\.n = \"\\\\n\";.*/ms", $result);
+    }
 }

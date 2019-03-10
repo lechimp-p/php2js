@@ -155,7 +155,7 @@ class ClassCompiler {
     }
 
     public function compile_Scalar_String_(PhpNode $n) {
-        return $this->js_factory->literal($n->value);
+        return $this->js_factory->literal(str_replace("\n", "\\n", $n->value));
     }
 
     public function compile_Scalar_LNumber(PhpNode $n) {
