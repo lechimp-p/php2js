@@ -65,9 +65,9 @@ class CompilerTest extends \PHPUnit\Framework\TestCase {
         );
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Smoke
+//------------------------------------------------------------------------------
     public function test_smoke() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -92,9 +92,9 @@ PHP
         $this->assertRegExp("/.*console.log\\(\"Hello World!\"\\);.*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Get Dependencies
+//------------------------------------------------------------------------------
     public function test_getDependencies() {
         $ast = $this->parser->parse(<<<'PHP'
 <?php
@@ -124,9 +124,9 @@ PHP
         $this->assertEquals($expected, $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Get Dependencies of the Script Class
+//------------------------------------------------------------------------------
     public function test_getDependencies_of_script_class() {
         $ast = $this->builder->class("SOME_CLASS")->getNode();
         $ast->setAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES, ["Window"]);
@@ -137,9 +137,9 @@ PHP
         $this->assertEquals($expected, $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Annotate Class with Fully Qualified Name
+//------------------------------------------------------------------------------
     public function test_annotate_class_with_fully_qualified_name() {
         $my_class_name = "CLASS_NAME";
         $ast = $this->builder->class($my_class_name)->getNode();
@@ -150,9 +150,9 @@ PHP
         $this->assertEquals("\\$my_class_name", $result->getAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Annotate Class in Namespace with Fully Qualified Name
+//------------------------------------------------------------------------------
     public function test_annotate_class_in_namespace_with_fully_qualified_name() {
         $my_namespace_name = "NAMESPACE_NAME";
         $my_nested_namespace = "NESTED_NAMESPACE";
@@ -176,9 +176,9 @@ PHP
         );
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Get Registry
+//------------------------------------------------------------------------------
     public function test_getRegistry() {
         $ast = $this->compiler->_annotateAST(
             $this->parser->parse(<<<'PHP'
@@ -197,9 +197,9 @@ PHP
         $this->assertEquals(["\\Foo"], $result->getFullyQualifiedClassNames());
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile Properties
+//------------------------------------------------------------------------------
     public function test_compile_properties() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -224,9 +224,9 @@ PHP
     }
 
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Use Visibility for Properties
+//------------------------------------------------------------------------------
     public function test_use_visibility_for_properties() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -252,9 +252,9 @@ PHP
         $this->assertRegExp("/.*console.log\\(private.private_var\\);.*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Use Visibility for Methods
+//------------------------------------------------------------------------------
     public function test_use_visibility_for_methods() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -277,9 +277,9 @@ PHP
         $this->assertRegExp("/protected.a_method\\(\\).*/ms", $result);
     }
 
-//-------------------
+//------------------------------------------------------------------------------
 // TEST
-//-------------------
+//------------------------------------------------------------------------------
     public function test_property_with_default() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -302,9 +302,9 @@ PHP
         $this->assertRegExp("/.*protected.foo = \"bar\".*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Function with Param
+//------------------------------------------------------------------------------
     public function test_function_with_param() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -329,9 +329,9 @@ PHP
         $this->assertRegExp("/.*protected.echo\\s+=\\s+function\\(string\\).*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Use Public Constructor
+//------------------------------------------------------------------------------
     public function test_use_public_constructor() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -361,9 +361,9 @@ PHP
         $this->assertRegExp("/.*return public.*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Inject Script Dependencies
+//------------------------------------------------------------------------------
     public function test_inject_script_dependencies() {
 
         $filename = tempnam("/tmp", "php.js");
@@ -397,9 +397,9 @@ PHP
     }
 
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Annotate Dependencies of Script Class
+//------------------------------------------------------------------------------
     public function test_annotate_dependencies_of_script_class() {
         $ast = $this->parser->parse(<<<'PHP'
 <?php
@@ -439,9 +439,9 @@ PHP
         );
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile True and False
+//------------------------------------------------------------------------------
     public function test_compile_true_and_false() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -470,9 +470,9 @@ PHP
         $this->assertRegExp("/.*protected.bar = false.*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile String Concat
+//------------------------------------------------------------------------------
     public function test_compile_string_concat() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -498,9 +498,9 @@ PHP
         $this->assertRegExp("/.*protected.foobar = \"foo\".concat\\(\"bar\"\\).concat\\(\"baz\"\\).*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile Ternary Operator
+//------------------------------------------------------------------------------
     public function test_compile_ternary_operator() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -526,9 +526,9 @@ PHP
         $this->assertRegExp("/.*protected.foobar = \\(true\\) \\? \\(\"true\"\\) : \\(\"false\"\\).*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile Logical Operators
+//------------------------------------------------------------------------------
     public function test_compile_logical_operators() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -554,9 +554,9 @@ PHP
         $this->assertRegExp("/.*protected.foobar = \\(\\(true\\) [&][&] \\(false\\)\\) [|][|] \\(false\\).*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile Foreach
+//------------------------------------------------------------------------------
     public function test_compile_foreach() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -584,9 +584,9 @@ PHP
         $this->assertRegExp("/.*protected.foobar.foreach\\(function\\(value\\) \\{\\s+console.log\\(value\\);\\s+\\}.*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile Not
+//------------------------------------------------------------------------------
     public function test_compile_not() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -612,9 +612,9 @@ PHP
         $this->assertRegExp("/.*protected.foobar = [!]\\(protected.foobar\\).*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile Number
+//------------------------------------------------------------------------------
     public function test_compile_number() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -638,9 +638,9 @@ PHP
         $this->assertRegExp("/.*console.log\\(1\\).*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile Exit
+//------------------------------------------------------------------------------
     public function test_compile_exit() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
@@ -664,9 +664,9 @@ PHP
         $this->assertRegExp("/.*process.exit\\(1\\).*/ms", $result);
     }
 
-//-------------------
-// TEST
-//-------------------
+//------------------------------------------------------------------------------
+// TEST: Compile New Array
+//------------------------------------------------------------------------------
     public function test_compile_newArray() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
