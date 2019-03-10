@@ -379,8 +379,11 @@ class ClassCompiler {
         $f = $this->js_factory;
         return $f->call(
             $f->propertyOf(
-                $f->identifier("console"),
-                $f->identifier("log")
+                $f->propertyOf(
+                    $f->identifier("process"),
+                    $f->identifier("stdout")
+                ),
+                $f->identifier("write")
             ),
             ...$n->exprs
         );

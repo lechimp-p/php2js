@@ -89,7 +89,7 @@ PHP
         $result = $this->real_compiler->compile($filename);
 
         $this->assertInternalType("string", $result);
-        $this->assertRegExp("/.*console.log\\(\"Hello World!\"\\);.*/ms", $result);
+        $this->assertRegExp("/.*process\\.stdout\\.write\\(\"Hello World!\"\\);.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -248,8 +248,8 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*console.log\\(protected.protected_var\\);.*/ms", $result);
-        $this->assertRegExp("/.*console.log\\(private.private_var\\);.*/ms", $result);
+        $this->assertRegExp("/.*process\\.stdout\\.write\\(protected.protected_var\\);.*/ms", $result);
+        $this->assertRegExp("/.*process\\.stdout\\.write\\(private.private_var\\);.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -581,7 +581,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foobar.foreach\\(function\\(value\\) \\{\\s+console.log\\(value\\);\\s+\\}.*/ms", $result);
+        $this->assertRegExp("/.*protected.foobar.foreach\\(function\\(value\\) \\{\\s+process\\.stdout\\.write\\(value\\);\\s+\\}.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -635,7 +635,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*console.log\\(1\\).*/ms", $result);
+        $this->assertRegExp("/.*process\\.stdout\\.write\\(1\\).*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
