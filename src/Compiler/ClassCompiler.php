@@ -266,7 +266,14 @@ class ClassCompiler {
         }
 
         return $f->call(
-            $f->propertyOf($n->class, $f->identifier("__construct")),
+            $f->propertyOf(
+                $f->identifier(
+                    Compiler::normalizeFQN(
+                        $n->class->value()
+                    )
+                ),
+                $f->identifier("__construct")
+            ),
             ...$n->args
         );
     }

@@ -38,7 +38,7 @@ class RewriteArrayCode extends NodeVisitorAbstract {
             return new Node\Expr\FuncCall("push", [$n->value]);
         }
         if ($n instanceof Node\Expr\Array_) {
-            $array = new Node\Expr\New_(new Node\Name(JS\PhpArray::class));
+            $array = new Node\Expr\New_(new Node\Name(\PhpArray::class));
             foreach ($n->items as $item) {
                 $array = new Node\Expr\MethodCall($array, $item->name, $item->args);
             }

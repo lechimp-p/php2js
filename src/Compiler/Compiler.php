@@ -64,7 +64,7 @@ class Compiler {
         JS\API\Document::class => __DIR__."/API/DocumentImpl.php",
         JS\API\HTML\Element::class => null,
         \HTML\ElementImpl::class => __DIR__."/API/HTML/ElementImpl.php",
-        JS\PhpArray::class => __DIR__."/PhpArrayImpl.php",
+        \PhpArray::class => __DIR__."/PhpArrayImpl.php",
         \JS_NATIVE_Array::class => null
     ];
 
@@ -304,6 +304,9 @@ class Compiler {
     }
 
     static public function normalizeFQN(string $name) {
+        if (substr($name, 0, 1) !== "\\") {
+            $name = "\\$name";
+        }
         return str_replace("\\", "_", $name);    
     }
 
