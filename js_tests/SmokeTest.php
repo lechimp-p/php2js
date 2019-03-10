@@ -21,9 +21,9 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP_JS\JS_Tests;
 
-class ComparisonTest {
+class SmokeTest {
     public function name() {
-        return "NAME";
+        return "SmokeTest";
     }
 
     public function perform() {

@@ -1,6 +1,6 @@
 <?php
 
-use Lechimp\PHP_JS\JS_Tests\ComparisonTest;
+use Lechimp\PHP_JS\JS_Tests;
 
 class MyScript implements Lechimp\PHP_JS\JS\Script {
     public function execute() {
@@ -9,7 +9,7 @@ class MyScript implements Lechimp\PHP_JS\JS\Script {
 
         foreach ($tests as $test) {
             $r = $test->perform();
-            echo $test->name().": ".($r ? "SUCCESS" : "FAIL");
+            echo $test->name().": ".($r ? "ok" : "fail");
             $result = $result && $r;
         }
 
@@ -20,7 +20,7 @@ class MyScript implements Lechimp\PHP_JS\JS\Script {
 
     protected function buildTests() {
         return [
-            new ComparisonTest()
+            new JS_Tests\SmokeTest()
         ];
     }
 }
