@@ -52,7 +52,7 @@ class AnnotateVisibility extends NodeVisitorAbstract {
             if ($this->in_class === null) {
                 return;
             }
-            if ((string)$n->var->name !== "this") {
+            if (!isset($n->var->name) || (string)$n->var->name !== "this") {
                 return;
             }
             if (!($n->name instanceof Node\Identifier)) {

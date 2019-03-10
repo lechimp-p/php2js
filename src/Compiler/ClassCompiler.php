@@ -253,8 +253,18 @@ class ClassCompiler {
         );
     }
 
+    const JS_NATIVE = "JS_NATIVE_";
+
     public function compile_Expr_New_(PhpNode $n) {
         $f = $this->js_factory;
+
+        if (strpos($n->class->value(), self::JS_NATIVE) === 0) {
+            return $f->new_(
+                $f->identifier(substr($n->class->value(), strlen(self::JS_NATIVE))),
+                ...$n->args
+            );
+        }
+
         return $f->call(
             $f->propertyOf($n->class, $f->identifier("__construct")),
             ...$n->args

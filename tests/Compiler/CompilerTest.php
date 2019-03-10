@@ -663,4 +663,32 @@ PHP
 
         $this->assertRegExp("/.*process.exit\\(1\\).*/ms", $result);
     }
+
+//-------------------
+// TEST
+//-------------------
+    public function test_compile_newArray() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $an_array;
+
+    public function __construct() {
+    }
+
+    public function execute() {
+        $this->an_array = ["one", "two", "three"];
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*PhpArray\\.__construct\\(\\)\\.push\\(\"one\"\\)\\.push\\(\"two\"\\)\\.push\\(\"three\"\\);.*/ms", $result);
+    }
 }

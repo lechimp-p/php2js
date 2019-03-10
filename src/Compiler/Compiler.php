@@ -63,7 +63,9 @@ class Compiler {
         JS\API\Window::class => __DIR__."/API/WindowImpl.php",
         JS\API\Document::class => __DIR__."/API/DocumentImpl.php",
         JS\API\HTML\Element::class => null,
-        \HTML\ElementImpl::class => __DIR__."/API/HTML/ElementImpl.php"
+        \HTML\ElementImpl::class => __DIR__."/API/HTML/ElementImpl.php",
+        JS\PhpArray::class => __DIR__."/PhpArrayImpl.php",
+        \JS_NATIVE_Array::class => null
     ];
 
     public function __construct(
@@ -175,9 +177,13 @@ class Compiler {
         $remove_use_namespace = new NodeTraverser();
         $remove_use_namespace->addVisitor(new RemoveUseNamespace());
 
+        $rewrite_array_code = new NodeTraverser();
+        $rewrite_array_code->addVisitor(new RewriteArrayCode());
+
         $pipeline = [
             $name_resolver,
-            $remove_use_namespace
+            $remove_use_namespace,
+            $rewrite_array_code
         ];
 
         foreach($pipeline as $p) {
