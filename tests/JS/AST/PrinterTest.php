@@ -292,4 +292,19 @@ JS;
 
         $this->assertEquals($expected, $result);
     }
+
+    public function test_print_new() {
+        $f = $this->factory;
+
+        $ast = $f->new_(
+            $f->identifier("ClassName"),
+            $f->identifier("a"),
+            $f->identifier("b")
+        );
+
+        $result = $this->printer->print($ast);
+        $expected = "new ClassName(a, b)";
+
+        $this->assertEquals($expected, $result);
+    }
 }

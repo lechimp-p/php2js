@@ -65,6 +65,10 @@ class Factory {
         return new Call($callee, $parameters);
     }
 
+    public function new_(Identifier $class, Expression ...$parameters) : Node {
+        return new New_($class, $parameters);
+    }
+
     public function propertyOf(Expression $object, Expression $property) : Node {
         return new PropertyOf($object, $property);
     }
