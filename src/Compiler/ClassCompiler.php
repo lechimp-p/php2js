@@ -443,10 +443,17 @@ class ClassCompiler {
     }
 
     public function compile_Stmt_Foreach_(PhpNode $n) {
-        if ($n->keyVar || $n->byRef) {
+        if ($n->byRef) {
             throw new \LogicException(
-                "Cannot compile foreach with key or by-ref."
+                "Cannot compile foreach with by-ref."
             );
+        }
+
+        if ($n->keyVar) {
+            $function_vars = [$n->valueVar, $n->keyVar];
+        }
+        else {
+            $function_vars = [$n->valueVar];
         }
 
         $f = $this->js_factory;
@@ -456,7 +463,7 @@ class ClassCompiler {
                 $f->identifier("foreach")
             ),
             $f->function_(
-                [$n->valueVar],
+                $function_vars,
                 $f->block(...$n->stmts)
             )
         );

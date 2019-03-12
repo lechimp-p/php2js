@@ -28,7 +28,8 @@ class TestRunner implements Lechimp\PHP_JS\JS\Script {
     protected function buildTests() {
         return [
             new JS_Tests\SmokeTest(),
-            new JS_Tests\Array_\ForeachWithoutKeyTest()
+            new JS_Tests\Array_\ForeachWithoutKeyTest(),
+            new JS_Tests\Array_\ForeachWithKeyTest()
         ];
     }
 }
