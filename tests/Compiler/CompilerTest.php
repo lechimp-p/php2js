@@ -719,4 +719,56 @@ PHP
 
         $this->assertRegExp("/.*protected\\.n = \"\\\\n\";.*/ms", $result);
     }
+
+//------------------------------------------------------------------------------
+// TEST: Compile Assign Operators
+//
+// This also tests the compilation of (most) binary operators.
+//------------------------------------------------------------------------------
+    public function test_compile_assign_operators() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $n = 0;
+
+    public function __construct() {
+    }
+
+    public function execute() {
+        $this->n += 1;
+        $this->n -= 1;
+        $this->n *= 1;
+        $this->n /= 1;
+        $this->n %= 1;
+        $this->n &= 1;
+        $this->n |= 1;
+        $this->n ^= 1;
+        $this->n **= 1;
+        $this->n <<= 1;
+        $this->n >>= 1;
+        $this->n .= 1;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\+ \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) - \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\* \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\/ \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) % \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) & \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) [|] \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\^ \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\*\\* \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) << \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) >> \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = protected\\.n\\.concat\\(1\\);.*/ms", $result);
+    }
 }

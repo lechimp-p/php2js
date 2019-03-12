@@ -199,6 +199,50 @@ class ClassCompiler {
         return $this->js_factory->identical($n->left, $n->right);
     }
 
+    public function compile_Expr_BinaryOp_Plus(PhpNode $n) {
+        return $this->js_factory->add($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_Minus(PhpNode $n) {
+        return $this->js_factory->sub($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_Mul(PhpNode $n) {
+        return $this->js_factory->mul($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_Div(PhpNode $n) {
+        return $this->js_factory->div($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_Mod(PhpNode $n) {
+        return $this->js_factory->mod($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_Pow(PhpNode $n) {
+        return $this->js_factory->pow($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_BitwiseAnd(PhpNode $n) {
+        return $this->js_factory->bitAnd($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_BitwiseOr(PhpNode $n) {
+        return $this->js_factory->bitOr($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_BitwiseXor(PhpNode $n) {
+        return $this->js_factory->bitXor($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_ShiftLeft(PhpNode $n) {
+        return $this->js_factory->bitShiftLeft($n->left, $n->right);
+    }
+
+    public function compile_Expr_BinaryOp_ShiftRight(PhpNode $n) {
+        return $this->js_factory->bitShiftRight($n->left, $n->right);
+    }
+
     public function compile_Expr_BinaryOp_Concat(PhpNode $n) {
         $f = $this->js_factory;
         return $f->call(

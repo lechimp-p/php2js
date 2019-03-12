@@ -180,10 +180,15 @@ class Compiler {
         $rewrite_array_code = new NodeTraverser();
         $rewrite_array_code->addVisitor(new RewriteArrayCode());
 
+
+        $rewrite_assign_operators = new NodeTraverser();
+        $rewrite_assign_operators->addVisitor(new RewriteAssignOperators());
+
         $pipeline = [
             $name_resolver,
             $remove_use_namespace,
-            $rewrite_array_code
+            $rewrite_array_code,
+            $rewrite_assign_operators
         ];
 
         foreach($pipeline as $p) {

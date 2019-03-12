@@ -113,6 +113,50 @@ class Factory {
         return new BinaryOp("||", $left, $right);
     }
 
+    public function add(Expression $left, Expression $right) : Node {
+        return new BinaryOp("+", $left, $right);
+    }
+
+    public function sub(Expression $left, Expression $right) : Node {
+        return new BinaryOp("-", $left, $right);
+    }
+
+    public function mul(Expression $left, Expression $right) : Node {
+        return new BinaryOp("*", $left, $right);
+    }
+
+    public function div(Expression $left, Expression $right) : Node {
+        return new BinaryOp("/", $left, $right);
+    }
+
+    public function mod(Expression $left, Expression $right) : Node {
+        return new BinaryOp("%", $left, $right);
+    }
+
+    public function pow(Expression $left, Expression $right) : Node {
+        return new BinaryOp("**", $left, $right);
+    }
+
+    public function bitAnd(Expression $left, Expression $right) : Node {
+        return new BinaryOp("&", $left, $right);
+    }
+
+    public function bitOr(Expression $left, Expression $right) : Node {
+        return new BinaryOp("|", $left, $right);
+    }
+
+    public function bitXor(Expression $left, Expression $right) : Node {
+        return new BinaryOp("^", $left, $right);
+    }
+
+    public function bitShiftLeft(Expression $left, Expression $right) : Node {
+        return new BinaryOp("<<", $left, $right);
+    }
+
+    public function bitShiftRight(Expression $left, Expression $right) : Node {
+        return new BinaryOp(">>", $left, $right);
+    }
+
     public function if_(Expression $condition, Block $block) : Node {
         return new If_($condition, $block);
     }
