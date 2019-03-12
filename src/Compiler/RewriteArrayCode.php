@@ -44,5 +44,28 @@ class RewriteArrayCode extends NodeVisitorAbstract {
             }
             return $array;
         }
+        if ($n instanceof Node\Stmt\Foreach_) {
+            if ($n->byRef) {
+                throw new \LogicException(
+                    "Cannot compile foreach with by-ref."
+                );
+            }
+            if ($n->keyVar) {
+                $function_vars = [$n->valueVar, $n->keyVar];
+            }
+            else {
+                $function_vars = [$n->valueVar];
+            }
+            return new Node\Stmt\Expression(
+                new Node\Expr\MethodCall(
+                    $n->expr,
+                    new Node\Name("foreach"),
+                    [new Node\Expr\Closure([
+                        "params" => $function_vars,
+                        "stmts" => $n->stmts
+                    ])]
+                )
+            );
+        }
     }
 }

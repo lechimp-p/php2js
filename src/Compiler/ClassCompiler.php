@@ -442,30 +442,16 @@ class ClassCompiler {
         return $f->if_($n->cond, $f->block(...$n->stmts));
     }
 
-    public function compile_Stmt_Foreach_(PhpNode $n) {
-        if ($n->byRef) {
+    public function compile_Expr_Closure(PhpNode $n) {
+        if ($n->static || $n->byRef || $n->uses !== [] || $n->returnType) {
             throw new \LogicException(
-                "Cannot compile foreach with by-ref."
+                "Cannot compile Closure with static, byRef, uses or returnType"
             );
         }
-
-        if ($n->keyVar) {
-            $function_vars = [$n->valueVar, $n->keyVar];
-        }
-        else {
-            $function_vars = [$n->valueVar];
-        }
-
         $f = $this->js_factory;
-        return $f->call(
-            $f->propertyOf(
-                $n->expr,
-                $f->identifier("foreach")
-            ),
-            $f->function_(
-                $function_vars,
-                $f->block(...$n->stmts)
-            )
+        return $f->function_(
+            $n->params,
+            $f->block(...$n->stmts)
         );
     }
 }
