@@ -159,7 +159,13 @@ class Compiler {
                 "Could not find file '$filename'"
             );
         }
-        return $this->parser->parse(file_get_contents($filename));
+        try {
+            return $this->parser->parse(file_get_contents($filename));
+        }
+        catch (\PhpParser\Error $e) {
+            $e->setRawMessage($e->getRawMessage()." in $filename");
+            throw $e;
+        }
     }
 
     protected function preprocessAST(PhpNode ...$nodes) : array {
