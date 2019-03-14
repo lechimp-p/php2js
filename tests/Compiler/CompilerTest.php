@@ -693,9 +693,9 @@ PHP
     }
 
 //------------------------------------------------------------------------------
-// TEST: Compile Linebreak
+// TEST: Compile escaped characters
 //------------------------------------------------------------------------------
-    public function test_compile_linebreak() {
+    public function test_compile_escaped_chars() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
 <?php
@@ -709,7 +709,7 @@ class TestScript implements Script {
     }
 
     public function execute() {
-        $this->n = "\n";
+        $this->n = "\n\\\t\"";
     }
 }
 PHP
@@ -717,7 +717,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected\\.n = \"\\\\n\";.*/ms", $result);
+        $this->assertRegExp("/.*protected\\.n = \"\\\\n\\\\\\\\\\\\t\\\\\"\";.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------

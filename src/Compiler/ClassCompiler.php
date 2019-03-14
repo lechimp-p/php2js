@@ -154,8 +154,15 @@ class ClassCompiler {
         return [$constructor, $methods, $properties];
     }
 
+    protected static $string_replacements = [
+        "\n" => "\\n",
+        "\t" => "\\t",
+        "\"" => "\\\"",
+        "\\" => "\\\\"
+    ];
+
     public function compile_Scalar_String_(PhpNode $n) {
-        return $this->js_factory->literal(str_replace("\n", "\\n", $n->value));
+        return $this->js_factory->literal(strtr ($n->value, self::$string_replacements));
     }
 
     public function compile_Scalar_LNumber(PhpNode $n) {
