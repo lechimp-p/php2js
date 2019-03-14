@@ -172,4 +172,8 @@ class Factory {
     public function not(Expression $other) {
         return new UnaryOp("!", $other);
     }
+
+    public function typeof(Expression $other) {
+        return new UnaryOp("typeof ", $other);
+    }
 }
