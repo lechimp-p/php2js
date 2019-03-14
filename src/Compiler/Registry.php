@@ -142,9 +142,7 @@ class Registry {
                 }
             }
 
-            throw new \LogicException(
-                "Could not determine visibility for '$fully_qualified_class_name::$method_or_property'"
-            );
+            return Compiler::ATTR_PUBLIC;
         }
 
         return $visibility;
