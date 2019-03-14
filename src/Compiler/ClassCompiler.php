@@ -304,6 +304,24 @@ class ClassCompiler {
         );
     }
 
+    public function compile_Expr_Isset_(PhpNode $n) {
+        $vars = $n->vars;
+        $var = array_shift($vars);
+        $cur = $this->jsIsset($var);
+        foreach ($vars as $var) {
+            $cur = $f->and_($cur, $this->jsIsset($var));
+        }
+        return $cur;
+    }
+
+    protected function jsIsset(JS\AST\Expression $expr) {
+        $f = $this->js_factory;
+        return $f->not_identical(
+            $f->typeof($expr),
+            $f->undefined()
+        );
+    }
+
     const JS_NATIVE = "JS_NATIVE_";
 
     public function compile_Expr_New_(PhpNode $n) {

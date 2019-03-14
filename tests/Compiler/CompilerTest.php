@@ -771,4 +771,30 @@ PHP
         $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) >> \\(1\\);.*/ms", $result);
         $this->assertRegExp("/.*protected\\.n = protected\\.n\\.concat\\(1\\);.*/ms", $result);
     }
+
+//------------------------------------------------------------------------------
+// TEST: Compile isset
+//------------------------------------------------------------------------------
+    public function test_compile_isset() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    public function __construct() {
+    }
+
+    public function execute() {
+        isset($this->n);
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*\\(typeof \\(public\\.n\\)\\) !== \\(undefined\\);.*/ms", $result);
+    }
 }
