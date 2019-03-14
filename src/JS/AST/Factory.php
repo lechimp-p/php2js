@@ -105,6 +105,10 @@ class Factory {
         return new BinaryOp("===", $left, $right);
     }
 
+    public function not_identical(Expression $left, Expression $right) : Node {
+        return new BinaryOp("!==", $left, $right);
+    }
+
     public function and_(Expression $left, Expression $right) : Node {
         return new BinaryOp("&&", $left, $right);
     }
