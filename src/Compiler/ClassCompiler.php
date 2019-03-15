@@ -289,6 +289,13 @@ class ClassCompiler {
         );
     }
 
+    public function compile_Expr_FuncCall(PhpNode $n) {
+        return $this->js_factory->call(
+            $n->name,
+            ...$n->args
+        );
+    }
+
     public function compile_Expr_MethodCall(PhpNode $n) {
         return $this->js_factory->call(
             $this->compile_Expr_PropertyFetch($n),

@@ -303,9 +303,9 @@ PHP
     }
 
 //------------------------------------------------------------------------------
-// TEST: Function with Param
+// TEST: Method with Param
 //------------------------------------------------------------------------------
-    public function test_function_with_param() {
+    public function test_method_with_param() {
         $filename = tempnam("/tmp", "php.js");
         file_put_contents($filename,<<<'PHP'
 <?php
@@ -327,6 +327,34 @@ PHP
         $result = $this->real_compiler->compile($filename);
 
         $this->assertRegExp("/.*protected.echo\\s+=\\s+function\\(string\\).*/ms", $result);
+    }
+
+
+//------------------------------------------------------------------------------
+// TEST: Closure with Param
+//------------------------------------------------------------------------------
+    public function test_closure_with_param() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    public function execute() {
+        $foo = function ($bar) {
+            echo $bar;
+        };
+
+        return $foo("bar");
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*return foo\\(\"bar\"\\).*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
