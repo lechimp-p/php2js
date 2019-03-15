@@ -26,6 +26,7 @@ use Lechimp\PHP_JS\JS\API\Document;
 use Lechimp\PHP_JS\Compiler\ClassCompiler;
 use Lechimp\PHP_JS\Compiler\Compiler;
 use Lechimp\PHP_JS\Compiler\AnnotateFullyQualifiedName;
+use Lechimp\PHP_JS\Compiler\AnnotateFirstVariableAssignment;
 use Lechimp\PHP_JS\Compiler\AnnotateVisibility;
 use Lechimp\PHP_JS\Compiler\RemoveTypeHints;
 use Lechimp\PHP_JS\Compiler\Registry;
@@ -58,6 +59,7 @@ class ElementImplTest extends \PHPUnit\Framework\TestCase {
         $t = new NodeTraverser();
         $t->addVisitor(new AnnotateFullyQualifiedName());
         $t->addVisitor(new AnnotateVisibility($registry));
+        $t->addVisitor(new AnnotateFirstVariableAssignment());
         $t->addVisitor(new RemoveTypeHints());
         $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
         $ast[1]->stmts[1]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\HTML\ElementImpl");

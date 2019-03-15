@@ -25,6 +25,7 @@ use Lechimp\PHP_JS\JS\API\Document;
 use Lechimp\PHP_JS\Compiler\ClassCompiler;
 use Lechimp\PHP_JS\Compiler\Compiler;
 use Lechimp\PHP_JS\Compiler\AnnotateFullyQualifiedName;
+use Lechimp\PHP_JS\Compiler\AnnotateFirstVariableAssignment;
 use Lechimp\PHP_JS\Compiler\RemoveTypeHints;
 use Lechimp\PHP_JS\JS;
 use PhpParser\NodeTraverser;
@@ -48,6 +49,7 @@ class DocumentImplTest extends \PHPUnit\Framework\TestCase {
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $t = new NodeTraverser();
         $t->addVisitor(new AnnotateFullyQualifiedName());
+        $t->addVisitor(new AnnotateFirstVariableAssignment());
         $t->addVisitor(new RemoveTypeHints());
         $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
         $ast[2]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\DocumentImpl");
