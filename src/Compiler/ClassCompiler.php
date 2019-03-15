@@ -325,7 +325,7 @@ class ClassCompiler {
         $f = $this->js_factory;
         return $f->not_identical(
             $f->typeof($expr),
-            $f->undefined()
+            $f->literal("undefined")
         );
     }
 

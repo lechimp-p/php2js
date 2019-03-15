@@ -823,6 +823,6 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*\\(typeof \\(public\\.n\\)\\) !== \\(undefined\\);.*/ms", $result);
+        $this->assertRegExp("/.*\\(typeof \\(public\\.n\\)\\) !== \\(\"undefined\"\\);.*/ms", $result);
     }
 }
