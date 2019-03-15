@@ -278,6 +278,53 @@ class ClassCompiler {
         );
     }
 
+    public function compile_Expr_Closure(PhpNode $n) {
+        if ($n->static || $n->byRef || $n->returnType) {
+            throw new \LogicException(
+                "Cannot compile Closure with static, byRef or returnType"
+            );
+        }
+
+        list($uses_by_val, $uses_by_ref) = $this->collectClosureUses($n->uses);
+
+        $f = $this->js_factory;
+
+        $fun = $f->function_(
+            $n->params,
+            $f->block(...$n->stmts)
+        );
+
+        if (count($uses_by_val) === 0) {
+            return $fun;
+        }
+
+        return $f->call(
+            $f->function_(
+                $uses_by_val,
+                $f->block($f->return_($fun))
+            ),
+            ...$uses_by_val
+        );
+    }
+
+    protected function collectClosureUses(array $use) {
+        $vars_by_val = [];
+        $vars_by_ref = [];
+        foreach ($use as list($var,$by_ref)) {
+            if ($by_ref) {
+                $vars_by_ref[] = $var;
+            }
+            else {
+                $vars_by_val[] = $var;
+            }
+        }
+        return [$vars_by_val, $vars_by_ref];
+    }
+
+    public function compile_Expr_ClosureUse(PhpNode $n) {
+        return [$n->var, $n->byRef];
+    }
+
     public function compile_Expr_Exit_(PhpNode $n) {
         $f = $this->js_factory;
         return $f->call(
@@ -304,7 +351,14 @@ class ClassCompiler {
     }
 
     public function compile_Expr_Assign(PhpNode $n) {
-        // TODO: declare all new variables in a block with "var";
+        assert($n->hasAttribute(Compiler::ATTR_FIRST_VAR_ASSIGNMENT));
+        if ($n->getAttribute(Compiler::ATTR_FIRST_VAR_ASSIGNMENT)) {
+            assert($n->var instanceof JS\AST\Identifier);
+            return $this->js_factory->assignVar(
+                $n->var,
+                $n->expr
+            );
+        }
         return $this->js_factory->assign(
             $n->var,
             $n->expr
@@ -472,18 +526,5 @@ class ClassCompiler {
     public function compile_Stmt_If_(PhpNode $n) {
         $f = $this->js_factory;
         return $f->if_($n->cond, $f->block(...$n->stmts));
-    }
-
-    public function compile_Expr_Closure(PhpNode $n) {
-        if ($n->static || $n->byRef || $n->uses !== [] || $n->returnType) {
-            throw new \LogicException(
-                "Cannot compile Closure with static, byRef, uses or returnType"
-            );
-        }
-        $f = $this->js_factory;
-        return $f->function_(
-            $n->params,
-            $f->block(...$n->stmts)
-        );
     }
 }

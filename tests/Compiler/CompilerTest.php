@@ -358,6 +358,35 @@ PHP
     }
 
 //------------------------------------------------------------------------------
+// TEST: Closure with Use
+//------------------------------------------------------------------------------
+    public function test_closure_with_use() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    public function execute() {
+        return function () use ($foo, &$bar) {
+            $baz = "foobar";
+            $bar = $baz;
+        };
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*return \\(function\\s*\\(foo\\)\\s*\\{.*/ms", $result);
+        $this->assertRegExp("/.*var baz = \"foobar\";.*/ms", $result);
+        $this->assertRegExp("/.*bar = baz;.*/ms", $result);
+        $this->assertRegExp("/.*\\}\\)\\(foo\\);.*/ms", $result);
+    }
+
+//------------------------------------------------------------------------------
 // TEST: Use Public Constructor
 //------------------------------------------------------------------------------
     public function test_use_public_constructor() {
@@ -599,8 +628,10 @@ class TestScript implements Script {
     }
 
     public function execute() {
+        $foo = "foo";
         foreach ($this->foobar as $value) {
             echo $value;
+            $foo = "bar";
         }
     }
 }
@@ -609,7 +640,8 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foobar.foreach\\(function\\(value\\) \\{\\s+process\\.stdout\\.write\\(value\\);\\s+\\}.*/ms", $result);
+        $this->assertRegExp("/.*protected.foobar.foreach\\(function\\(value\\) \\{\\s+process\\.stdout\\.write\\(value\\);\\s+.*/ms", $result);
+        $this->assertRegExp("/.*^\s+foo = \"bar\";.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------

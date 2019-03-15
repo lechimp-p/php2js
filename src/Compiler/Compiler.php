@@ -32,6 +32,7 @@ use Lechimp\PHP_JS\JS;
  */
 class Compiler {
     const ATTR_FULLY_QUALIFIED_NAME = "fully_qualified_name";
+    const ATTR_FIRST_VAR_ASSIGNMENT = "first_assignment";
     const ATTR_VISIBILITY = "visibility";
     const ATTR_PUBLIC = "public";
     const ATTR_PROTECTED = "protected";
@@ -183,18 +184,17 @@ class Compiler {
         $remove_use_namespace = new NodeTraverser();
         $remove_use_namespace->addVisitor(new RemoveUseNamespace());
 
-        $rewrite_array_code = new NodeTraverser();
-        $rewrite_array_code->addVisitor(new RewriteArrayCode());
-
-
         $rewrite_assign_operators = new NodeTraverser();
         $rewrite_assign_operators->addVisitor(new RewriteAssignOperators());
+
+        $rewrite_array_code = new NodeTraverser();
+        $rewrite_array_code->addVisitor(new RewriteArrayCode());
 
         $pipeline = [
             $name_resolver,
             $remove_use_namespace,
-            $rewrite_array_code,
-            $rewrite_assign_operators
+            $rewrite_assign_operators,
+            $rewrite_array_code
         ];
 
         foreach($pipeline as $p) {
@@ -218,6 +218,7 @@ class Compiler {
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new AnnotateFullyQualifiedName());
         $traverser->addVisitor(new AnnotateScriptDependencies());
+        $traverser->addVisitor(new AnnotateFirstVariableAssignment());
 
         return $traverser->traverse($nodes);
     }

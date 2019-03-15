@@ -56,16 +56,37 @@ class RewriteArrayCode extends NodeVisitorAbstract {
             else {
                 $function_vars = [$n->valueVar];
             }
+
+            $t = new NodeTraverser;
+            $t->addVisitor($this->getMarkVarAssignmentsVisitor());
+
             return new Node\Stmt\Expression(
                 new Node\Expr\MethodCall(
                     $n->expr,
                     new Node\Name("foreach"),
                     [new Node\Expr\Closure([
                         "params" => $function_vars,
-                        "stmts" => $n->stmts
+                        "stmts" => $t->traverse($n->stmts)
                     ])]
                 )
             );
         }
+    }
+
+    protected function getMarkVarAssignmentsVisitor() {
+        return new class extends NodeVisitorAbstract {
+            public function enterNode(Node $n) {
+                if ($n instanceof Node\Stmt\Class_
+                ||  $n instanceof Node\Stmt\Function_
+                ||  $n instanceof Node\Expr\Closure
+                ) {
+                    return NodeTraverser::DONT_TRAVERSE_CHILDREN;
+                }
+
+                if ($n instanceof Node\Expr\Assign) {
+                    $n->setAttribute(Compiler::ATTR_FIRST_VAR_ASSIGNMENT, false);
+                }
+            }
+        };
     }
 }
