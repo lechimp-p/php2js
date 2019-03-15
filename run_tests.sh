@@ -1,3 +1,4 @@
+set -e
 echo "Running PHP-side tests..."
 ./run_php_tests.sh
 echo ""
