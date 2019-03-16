@@ -377,9 +377,15 @@ class ClassCompiler {
 
     protected function jsIsset(JS\AST\Expression $expr) {
         $f = $this->js_factory;
-        return $f->not_identical(
-            $f->typeof($expr),
-            $f->literal("undefined")
+        return $f->and_(
+            $f->not_identical(
+                $f->typeof($expr),
+                $f->literal("undefined")
+            ),
+            $f->not_identical(
+                $expr,
+                $f->null_()
+            )
         );
     }
 
