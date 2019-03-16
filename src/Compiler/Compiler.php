@@ -240,7 +240,20 @@ class Compiler {
     }
 
     protected function compileRegistry(Registry $registry) {
-        return $this->js_printer->print(
+        // TODO: move this to a single file
+        // TODO: maybe find a way to let users add stuff here
+        $prelude = <<<JS
+// PRELUDE START
+
+Array.prototype.getItemAt = function (index) {
+    return this[index];
+};
+
+// PRELUDE END
+
+JS;
+
+        $compiled_code = $this->js_printer->print(
             $this->js_factory->block(
                 ...array_merge(
                     $this->compileClassesFromRegistry($registry),
@@ -248,6 +261,8 @@ class Compiler {
                 )
             )
         );
+
+        return $prelude.$compiled_code;
     }
 
     protected function compileClassesFromRegistry(Registry $registry) {

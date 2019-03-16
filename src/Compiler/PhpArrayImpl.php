@@ -46,6 +46,16 @@ class PhpArray {
     }
 
     /**
+     * Get an element from the array.
+     *
+     * @param   mixed   $index
+     * @return  mixed
+     */
+    public function getItemAt($index) {
+        return $this->array->getItemAt($index);
+    }
+
+    /**
      * Call the provided function with every element of the array.
      *
      * @param   \Closure    $f

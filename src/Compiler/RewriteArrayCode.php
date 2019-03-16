@@ -44,6 +44,13 @@ class RewriteArrayCode extends NodeVisitorAbstract {
             }
             return $array;
         }
+        if ($n instanceof Node\Expr\ArrayDimFetch) {
+            return new Node\Expr\MethodCall(
+                $n->var,
+                new Node\Name("getItemAt"),
+                [$n->dim]
+            );
+        }
         if ($n instanceof Node\Stmt\Foreach_) {
             if ($n->byRef) {
                 throw new \LogicException(
