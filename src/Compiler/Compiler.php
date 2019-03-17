@@ -190,11 +190,15 @@ class Compiler {
         $rewrite_array_code = new NodeTraverser();
         $rewrite_array_code->addVisitor(new RewriteArrayCode());
 
+        $define_undefined_variables = new NodeTraverser();
+        $define_undefined_variables->addVisitor(new DefineUndefinedVariables());
+
         $pipeline = [
             $name_resolver,
             $remove_use_namespace,
             $rewrite_assign_operators,
-            $rewrite_array_code
+            $rewrite_array_code,
+            $define_undefined_variables
         ];
 
         foreach($pipeline as $p) {
@@ -250,6 +254,7 @@ Array.prototype.getItemAt = function (index) {
 };
 
 // PRELUDE END
+
 
 JS;
 

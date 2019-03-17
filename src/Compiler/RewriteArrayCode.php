@@ -72,7 +72,9 @@ class RewriteArrayCode extends NodeVisitorAbstract {
                     $n->expr,
                     new Node\Name("foreach"),
                     [new Node\Expr\Closure([
-                        "params" => $function_vars,
+                        "params" => array_map(function($v) {
+                            return new Node\Param($v);
+                        }, $function_vars),
                         "stmts" => $t->traverse($n->stmts)
                     ])]
                 )
