@@ -68,9 +68,9 @@ class ClassCompiler {
 
         $construct_raw = $js->identifier("construct_raw");
         $extend = $js->identifier("extend");
-        $public = $js->identifier("public");
-        $protected = $js->identifier("protected");
-        $private = $js->identifier("private");
+        $public = $js->identifier("_public");
+        $protected = $js->identifier("_protected");
+        $private = $js->identifier("_private");
         $create_class = $js->identifier("create_class");
 
 
@@ -104,8 +104,8 @@ class ClassCompiler {
                         $js->block(...$methods),
                         $js->return_($js->object_([
                             "construct" => $constructor,
-                            "public" => $public,
-                            "protected" => $protected
+                            "_public" => $public,
+                            "_protected" => $protected
                         ]))
                     ))
                 ),
@@ -455,7 +455,7 @@ class ClassCompiler {
             $n,
             $js->assign(
                 $js->propertyOf(
-                    $js->identifier($visibility),
+                    $js->identifier("_".$visibility),
                     $js->identifier($n->name->value())
                 ),
                 $js->function_(
@@ -472,7 +472,7 @@ class ClassCompiler {
 
     public function compile_Stmt_Property(PhpNode $n) {
         $js = $this->js_factory;
-        $visibility = $js->identifier(Compiler::getVisibilityConst($n));
+        $visibility = $js->identifier("_".Compiler::getVisibilityConst($n));
         return [
             $n,
             $js->block(...array_map(function($p) use ($n, $js, $visibility) {
@@ -499,7 +499,7 @@ class ClassCompiler {
                 );
             }
             $visibility = $n->getAttribute(Compiler::ATTR_VISIBILITY);
-            $source = $js->identifier($visibility);
+            $source = $js->identifier("_".$visibility);
         }
         else {
             $source = $n->var;

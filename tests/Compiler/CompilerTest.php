@@ -219,8 +219,8 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.protected_var = null.*/ms", $result);
-        $this->assertRegExp("/.*private.private_var = null.*/ms", $result);
+        $this->assertRegExp("/.*_protected.protected_var = null.*/ms", $result);
+        $this->assertRegExp("/.*_private.private_var = null.*/ms", $result);
     }
 
 
@@ -248,8 +248,8 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*process\\.stdout\\.write\\(protected.protected_var\\);.*/ms", $result);
-        $this->assertRegExp("/.*process\\.stdout\\.write\\(private.private_var\\);.*/ms", $result);
+        $this->assertRegExp("/.*process\\.stdout\\.write\\(_protected.protected_var\\);.*/ms", $result);
+        $this->assertRegExp("/.*process\\.stdout\\.write\\(_private.private_var\\);.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -274,7 +274,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/protected.a_method\\(\\).*/ms", $result);
+        $this->assertRegExp("/_protected.a_method\\(\\).*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foo = \"bar\".*/ms", $result);
+        $this->assertRegExp("/.*_protected.foo = \"bar\".*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -326,7 +326,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.echo\\s+=\\s+function\\(string\\).*/ms", $result);
+        $this->assertRegExp("/.*_protected.echo\\s+=\\s+function\\(string\\).*/ms", $result);
     }
 
 
@@ -413,9 +413,9 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foo = foo.*/ms", $result);
+        $this->assertRegExp("/.*_protected.foo = foo.*/ms", $result);
         $this->assertRegExp("/.*\"construct\"\\s+:\\s+function\\(foo\\)*/ms", $result);
-        $this->assertRegExp("/.*return public.*/ms", $result);
+        $this->assertRegExp("/.*return _public.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -447,7 +447,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.window = window.*/ms", $result);
+        $this->assertRegExp("/.*_protected.window = window.*/ms", $result);
         $this->assertRegExp("/.*\"construct\"\\s+:\\s+function\\(window\\)*/ms", $result);
         $this->assertRegExp("/.*TestScript.__construct\\(_WindowImpl.__construct\\(\\)\\);.*/", $result);
         $this->assertRegExp("/.*var _WindowImpl = \\(function\\(\\) {.*/", $result);
@@ -523,8 +523,8 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foo = true.*/ms", $result);
-        $this->assertRegExp("/.*protected.bar = false.*/ms", $result);
+        $this->assertRegExp("/.*_protected.foo = true.*/ms", $result);
+        $this->assertRegExp("/.*_protected.bar = false.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -552,7 +552,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foobar = \"foo\".concat\\(\"bar\"\\).concat\\(\"baz\"\\).*/ms", $result);
+        $this->assertRegExp("/.*_protected.foobar = \"foo\".concat\\(\"bar\"\\).concat\\(\"baz\"\\).*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -580,7 +580,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foobar = \\(true\\) \\? \\(\"true\"\\) : \\(\"false\"\\).*/ms", $result);
+        $this->assertRegExp("/.*_protected.foobar = \\(true\\) \\? \\(\"true\"\\) : \\(\"false\"\\).*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -608,7 +608,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foobar = \\(\\(true\\) [&][&] \\(false\\)\\) [|][|] \\(false\\).*/ms", $result);
+        $this->assertRegExp("/.*_protected.foobar = \\(\\(true\\) [&][&] \\(false\\)\\) [|][|] \\(false\\).*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -640,7 +640,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foobar.foreach\\(function\\(value\\) \\{\\s+process\\.stdout\\.write\\(value\\);\\s+.*/ms", $result);
+        $this->assertRegExp("/.*_protected.foobar.foreach\\(function\\(value\\) \\{\\s+process\\.stdout\\.write\\(value\\);\\s+.*/ms", $result);
         $this->assertRegExp("/.*^\s+foo = \"bar\";.*/ms", $result);
     }
 
@@ -669,7 +669,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected.foobar = [!]\\(protected.foobar\\).*/ms", $result);
+        $this->assertRegExp("/.*_protected.foobar = [!]\\(_protected.foobar\\).*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -777,7 +777,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected\\.n = \"\\\\n\\\\\\\\\\\\t\\\\\"\";.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \"\\\\n\\\\\\\\\\\\t\\\\\"\";.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -818,18 +818,18 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\+ \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) - \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\* \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\/ \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) % \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) & \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) [|] \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\^ \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) \\*\\* \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) << \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = \\(protected\\.n\\) >> \\(1\\);.*/ms", $result);
-        $this->assertRegExp("/.*protected\\.n = protected\\.n\\.concat\\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) \\+ \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) - \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) \\* \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) \\/ \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) % \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) & \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) [|] \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) \\^ \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) \\*\\* \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) << \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = \\(_protected\\.n\\) >> \\(1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.n = _protected\\.n\\.concat\\(1\\);.*/ms", $result);
     }
 
 //------------------------------------------------------------------------------
@@ -855,6 +855,6 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*\\(\\(typeof \\(public\\.n\\)\\) !== \\(\"undefined\"\\)\\) && \\(\\(public\\.n\\) !== \\(null\\)\\);.*/ms", $result);
+        $this->assertRegExp("/.*\\(\\(typeof \\(_public\\.n\\)\\) !== \\(\"undefined\"\\)\\) && \\(\\(_public\\.n\\) !== \\(null\\)\\);.*/ms", $result);
     }
 }
