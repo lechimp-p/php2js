@@ -33,9 +33,11 @@ class RewriteArrayCode extends NodeVisitorAbstract {
                 throw new \LogicException("Cannot rewrite array code using byRef.");
             }
             if ($n->key) {
-                throw new \LogicException("Cannot rewrite array code using key.");
+                return new Node\Expr\FuncCall("setItemAt", [$n->key, $n->value]);
             }
-            return new Node\Expr\FuncCall("push", [$n->value]);
+            else {
+                return new Node\Expr\FuncCall("push", [$n->value]);
+            }
         }
         if ($n instanceof Node\Expr\Array_) {
             $array = new Node\Expr\New_(new Node\Name(\PhpArray::class));
@@ -49,6 +51,15 @@ class RewriteArrayCode extends NodeVisitorAbstract {
                 $n->var,
                 new Node\Name("getItemAt"),
                 [$n->dim]
+            );
+        }
+        if ($n instanceof Node\Expr\Assign
+        &&  $n->var instanceof Node\Expr\MethodCall
+        &&  $n->var->name == "getItemAt") {
+            return new Node\Expr\MethodCall(
+                $n->var->var,
+                new Node\Name("setItemAt"),
+                [$n->var->args[0], $n->expr]
             );
         }
         if ($n instanceof Node\Stmt\Foreach_) {

@@ -645,6 +645,36 @@ PHP
     }
 
 //------------------------------------------------------------------------------
+// TEST: Compile Array with key
+//------------------------------------------------------------------------------
+    public function test_compile_foreach_with_key() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP_JS\JS\Script;
+
+class TestScript implements Script {
+    protected $foobar;
+
+    public function __construct() {
+    }
+
+    public function execute() {
+        $this->foobar = ["one" => 1];
+        $this->foobar["two"] = 2;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*_PhpArray\\.__construct\\(\\)\\.setItemAt\\(\"one\", 1\\);.*/ms", $result);
+        $this->assertRegExp("/.*_protected\\.foobar\\.setItemAt\\(\"two\", 2\\);.*/ms", $result);
+    }
+
+//------------------------------------------------------------------------------
 // TEST: Compile Not
 //------------------------------------------------------------------------------
     public function test_compile_not() {
