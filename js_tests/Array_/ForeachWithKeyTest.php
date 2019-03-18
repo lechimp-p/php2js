@@ -23,7 +23,7 @@ namespace Lechimp\PHP_JS\JS_Tests\Array_;
 
 class ForeachWithKeyTest {
     public function name() {
-        return "Array\\ForeachWithoutKeyTest";
+        return "Array\\ForeachWithKeyTest";
     }
 
     public function perform() {
