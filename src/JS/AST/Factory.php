@@ -180,4 +180,8 @@ class Factory {
     public function typeof(Expression $other) {
         return new UnaryOp("typeof ", $other);
     }
+
+    public function throw_(Expression $other) {
+        return new UnaryOp("throw ", $other);
+    }
 }

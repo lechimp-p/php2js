@@ -25,7 +25,7 @@ namespace Lechimp\PHP_JS\JS\AST;
  * Represents some unary operation.
  */
 class UnaryOp extends Node implements Expression {
-    protected static $valid = ["!", "typeof "];
+    protected static $valid = ["!", "typeof ", "throw "];
 
     /**
      * @var string
