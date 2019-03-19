@@ -161,6 +161,10 @@ class Factory {
         return new BinaryOp(">>", $left, $right);
     }
 
+    public function greater(Expression $left, Expression $right) : Node {
+        return new BinaryOp(">", $left, $right);
+    }
+
     public function instanceof_(Expression $left, Expression $right) : Node {
         return new BinaryOp("instanceof", $left, $right);
     }
