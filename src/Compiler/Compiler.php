@@ -184,8 +184,8 @@ class Compiler {
         $remove_use_namespace = new NodeTraverser();
         $remove_use_namespace->addVisitor(new RemoveUseNamespace());
 
-        $rewrite_assign_operators = new NodeTraverser();
-        $rewrite_assign_operators->addVisitor(new RewriteAssignOperators());
+        $rewrite_operators = new NodeTraverser();
+        $rewrite_operators->addVisitor(new RewriteOperators());
 
         $rewrite_array_code = new NodeTraverser();
         $rewrite_array_code->addVisitor(new RewriteArrayCode());
@@ -196,7 +196,7 @@ class Compiler {
         $pipeline = [
             $name_resolver,
             $remove_use_namespace,
-            $rewrite_assign_operators,
+            $rewrite_operators,
             $rewrite_array_code,
             $define_undefined_variables
         ];
