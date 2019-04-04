@@ -257,6 +257,10 @@ class ClassCompiler {
         return $this->js_factory->bitShiftRight($n->left, $n->right);
     }
 
+    public function compile_Expr_BinaryOp_Greater(PhpNode $n) {
+        return $this->js_factory->greater($n->left, $n->right);
+    }
+
     public function compile_Expr_BinaryOp_Concat(PhpNode $n) {
         $f = $this->js_factory;
         return $f->call(
