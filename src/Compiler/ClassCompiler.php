@@ -531,6 +531,14 @@ class ClassCompiler {
 
     public function compile_Stmt_If_(PhpNode $n) {
         $f = $this->js_factory;
-        return $f->if_($n->cond, $f->block(...$n->stmts));
+        return $f->if_(
+            $n->cond,
+            $f->block(...$n->stmts),
+            $n->else ? $f->block(...$n->else) : null
+        );
+    }
+
+    public function compile_Stmt_Else_(PhpNode $n) {
+        return $n->stmts;
     }
 }
