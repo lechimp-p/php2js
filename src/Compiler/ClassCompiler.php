@@ -37,10 +37,17 @@ class ClassCompiler {
      */
     protected $js_factory;
 
+    /**
+     * @var BuildInCompiler
+     */
+    protected $build_in_compiler;
+
     public function __construct(
-        JS\AST\Factory $js_factory
+        JS\AST\Factory $js_factory,
+        BuildInCompiler $build_in_compiler
     ) {
         $this->js_factory = $js_factory;
+        $this->build_in_compiler = $build_in_compiler;
     }
 
     public function compile(PhpNode\Stmt\Class_ $class) : JS\AST\Node {
@@ -337,6 +344,10 @@ class ClassCompiler {
     }
 
     public function compile_Expr_FuncCall(PhpNode $n) {
+        if ($this->build_in_compiler->isBuildInFunction($n->name->toLowerString())) {
+            return $this->build_in_compiler->compile($n);
+        }
+
         return $this->js_factory->call(
             $n->name,
             ...$n->args

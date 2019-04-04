@@ -279,7 +279,12 @@ JS;
         // TODO: Check compliance with interfaces.
         // TODO: Check compliance with extended classes.
 
-        $class_compiler = new ClassCompiler($this->js_factory); 
+        $class_compiler = new ClassCompiler(
+            $this->js_factory,
+            new BuildInCompiler(
+                $this->js_factory
+            )
+        );
         foreach ($classes as $cls) {
             $stmts[] = $class_compiler->compile(
                 $traverser->traverse(

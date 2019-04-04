@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Lechimp\PHP_JS\Test\Compiler\API;
 
 use Lechimp\PHP_JS\JS\API\Document;
+use Lechimp\PHP_JS\Compiler\BuildInCompiler;
 use Lechimp\PHP_JS\Compiler\ClassCompiler;
 use Lechimp\PHP_JS\Compiler\Compiler;
 use Lechimp\PHP_JS\Compiler\AnnotateFullyQualifiedName;
@@ -44,7 +45,8 @@ class DocumentImplTest extends \PHPUnit\Framework\TestCase {
 
     public function test_compile() {
         $js = new JS\AST\Factory();
-        $compiler = new ClassCompiler($js);
+        $build_in_compiler = new BuildInCompiler($js);
+        $compiler = new ClassCompiler($js, $build_in_compiler);
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $t = new NodeTraverser();

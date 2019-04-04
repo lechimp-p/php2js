@@ -23,6 +23,7 @@ namespace Lechimp\PHP_JS\Test\Compiler\API\HTML;
 
 use Lechimp\PHP_JS\JS\API\HTML;
 use Lechimp\PHP_JS\JS\API\Document;
+use Lechimp\PHP_JS\Compiler\BuildInCompiler;
 use Lechimp\PHP_JS\Compiler\ClassCompiler;
 use Lechimp\PHP_JS\Compiler\Compiler;
 use Lechimp\PHP_JS\Compiler\AnnotateFullyQualifiedName;
@@ -47,7 +48,8 @@ class ElementImplTest extends \PHPUnit\Framework\TestCase {
 
     public function test_compile() {
         $js = new JS\AST\Factory();
-        $compiler = new ClassCompiler($js);
+        $build_in_compiler = new BuildInCompiler($js);
+        $compiler = new ClassCompiler($js, $build_in_compiler);
         $registry = $this->createMock(Registry::class);
 
         $registry->expects($this->atLeastOnce())
