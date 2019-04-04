@@ -59,7 +59,7 @@ class DefineUndefinedVariables extends NodeVisitorAbstract {
         }
 
         if ($n instanceof Node\Param
-        ||  $n instanceof Node\ClosureUse
+        ||  $n instanceof Node\Expr\ClosureUse
         ||  $n instanceof Node\Expr\Assign) {
             if (!($n->var instanceof Node\Expr\PropertyFetch)) {
                 $this->defined[] = (string)$n->var->name;
