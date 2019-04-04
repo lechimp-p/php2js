@@ -556,4 +556,8 @@ class ClassCompiler {
     public function compile_Stmt_Else_(PhpNode $n) {
         return $n->stmts;
     }
+
+    public function compile_Stmt_Throw_(PhpNode $n) {
+        return $this->js_factory->throw_($n->expr);
+    }
 }
