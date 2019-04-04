@@ -66,7 +66,13 @@ class Compiler {
         JS\API\HTML\Element::class => null,
         \HTML\ElementImpl::class => __DIR__."/API/HTML/ElementImpl.php",
         \PhpArray::class => __DIR__."/PhpArrayImpl.php",
-        \JS_NATIVE_Array::class => null
+        \JS_NATIVE_Array::class => null,
+        \JS_NATIVE_Object::class => null,
+        \InvalidArgumentException::class => __DIR__."/InvalidArgumentExceptionImpl.php",
+        // TODO: make this use BuildInCompiler somehow
+        "is_string" => null,
+        "is_int" => null,
+        "gettype" => null
     ];
 
     public function __construct(
@@ -249,9 +255,12 @@ class Compiler {
         $prelude = <<<JS
 // PRELUDE START
 
-Array.prototype.getItemAt = function (index) {
-    return this[index];
+Object.prototype.getItemAt = function (key) {
+    return this[key];
 };
+Object.prototype.setItemAt = function (key, value) {
+    this[key] = value;
+}
 
 // PRELUDE END
 

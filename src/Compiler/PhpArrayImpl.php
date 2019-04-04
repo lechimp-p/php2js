@@ -26,12 +26,33 @@ declare(strict_types=1);
  */
 class PhpArray { 
     /**
-     * @var Array from JS
+     * @var Array|null from JS
      */
     protected $array;
 
+    /**
+     * @var Object|null from JS
+     */
+    protected $object = null;
+
+    /**
+     * @var integer
+     */
+    protected $max_key = 0;
+
+    /**
+     * @var mixed
+     */
+    protected $key_order;
+
+    /**
+     * @var bool
+     */
+    protected $use_object_mode = false;
+
     public function __construct() {
         $this->array = new JS_NATIVE_Array();
+        $this->key_order = new JS_NATIVE_Array();
     }
 
     /**
@@ -41,18 +62,66 @@ class PhpArray {
      * @return  null
      */
     public function push($value) {
-        $this->array->push($value);
+        $this->key_order->push($this->max_key);
+        if (!$this->use_object_mode) {
+            $this->array->push($value);
+            $this->max_key++;
+        }
+        else {
+        }
         return $this;
     }
 
     /**
      * Get an element from the array.
      *
-     * @param   mixed   $index
+     * @param   mixed   $key
      * @return  mixed
      */
-    public function getItemAt($index) {
-        return $this->array->getItemAt($index);
+    public function getItemAt($key) {
+        if (!$this->use_object_mode) {
+            return $this->array->getItemAt($key);
+        }
+        else {
+            return $this->object->getItemAt("_".$key);
+        }
+    }
+
+    /**
+     * Set an element in the array.
+     *
+     * @param   mixed   $key
+     * @param   mixed   $value
+     * @return  mixed
+     */
+    public function setItemAt($key, $value) {
+        if (is_string($key)) {
+            if (!$this->use_object_mode) {
+                $this->toObjectMode();
+            }
+        }
+        else if (is_int($key)) {
+            if ($key > $this->max_key) {
+                $this->max_key = $key + 1;
+            }
+        }
+        else {
+            throw new \InvalidArgumentException(
+                "Unknown key type: ".gettype($key)
+            );
+        }
+
+        if (!$this->key_order->includes($key)) {
+            $this->key_order->push($key);
+        }
+
+        if (!$this->use_object_mode) {
+            $this->array->setItemAt($key, $value);
+        }
+        else {
+            $this->object->setItemAt("_".$key, $value);
+        }
+        return $this;
     }
 
     /**
@@ -61,7 +130,22 @@ class PhpArray {
      * @param   \Closure    $f
      * @return  null
      */
-    public function foreach($f) {
-        $this->array->forEach($f);
+    public function foreach($foo) {
+        if (!$this->use_object_mode) {
+            $this->array->forEach($foo);
+        }
+        else {
+            $this->key_order->forEach(function($key) use ($foo) {
+                $foo($this->getItemAt($key), $key);
+            });
+        }
+    }
+
+    protected function toObjectMode() {
+        $this->use_object_mode = true;
+        $this->object = new JS_NATIVE_Object();
+        $this->array->forEach(function($v, $k) {
+            $this->setItem($k, $v);
+        });
     }
 }
