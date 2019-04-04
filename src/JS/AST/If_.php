@@ -28,30 +28,40 @@ class If_ extends Node {
     /**
      * @var mixed
      */
-    protected $condition;
+    protected $if;
 
     /**
      * @var mixed
      */
-    protected $block;
+    protected $then;
 
-    public function __construct($condition, $block) {
-        $this->condition = $condition;
-        $this->block = $block;
+    /**
+     * @var mixed
+     */
+    protected $else;
+
+    public function __construct($if, $then, $else = null) {
+        $this->if = $if;
+        $this->then = $then;
+        $this->else = $else;
     }
 
     /**
      * @return Node (specificially the implementing class)
      */
     public function fmap(callable $f) {
-        return new If_($f($this->condition), $f($this->block));
+        return new If_($f($this->if), $f($this->then), $this->else ? $f($this->else) : null);
     }
 
-    public function condition() {
-        return $this->condition;
+    public function if_() {
+        return $this->if;
     }
 
-    public function block() {
-        return $this->block;
+    public function then() {
+        return $this->then;
+    }
+
+    public function else_() {
+        return $this->else;
     }
 }

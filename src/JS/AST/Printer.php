@@ -116,8 +116,11 @@ class Printer {
     }
 
     protected function print_If_(Node $original, Node $n) {
-        $b = str_replace("\n", "\n    ", $n->block());
-        return "if ({$n->condition()}) {\n    $b\n}";
+        $t = str_replace("\n", "\n    ", $n->then());
+        $e = $n->else_() ? str_replace("\n", "\n    ", $n->else_()) : null;
+        return
+            "if ({$n->if_()}) {\n    $t\n}".
+            ($e ? "\nelse {\n    $e}" : "");
     }
 
     protected function print_TernaryOp(Node $original, Node $n) {

@@ -169,8 +169,8 @@ class Factory {
         return new BinaryOp("instanceof", $left, $right);
     }
 
-    public function if_(Expression $condition, Block $block) : Node {
-        return new If_($condition, $block);
+    public function if_(Expression $if, Block $then, Block $else = null) : Node {
+        return new If_($if, $then, $else);
     }
 
     public function ternary(Expression $if, Expression $then, Expression $else) : Node {
