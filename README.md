@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.com/lechimp-p/php2js.svg?branch=master)](https://travis-ci.com/lechimp-p/php2js)
+
 # php2js - Compiles sane PHP to JavaScript
 
 **php2js makes it possible that you write client side scripts in your favorite
