@@ -26,7 +26,7 @@ use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\NodeTraverser;
 
-class RewriteAssignOperators extends NodeVisitorAbstract {
+class RewriteOperators extends NodeVisitorAbstract {
     public function leaveNode(Node $n) {
         if ($n instanceof Node\Expr\AssignOp\Plus) {
             return $this->toAssign($n, Node\Expr\BinaryOp\Plus::class);
@@ -63,6 +63,10 @@ class RewriteAssignOperators extends NodeVisitorAbstract {
         }
         if ($n instanceof Node\Expr\AssignOp\Concat) {
             return $this->toAssign($n, Node\Expr\BinaryOp\Concat::class);
+        }
+        if ($n instanceof Node\Expr\PostInc) {
+            $n->expr = Node\Scalar\LNumber::fromString("1");
+            return $this->toAssign($n, Node\Expr\BinaryOp\Plus::class);
         }
     }
 
