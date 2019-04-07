@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\Compiler;
+namespace Lechimp\PHP2JS\Test\Compiler;
 
-use Lechimp\PHP_JS\Compiler\Registry;
-use Lechimp\PHP_JS\Compiler\Compiler;
+use Lechimp\PHP2JS\Compiler\Registry;
+use Lechimp\PHP2JS\Compiler\Compiler;
 use PhpParser\ParserFactory;
 use PhpParser\BuilderFactory;
 

@@ -1,8 +1,8 @@
 <?php
 
-use Lechimp\PHP_JS\JS_Tests;
+use Lechimp\PHP2JS\JS_Tests;
 
-class TestRunner implements Lechimp\PHP_JS\JS\Script {
+class TestRunner implements Lechimp\PHP2JS\JS\Script {
     public function execute() {
         $tests = $this->buildTests();
         $result = true;

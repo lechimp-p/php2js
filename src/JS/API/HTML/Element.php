@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS\API\HTML;
+namespace Lechimp\PHP2JS\JS\API\HTML;
 
 /**
  * An HTML-Element.

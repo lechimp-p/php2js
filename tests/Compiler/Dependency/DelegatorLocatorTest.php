@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\Compiler\Dependency;
+namespace Lechimp\PHP2JS\Test\Compiler\Dependency;
 
-use Lechimp\PHP_JS\Compiler\Dependency\Locator;
-use Lechimp\PHP_JS\Compiler\Dependency\DelegatorLocator;
+use Lechimp\PHP2JS\Compiler\Dependency\Locator;
+use Lechimp\PHP2JS\Compiler\Dependency\DelegatorLocator;
 
 class DelegatorLocatorTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {

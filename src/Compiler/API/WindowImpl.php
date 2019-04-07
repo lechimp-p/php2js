@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-use Lechimp\PHP_JS\JS\API\Window;
+use Lechimp\PHP2JS\JS\API\Window;
 
 /**
  * ATTENTION: This is not supposed to work in a PHP-environment.

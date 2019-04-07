@@ -19,9 +19,9 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\App;
+namespace Lechimp\PHP2JS\App;
 
-use Lechimp\PHP_JS\Compiler;
+use Lechimp\PHP2JS\Compiler;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;

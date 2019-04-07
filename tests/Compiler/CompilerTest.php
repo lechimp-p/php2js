@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\Compiler;
+namespace Lechimp\PHP2JS\Test\Compiler;
 
-use Lechimp\PHP_JS\Compiler;
-use Lechimp\PHP_JS\JS;
+use Lechimp\PHP2JS\Compiler;
+use Lechimp\PHP2JS\JS;
 use PhpParser\BuilderFactory;
 use PhpParser\ParserFactory;
 use PhpParser\Node as PhpNode;
@@ -73,7 +73,7 @@ class CompilerTest extends \PHPUnit\Framework\TestCase {
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $foo;
@@ -205,7 +205,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $protected_var;
@@ -232,7 +232,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $protected_var;
@@ -260,7 +260,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected function a_method() {}
@@ -285,7 +285,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $foo = "bar" ;
@@ -310,7 +310,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     public function execute() {
@@ -338,7 +338,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     public function execute() {
@@ -365,7 +365,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     public function execute() {
@@ -394,8 +394,8 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
-use Lechimp\PHP_JS\JS\API\Window;
+use Lechimp\PHP2JS\JS\Script;
+use Lechimp\PHP2JS\JS\API\Window;
 
 class TestScript implements Script {
     protected $foo;
@@ -427,8 +427,8 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
-use Lechimp\PHP_JS\JS\API\Window;
+use Lechimp\PHP2JS\JS\Script;
+use Lechimp\PHP2JS\JS\API\Window;
 
 class TestScript implements Script {
     protected $window;
@@ -461,9 +461,9 @@ PHP
         $ast = $this->parser->parse(<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
-use Lechimp\PHP_JS\JS\API\Window;
-use Lechimp\PHP_JS\JS\API\Document;
+use Lechimp\PHP2JS\JS\Script;
+use Lechimp\PHP2JS\JS\API\Window;
+use Lechimp\PHP2JS\JS\API\Document;
 
 class TestScript implements Script {
     protected $window;
@@ -504,7 +504,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $foo;
@@ -535,7 +535,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $foobar;
@@ -563,7 +563,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $foobar;
@@ -591,7 +591,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $foobar;
@@ -619,7 +619,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $foobar;
@@ -652,7 +652,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $foobar;
@@ -682,7 +682,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $foobar;
@@ -710,7 +710,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     public function __construct() {
@@ -736,7 +736,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     public function __construct() {
@@ -762,7 +762,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $an_array;
@@ -790,7 +790,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $n;
@@ -820,7 +820,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     protected $n = 0;
@@ -870,7 +870,7 @@ PHP
         file_put_contents($filename,<<<'PHP'
 <?php
 
-use Lechimp\PHP_JS\JS\Script;
+use Lechimp\PHP2JS\JS\Script;
 
 class TestScript implements Script {
     public function __construct() {

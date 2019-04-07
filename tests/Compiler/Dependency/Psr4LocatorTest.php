@@ -19,17 +19,17 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\Compiler\Dependency;
+namespace Lechimp\PHP2JS\Test\Compiler\Dependency;
 
-use Lechimp\PHP_JS\Compiler\Dependency\Locator;
-use Lechimp\PHP_JS\Compiler\Dependency\Psr4Locator;
+use Lechimp\PHP2JS\Compiler\Dependency\Locator;
+use Lechimp\PHP2JS\Compiler\Dependency\Psr4Locator;
 
 class Psr4LocatorTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {
         $this->inner = $this->createMock(Locator::class);
         $this->psr4_locator= new Psr4Locator(
             $this->inner,
-            "Lechimp\\PHP_JS\\Test\\Compiler\\Dependency\\",
+            "Lechimp\\PHP2JS\\Test\\Compiler\\Dependency\\",
             __DIR__
         );
     }

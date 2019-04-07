@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS_Tests\Array_;
+namespace Lechimp\PHP2JS\JS_Tests\Array_;
 
 class IndexFetchTest {
     public function name() {

@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\App;
+namespace Lechimp\PHP2JS\App;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command;

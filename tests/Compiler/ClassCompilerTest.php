@@ -19,11 +19,11 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\Compiler;
+namespace Lechimp\PHP2JS\Test\Compiler;
 
-use Lechimp\PHP_JS\Compiler\BuildInCompiler;
-use Lechimp\PHP_JS\Compiler\ClassCompiler;
-use Lechimp\PHP_JS\JS;
+use Lechimp\PHP2JS\Compiler\BuildInCompiler;
+use Lechimp\PHP2JS\Compiler\ClassCompiler;
+use Lechimp\PHP2JS\JS;
 use PhpParser\BuilderFactory;
 use PhpParser\ParserFactory;
 use PhpParser\Node as PhpNode;

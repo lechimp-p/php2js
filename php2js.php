@@ -19,7 +19,7 @@
 
 require_once(__DIR__."/vendor/autoload.php");
 
-$container = new Lechimp\PHP_JS\DIC;
+$container = new Lechimp\PHP2JS\DIC;
 $app = $container["app"];
 
 // Do not run in unit tests.

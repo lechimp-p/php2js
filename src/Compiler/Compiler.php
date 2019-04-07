@@ -19,13 +19,13 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Compiler;
+namespace Lechimp\PHP2JS\Compiler;
 
 use PhpParser\Node as PhpNode;
 use PhpParser\Parser;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
-use Lechimp\PHP_JS\JS;
+use Lechimp\PHP2JS\JS;
 
 /**
  * Compile PHP to JS.

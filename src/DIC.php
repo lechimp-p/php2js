@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS;
+namespace Lechimp\PHP2JS;
 
 use Pimple\Container;
 use PhpParser\ParserFactory;

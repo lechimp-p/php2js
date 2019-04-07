@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace HTML;
 
-use Lechimp\PHP_JS\JS\API\HTML\Element;
+use Lechimp\PHP2JS\JS\API\HTML\Element;
 
 /**
  * ATTENTION: This is not supposed to work in a PHP-environment.

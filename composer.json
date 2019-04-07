@@ -17,7 +17,7 @@
         "source": "https://github.com/lechimp-p/php.js"
     },
     "autoload" : {
-        "psr-4" : { "Lechimp\\PHP_JS\\" : "src" }
+        "psr-4" : { "Lechimp\\PHP2JS\\" : "src" }
     },
     "require": {
         "nikic/php-parser" : "4.*.*",

@@ -19,9 +19,9 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Compiler;
+namespace Lechimp\PHP2JS\Compiler;
 
-use Lechimp\PHP_JS\JS;
+use Lechimp\PHP2JS\JS;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\NodeTraverser;

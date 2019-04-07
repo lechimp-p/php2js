@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Compiler\Dependency;
+namespace Lechimp\PHP2JS\Compiler\Dependency;
 
 interface Locator {
     /**

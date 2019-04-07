@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test;
+namespace Lechimp\PHP2JS\Test;
 
 class SmokeTest extends \PHPUnit\Framework\TestCase {
     public function testApp() {

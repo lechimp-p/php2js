@@ -19,11 +19,11 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\Compiler\API;
+namespace Lechimp\PHP2JS\Test\Compiler\API;
 
 require_once(__DIR__."/../../../src/Compiler/API/WindowImpl.php");
 
-use Lechimp\PHP_JS\JS\API\Window;
+use Lechimp\PHP2JS\JS\API\Window;
 
 class WindowImplTest extends \PHPUnit\Framework\TestCase {
     public function test_smoke() {

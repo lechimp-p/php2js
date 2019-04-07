@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS\AST;
+namespace Lechimp\PHP2JS\JS\AST;
 
 /**
  * Represents a property access: a["b"]

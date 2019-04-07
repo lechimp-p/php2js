@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Compiler;
+namespace Lechimp\PHP2JS\Compiler;
 
 class Exception extends \RuntimeException {
 }

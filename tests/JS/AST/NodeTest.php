@@ -19,9 +19,9 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\JS\AST;
+namespace Lechimp\PHP2JS\Test\JS\AST;
 
-use Lechimp\PHP_JS\JS;
+use Lechimp\PHP2JS\JS;
 
 class LNil extends JS\AST\Node {
     public function fmap(callable $f) {

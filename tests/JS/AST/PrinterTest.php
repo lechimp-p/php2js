@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\JS\AST;
+namespace Lechimp\PHP2JS\Test\JS\AST;
 
-use Lechimp\PHP_JS\JS\AST\Factory;
-use Lechimp\PHP_JS\JS\AST\Printer;
+use Lechimp\PHP2JS\JS\AST\Factory;
+use Lechimp\PHP2JS\JS\AST\Printer;
 
 class PrinterTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {

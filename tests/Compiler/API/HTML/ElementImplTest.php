@@ -19,19 +19,19 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\Compiler\API\HTML;
+namespace Lechimp\PHP2JS\Test\Compiler\API\HTML;
 
-use Lechimp\PHP_JS\JS\API\HTML;
-use Lechimp\PHP_JS\JS\API\Document;
-use Lechimp\PHP_JS\Compiler\BuildInCompiler;
-use Lechimp\PHP_JS\Compiler\ClassCompiler;
-use Lechimp\PHP_JS\Compiler\Compiler;
-use Lechimp\PHP_JS\Compiler\AnnotateFullyQualifiedName;
-use Lechimp\PHP_JS\Compiler\AnnotateFirstVariableAssignment;
-use Lechimp\PHP_JS\Compiler\AnnotateVisibility;
-use Lechimp\PHP_JS\Compiler\RemoveTypeHints;
-use Lechimp\PHP_JS\Compiler\Registry;
-use Lechimp\PHP_JS\JS;
+use Lechimp\PHP2JS\JS\API\HTML;
+use Lechimp\PHP2JS\JS\API\Document;
+use Lechimp\PHP2JS\Compiler\BuildInCompiler;
+use Lechimp\PHP2JS\Compiler\ClassCompiler;
+use Lechimp\PHP2JS\Compiler\Compiler;
+use Lechimp\PHP2JS\Compiler\AnnotateFullyQualifiedName;
+use Lechimp\PHP2JS\Compiler\AnnotateFirstVariableAssignment;
+use Lechimp\PHP2JS\Compiler\AnnotateVisibility;
+use Lechimp\PHP2JS\Compiler\RemoveTypeHints;
+use Lechimp\PHP2JS\Compiler\Registry;
+use Lechimp\PHP2JS\JS;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 

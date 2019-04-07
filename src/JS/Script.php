@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS;
+namespace Lechimp\PHP2JS\JS;
 
 /**
  * This is the interface that needs to be implemented for a javascript-script.

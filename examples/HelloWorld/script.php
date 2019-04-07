@@ -1,8 +1,8 @@
 <?php
 
-use Lechimp\PHP_JS\JS\API\Document;
+use Lechimp\PHP2JS\JS\API\Document;
 
-class MyScript implements Lechimp\PHP_JS\JS\Script {
+class MyScript implements Lechimp\PHP2JS\JS\Script {
     protected $document;
 
     public function __construct(Document $document) {

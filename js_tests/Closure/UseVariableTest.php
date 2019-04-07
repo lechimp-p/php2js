@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\JS_Tests\Closure;
+namespace Lechimp\PHP2JS\JS_Tests\Closure;
 
 class UseVariableTest {
     public function name() {

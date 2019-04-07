@@ -19,9 +19,9 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Compiler\Dependency;
+namespace Lechimp\PHP2JS\Compiler\Dependency;
 
-use Lechimp\PHP_JS\Compiler\Exception;
+use Lechimp\PHP2JS\Compiler\Exception;
 
 class UnknownDependencyException extends Exception {
     /**

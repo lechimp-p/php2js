@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP_JS\Test\Compiler\Dependency;
+namespace Lechimp\PHP2JS\Test\Compiler\Dependency;
 
-use Lechimp\PHP_JS\Compiler\Dependency\NullLocator;
-use Lechimp\PHP_JS\Compiler\Dependency\UnknownDependencyException;
+use Lechimp\PHP2JS\Compiler\Dependency\NullLocator;
+use Lechimp\PHP2JS\Compiler\Dependency\UnknownDependencyException;
 
 class NullLocatorTest extends \PHPUnit\Framework\TestCase {
     public function setUp() {
