@@ -27,7 +27,7 @@ use PhpParser\ParserFactory;
 use PhpParser\BuilderFactory;
 
 class RegistryTest extends \PHPUnit\Framework\TestCase {
-    public function setUp() {
+    public function setUp() : void {
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->builder = new BuilderFactory;
         $this->registry = new Registry();

@@ -35,7 +35,7 @@ class ClassCompilerForTest extends ClassCompiler {
 }
 
 class ClassCompilerTest extends \PHPUnit\Framework\TestCase {
-    public function setUp() {
+    public function setUp() : void {
         $this->builder = new BuilderFactory;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
 

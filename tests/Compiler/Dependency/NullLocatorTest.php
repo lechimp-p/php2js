@@ -25,7 +25,7 @@ use Lechimp\PHP2JS\Compiler\Dependency\NullLocator;
 use Lechimp\PHP2JS\Compiler\Dependency\UnknownDependencyException;
 
 class NullLocatorTest extends \PHPUnit\Framework\TestCase {
-    public function setUp() {
+    public function setUp() : void {
         $this->null = new NullLocator();
     }
 

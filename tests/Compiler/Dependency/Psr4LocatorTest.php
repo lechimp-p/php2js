@@ -25,7 +25,7 @@ use Lechimp\PHP2JS\Compiler\Dependency\Locator;
 use Lechimp\PHP2JS\Compiler\Dependency\Psr4Locator;
 
 class Psr4LocatorTest extends \PHPUnit\Framework\TestCase {
-    public function setUp() {
+    public function setUp() : void {
         $this->inner = $this->createMock(Locator::class);
         $this->psr4_locator= new Psr4Locator(
             $this->inner,

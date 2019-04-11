@@ -49,7 +49,7 @@ class CompilerForTest extends Compiler\Compiler {
 }
 
 class CompilerTest extends \PHPUnit\Framework\TestCase {
-    public function setUp() {
+    public function setUp() : void {
         $this->builder = new BuilderFactory;
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->compiler = new CompilerForTest();
@@ -88,7 +88,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertInternalType("string", $result);
+        $this->assertIsString($result);
         $this->assertRegExp("/.*process\\.stdout\\.write\\(\"Hello World!\"\\);.*/ms", $result);
     }
 

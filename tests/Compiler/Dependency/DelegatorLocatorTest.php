@@ -25,7 +25,7 @@ use Lechimp\PHP2JS\Compiler\Dependency\Locator;
 use Lechimp\PHP2JS\Compiler\Dependency\DelegatorLocator;
 
 class DelegatorLocatorTest extends \PHPUnit\Framework\TestCase {
-    public function setUp() {
+    public function setUp() : void {
         $this->inner = $this->createMock(Locator::class);
         $this->delegator = new DelegatorLocator($this->inner);
     }

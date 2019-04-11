@@ -25,7 +25,7 @@ use Lechimp\PHP2JS\JS\AST\Factory;
 use Lechimp\PHP2JS\JS\AST\Printer;
 
 class PrinterTest extends \PHPUnit\Framework\TestCase {
-    public function setUp() {
+    public function setUp() : void {
         $this->factory = new Factory();
         $this->printer = new Printer();
     }

@@ -25,7 +25,7 @@ use Lechimp\PHP2JS\Compiler\Dependency\Locator;
 use Lechimp\PHP2JS\Compiler\Dependency\LocateByList;
 
 class LocateByListTest extends \PHPUnit\Framework\TestCase {
-    public function setUp() {
+    public function setUp() : void {
         $this->list = [
             "one" => "1",
             "two" => "2"

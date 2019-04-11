@@ -24,5 +24,7 @@ namespace Lechimp\PHP2JS\Test;
 class SmokeTest extends \PHPUnit\Framework\TestCase {
     public function testApp() {
         require_once(__DIR__."/../php2js.php");
+
+        $this->assertTrue(true); // this is like this intentionally...
     }
 }

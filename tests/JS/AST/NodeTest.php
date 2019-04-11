@@ -46,7 +46,7 @@ class LCon extends JS\AST\Node {
 }
 
 class NodeTest extends \PHPUnit\Framework\TestCase {
-    public function setUp() {
+    public function setUp() : void {
         $this->list = new LCon(
             3,
             new LCon(

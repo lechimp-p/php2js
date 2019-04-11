@@ -1,11 +1,11 @@
 {
-    "name": "lechimp-p/php.js",
+    "name": "lechimp-p/php2js",
     "version": "0.1.0",
-    "description": "Run PHP client side with javascript.",
+    "description": "Compiles sane PHP to javascript.",
     "keywords": ["compiler", "javascript", "client"],
     "type": "library",
-    "license": "MIT",
-    "homepage": "https://github.com/lechimp-p/php.js",
+    "license": "GPL-3.0-or-later",
+    "homepage": "https://github.com/lechimp-p/php2js",
     "authors": [
         {
             "name": "Richard Klees",
@@ -13,8 +13,8 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/lechimp-p/php.js/internal/issues",
-        "source": "https://github.com/lechimp-p/php.js"
+        "issues": "https://github.com/lechimp-p/php2js/internal/issues",
+        "source": "https://github.com/lechimp-p/php2js"
     },
     "autoload" : {
         "psr-4" : { "Lechimp\\PHP2JS\\" : "src" }
@@ -27,6 +27,6 @@
         "composer/composer" : "1.8.4"
     },
     "require-dev": {
-        "phpunit/phpunit" : "^5.7"
+        "phpunit/phpunit" : "^8.1"
     }
 }
