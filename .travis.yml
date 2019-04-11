@@ -9,3 +9,12 @@ php:
     - 7.3
 install: composer install
 script: ./run_tests.sh
+before_deploy: ./build_phar.php
+deploy:
+    provider: releases
+    file: php2js.phar
+    skip_cleanup: true
+    on:
+        php: 7.2
+        tags: true
+        repo: lechimp-p/php2js

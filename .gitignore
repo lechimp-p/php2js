@@ -1,3 +1,5 @@
 /vendor/
 *.swp
 *.swo
+php2js.phar
+.phpunit.result.cache
