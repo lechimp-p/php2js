@@ -28,25 +28,38 @@ use Lechimp\PHP2JS\JS\API\HTML\Element;
  * This is just a stub that gets compiled to JS to implement the
  * JS\API\HTML\Element interface. Do not use it yourself.
  */
-class ElementImpl implements Element{
-    /**
-     * @var JS-native-HTML-Element
-     */
-    protected $element = null;
-
-    public function __construct($element) {
-        $this->element = $element;
-    }
-
+class ElementImpl extends NodeImpl implements Element {
     public function getInnerHTML() : string {
-        return $this->element->innerHTML;
+        return $this->node->innerHTML;
     }
 
-    /**
-     * @return void
-     */
-    public function setInnerHTML(string $innerHTML) {
-        $this->element->innerHTML = $innerHTML;
+    public function setInnerHTML(string $innerHTML) : void {
+        $this->node->innerHTML = $innerHTML;
+    }
+
+
+    public function setId(string $id) : void {
+        $this->node->id = $id;
+    }
+
+    public function getId() : string {
+        return $this->node->id;
+    }
+
+    public function setClassName(string $name) : void {
+        $this->node->className = $name;
+    }
+
+    public function getClassName() : string {
+        return $this->node->className;
+    }
+
+    public function setAttribute(string $name, string $value) : void {
+        $this->node->setAttribute($name, $value);
+    }
+
+    public function getAttribute(string $name) : string {
+        return $this->node->getAttribute($name);
     }
 }
 

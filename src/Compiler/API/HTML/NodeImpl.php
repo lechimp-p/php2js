@@ -19,21 +19,31 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\JS\API\HTML;
+namespace HTML;
+
+use Lechimp\PHP2JS\JS\API\HTML\Node;
 
 /**
- * An HTML-Element.
+ * ATTENTION: This is not supposed to work in a PHP-environment.
+ * This is just a stub that gets compiled to JS to implement the
+ * JS\API\HTML\Element interface. Do not use it yourself.
  */
-interface Element extends Node {
-    public function getInnerHTML() : string;
-    public function setInnerHTML(string $innerHtml) : void;
+class NodeImpl implements Node {
+    /**
+     * @var JS-native HTML-Node
+     */
+    protected $node = null;
 
-    public function setId(string $id) : void;
-    public function getId() : string;
+    public function __construct($node) {
+        $this->node = $node;
+    }
 
-    public function setClassName(string $name) : void;
-    public function getClassName() : string;
+    public function appendChild(Node $other) : void{
+        $this->node->appendChild($other);
+    }
 
-    public function setAttribute(string $name, string $value) : void;
-    public function getAttribute(string $name) : string;
+    public function cloneNode(bool $deep) : Node {
+        return $this->node->cloneNode($deep);
+    }
 }
+

@@ -54,7 +54,7 @@ class TextNodeImplTest extends \PHPUnit\Framework\TestCase {
 
         $registry->expects($this->atLeastOnce())
             ->method("getVisibility")
-            ->with("HTML\TextNodeImpl", "textnode")
+            ->with("HTML\TextNodeImpl", "node")
             ->willReturn(Compiler::ATTR_PROTECTED);
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
@@ -64,7 +64,7 @@ class TextNodeImplTest extends \PHPUnit\Framework\TestCase {
         $t->addVisitor(new AnnotateFirstVariableAssignment());
         $t->addVisitor(new RemoveTypeHints());
         $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
-        $ast[1]->stmts[1]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\HTML\ElementImpl");
+        $ast[1]->stmts[1]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\HTML\TextNodeImpl");
 
         $result = $compiler->compile($ast[1]->stmts[1]);
 

@@ -35,17 +35,17 @@ use Lechimp\PHP2JS\JS;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 
-class ElementImplTest extends \PHPUnit\Framework\TestCase {
-    const LOCATION = __DIR__."/../../../../src/Compiler/API/HTML/ElementImpl.php";
+class NodeImplTest extends \PHPUnit\Framework\TestCase {
+    const LOCATION = __DIR__."/../../../../src/Compiler/API/HTML/NodeImpl.php";
     const NODE_LOCATION = __DIR__."/../../../../src/Compiler/API/HTML/NodeImpl.php";
 
     public function test_smoke() {
         require_once(self::NODE_LOCATION);
         require_once(self::LOCATION);
 
-        $impl = new \HTML\ElementImpl(null);
+        $impl = new \HTML\NodeImpl(null);
 
-        $this->assertInstanceOf(HTML\Element::class, $impl);
+        $this->assertInstanceOf(HTML\Node::class, $impl);
     }
 
     public function test_compile() {
@@ -56,7 +56,7 @@ class ElementImplTest extends \PHPUnit\Framework\TestCase {
 
         $registry->expects($this->atLeastOnce())
             ->method("getVisibility")
-            ->with("HTML\ElementImpl", "node")
+            ->with("HTML\NodeImpl", "node")
             ->willReturn(Compiler::ATTR_PROTECTED);
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
@@ -66,7 +66,7 @@ class ElementImplTest extends \PHPUnit\Framework\TestCase {
         $t->addVisitor(new AnnotateFirstVariableAssignment());
         $t->addVisitor(new RemoveTypeHints());
         $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
-        $ast[1]->stmts[1]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\HTML\ElementImpl");
+        $ast[1]->stmts[1]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\HTML\NodeImpl");
 
         $result = $compiler->compile($ast[1]->stmts[1]);
 

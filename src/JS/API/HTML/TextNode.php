@@ -24,6 +24,6 @@ namespace Lechimp\PHP2JS\JS\API\HTML;
 /**
  * An HTML-Textnode.
  */
-interface TextNode{
+interface TextNode extends Node {
     public function getWholeText() : string;
 }

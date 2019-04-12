@@ -22,18 +22,9 @@ declare(strict_types=1);
 namespace Lechimp\PHP2JS\JS\API\HTML;
 
 /**
- * An HTML-Element.
+ * An HTML-Node.
  */
-interface Element extends Node {
-    public function getInnerHTML() : string;
-    public function setInnerHTML(string $innerHtml) : void;
-
-    public function setId(string $id) : void;
-    public function getId() : string;
-
-    public function setClassName(string $name) : void;
-    public function getClassName() : string;
-
-    public function setAttribute(string $name, string $value) : void;
-    public function getAttribute(string $name) : string;
+interface Node {
+    public function appendChild(Node $other) : void;
+    public function cloneNode(bool $deep) : Node;
 }

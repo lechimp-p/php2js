@@ -28,18 +28,9 @@ use Lechimp\PHP2JS\JS\API\HTML\TextNode;
  * This is just a stub that gets compiled to JS to implement the
  * JS\API\HTML\Element interface. Do not use it yourself.
  */
-class TextNodeImpl implements TextNode {
-    /**
-     * @var JS-native TextNode 
-     */
-    protected $textnode= null;
-
-    public function __construct($textnode) {
-        $this->textnode = $textnode;
-    }
-
+class TextNodeImpl extends NodeImpl implements TextNode {
     public function getWholeText() : string {
-        return $this->textnode->wholeText;
+        return $this->node->wholeText;
     }
 }
 
