@@ -56,7 +56,7 @@ class DocumentImplTest extends \PHPUnit\Framework\TestCase {
         $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
         $ast[2]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\DocumentImpl");
 
-        $result = $compiler->compile($ast[2]);
+        $result = $compiler->compile($ast[3]);
 
         $this->assertInstanceOf(JS\AST\Node::class, $result);
     }

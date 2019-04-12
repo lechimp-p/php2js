@@ -20,6 +20,7 @@
 declare(strict_types=1);
 
 use Lechimp\PHP2JS\JS\API\Document;
+use Lechimp\PHP2JS\JS\API\Html;
 
 /**
  * ATTENTION: This is not supposed to work in a PHP-environment.
@@ -38,6 +39,27 @@ class DocumentImpl implements Document {
             return null;
         }
         return new \HTML\ElementImpl($result);
+    }
+
+    /**
+     * Get the body of the document.
+     */
+    public function getBody() : Html\Element {
+        return $document->body;
+    }
+
+    /**
+     * Create an element in a namespace.
+     */
+    public function createElementNS(string $ns, string $tag) : Html\Element {
+        return new \HTML\ElementImpl($document->createElementNS($ns, $tag));
+    }
+
+    /**
+     * Create an element.
+     */
+    public function createElement(string $tag) : Html\Element {
+        return new \HTML\ElementImpl($document->createElement($ns, $tag));
     }
 }
 

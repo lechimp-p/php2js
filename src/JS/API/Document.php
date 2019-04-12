@@ -31,4 +31,19 @@ interface Document {
      * @return null|Html\Element
      */
     public function getElementById(string $id);
+
+    /**
+     * Get the body of the document.
+     */
+    public function getBody() : Html\Element;
+
+    /**
+     * Create an element in a namespace.
+     */
+    public function createElementNS(string $ns, string $tag) : Html\Element;
+
+    /**
+     * Create an element.
+     */
+    public function createElement(string $tag) : Html\Element;
 }
