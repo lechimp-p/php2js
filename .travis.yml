@@ -1,20 +1,22 @@
-language: php 
-dist: xenial 
+language: php
+dist: xenial
 addons:
     apt:
         packages:
-            nodejs
+            - nodejs
 php:
     - 7.2
     - 7.3
 install: composer install
-script: ./run_tests.sh
-before_deploy: ./build_phar.php
+script: "./run_tests.sh"
+before_deploy: "./build_phar.php"
 deploy:
     provider: releases
+    api_key:
+        secure: gE87ES20QuuxOv5neRnohvamM6cKZao9YzvvjoJwq6JPrI7afaw00J8hWtyXVy9PHHQHnAjUFVB2pjWAclERQN6t4wkEResqzdr4bHm2Mg8QkdZiCoet4BNz60I454/ww6YgbJegnbhx3NA00EVvcyP4rsE0MzI4z5ve6joJU6e0wAf4XW40VF3BiFOpV3RJ3BhMoL1uDH1k/COhXFcw5O+/2rs6jPuK7evGP42l+X9oUVsg4TLmst8uP+5Kz1gEFmcslDGCPk4uTrdtg0VzeCbMSsdmvPPgwCSa33LG+1ioZuqnd1tj68kG6RK0tEyNnA2krFmCAStjOTUJ/IhH0ATRbqnOqsQCVQw1huSunzasNyoeklNwNr6eqdQf0CWdA5F8d4c4acvPCSvXqzA3eWXgx3k537wnPCtl4cVpvEmejP65FcBm77cy0Zj21S14aHQAc9pcdtFu01Cs/U/L0FMGd0U0PmRP1wHJQ8aFjmZUGQu3oy4kcoGEez6hewcipEfZHyneWwhPyDVXvBamGcQ0vOs1QIkp1ZGSx+FkchvVDRV+N4uGAHIHXfqgRvEWomoPJ9HIfkAaJz9W8IlTRX6unf+ZjlD+Uj5h8SYqORnFYrBYSEjbaoDUp57ShEqtxN5/ZWw4FykRGK3PJhTYyrBpC3mPmfPX2lXTrwVCgw4=
     file: php2js.phar
     skip_cleanup: true
     on:
-        php: 7.2
+        php: 7.2 
         tags: true
         repo: lechimp-p/php2js
