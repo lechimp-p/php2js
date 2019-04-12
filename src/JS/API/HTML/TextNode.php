@@ -19,36 +19,11 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\JS\API;
+namespace Lechimp\PHP2JS\JS\API\HTML;
 
 /**
- * The browsers document API.
+ * An HTML-Textnode.
  */
-interface Document {
-    /**
-     * Get an HTML-Node by its id.
-     *
-     * @return null|Html\Element
-     */
-    public function getElementById(string $id);
-
-    /**
-     * Get the body of the document.
-     */
-    public function getBody() : Html\Element;
-
-    /**
-     * Create an element in a namespace.
-     */
-    public function createElementNS(string $ns, string $tag) : Html\Element;
-
-    /**
-     * Create an element.
-     */
-    public function createElement(string $tag) : Html\Element;
-
-    /**
-     * Create a text node.
-     */
-    public function createTextNode(string $content) : Html\TextNode;
+interface TextNode{
+    public function getWholeText() : string;
 }

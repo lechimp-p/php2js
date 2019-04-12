@@ -61,5 +61,12 @@ class DocumentImpl implements Document {
     public function createElement(string $tag) : Html\Element {
         return new \HTML\ElementImpl($document->createElement($ns, $tag));
     }
+
+    /**
+     * Create a text node.
+     */
+    public function createTextNode(string $content) : Html\TextNode {
+        return new \HTML\ElementImpl($document->createTextNode($ns, $tag));
+    }
 }
 

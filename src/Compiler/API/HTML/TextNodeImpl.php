@@ -19,36 +19,27 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\JS\API;
+namespace HTML;
+
+use Lechimp\PHP2JS\JS\API\HTML\TextNode;
 
 /**
- * The browsers document API.
+ * ATTENTION: This is not supposed to work in a PHP-environment.
+ * This is just a stub that gets compiled to JS to implement the
+ * JS\API\HTML\Element interface. Do not use it yourself.
  */
-interface Document {
+class TextNodeImpl implements TextNode {
     /**
-     * Get an HTML-Node by its id.
-     *
-     * @return null|Html\Element
+     * @var JS-native TextNode 
      */
-    public function getElementById(string $id);
+    protected $textnode= null;
 
-    /**
-     * Get the body of the document.
-     */
-    public function getBody() : Html\Element;
+    public function __construct($textnode) {
+        $this->textnode = $textnode;
+    }
 
-    /**
-     * Create an element in a namespace.
-     */
-    public function createElementNS(string $ns, string $tag) : Html\Element;
-
-    /**
-     * Create an element.
-     */
-    public function createElement(string $tag) : Html\Element;
-
-    /**
-     * Create a text node.
-     */
-    public function createTextNode(string $content) : Html\TextNode;
+    public function getWholeText() : string {
+        return $this->textnode->wholeText;
+    }
 }
+
