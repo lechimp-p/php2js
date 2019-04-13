@@ -75,6 +75,10 @@ class Registry {
         return array_keys($this->classes);
     }
 
+    public function hasClass(string $fully_qualified_name) : bool {
+        return isset($this->classes[$fully_qualified_name]);
+    }
+
     public function getClass(string $fully_qualified_name) {
         if (!isset($this->classes[$fully_qualified_name])) {
             throw new \LogicException(

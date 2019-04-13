@@ -104,6 +104,9 @@ class Compiler {
             if (array_key_exists($dep, $compiled_deps)) {
                 continue;
             }
+            if ($registry->hasClass($dep)) {
+                continue;
+            }
 
             $filename = $this->dependency_locator->getFilenameOfDependency($dep);
             if ($this->dependency_locator->isInternalDependency($dep)) {
