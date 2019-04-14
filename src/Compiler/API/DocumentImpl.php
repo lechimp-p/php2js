@@ -34,7 +34,7 @@ class DocumentImpl implements Document {
      * @return null|Html\Element
      */
     public function getElementById(string $id) {
-        $result = $document->getElementById($id);
+        $result = $JS_NATIVE_document->getElementById($id);
         if ($result === null) {
             return null;
         }
@@ -45,28 +45,28 @@ class DocumentImpl implements Document {
      * Get the body of the document.
      */
     public function getBody() : Html\Element {
-        return $document->body;
+        return $JS_NATIVE_document->body;
     }
 
     /**
      * Create an element in a namespace.
      */
     public function createElementNS(string $ns, string $tag) : Html\Element {
-        return new \HTML\ElementImpl($document->createElementNS($ns, $tag));
+        return new \HTML\ElementImpl($JS_NATIVE_document->createElementNS($ns, $tag));
     }
 
     /**
      * Create an element.
      */
     public function createElement(string $tag) : Html\Element {
-        return new \HTML\ElementImpl($document->createElement($ns, $tag));
+        return new \HTML\ElementImpl($JS_NATIVE_document->createElement($ns, $tag));
     }
 
     /**
      * Create a text node.
      */
     public function createTextNode(string $content) : Html\TextNode {
-        return new \HTML\ElementImpl($document->createTextNode($ns, $tag));
+        return new \HTML\ElementImpl($JS_NATIVE_document->createTextNode($ns, $tag));
     }
 }
 

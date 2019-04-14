@@ -43,7 +43,7 @@ class DocumentImplTest extends \PHPUnit\Framework\TestCase {
         $this->assertInstanceOf(Document::class, $impl);
     }
 
-    public function test_compile() {
+    public function compiled() {
         $js = new JS\AST\Factory();
         $build_in_compiler = new BuildInCompiler($js);
         $compiler = new ClassCompiler($js, $build_in_compiler);
@@ -54,10 +54,21 @@ class DocumentImplTest extends \PHPUnit\Framework\TestCase {
         $t->addVisitor(new AnnotateFirstVariableAssignment());
         $t->addVisitor(new RemoveTypeHints());
         $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
-        $ast[2]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\DocumentImpl");
+        $ast[3]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\DocumentImpl");
 
-        $result = $compiler->compile($ast[3]);
+        return $compiler->compile($ast[3]);
+    }
+
+    public function test_compile() {
+        $result = $this->compiled();
 
         $this->assertInstanceOf(JS\AST\Node::class, $result);
+    }
+
+    public function test_use_native_document() {
+        $result = (new JS\AST\Printer)->print($this->compiled());
+
+        $this->assertNotRegExp("/.*\\\$document.*/", $result);
+        $this->assertRegExp("/.*\\s+document.*/", $result);
     }
 }

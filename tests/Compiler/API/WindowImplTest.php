@@ -21,14 +21,55 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP2JS\Test\Compiler\API;
 
-require_once(__DIR__."/../../../src/Compiler/API/WindowImpl.php");
-
 use Lechimp\PHP2JS\JS\API\Window;
+use Lechimp\PHP2JS\Compiler\BuildInCompiler;
+use Lechimp\PHP2JS\Compiler\ClassCompiler;
+use Lechimp\PHP2JS\Compiler\Compiler;
+use Lechimp\PHP2JS\Compiler\AnnotateFullyQualifiedName;
+use Lechimp\PHP2JS\Compiler\AnnotateFirstVariableAssignment;
+use Lechimp\PHP2JS\Compiler\RemoveTypeHints;
+use Lechimp\PHP2JS\JS;
+use PhpParser\NodeTraverser;
+use PhpParser\ParserFactory;
 
 class WindowImplTest extends \PHPUnit\Framework\TestCase {
+    const LOCATION = __DIR__."/../../../src/Compiler/API/WindowImpl.php";
+
     public function test_smoke() {
+        require_once(self::LOCATION);
+
         $impl = new \WindowImpl();
 
         $this->assertInstanceOf(Window::class, $impl);
+    }
+
+
+    public function compiled() {
+        $js = new JS\AST\Factory();
+        $build_in_compiler = new BuildInCompiler($js);
+        $compiler = new ClassCompiler($js, $build_in_compiler);
+
+        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+        $t = new NodeTraverser();
+        $t->addVisitor(new AnnotateFullyQualifiedName());
+        $t->addVisitor(new AnnotateFirstVariableAssignment());
+        $t->addVisitor(new RemoveTypeHints());
+        $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
+        $ast[2]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\WindowImpl");
+
+        return $compiler->compile($ast[2]);
+    }
+
+    public function test_compile() {
+        $result = $this->compiled();
+
+        $this->assertInstanceOf(JS\AST\Node::class, $result);
+    }
+
+    public function test_use_native_document() {
+        $result = (new JS\AST\Printer)->print($this->compiled());
+
+        $this->assertNotRegExp("/.*\\\$window.*/", $result);
+        $this->assertRegExp("/.*\\s+window.*/", $result);
     }
 }

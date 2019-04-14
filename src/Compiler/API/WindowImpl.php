@@ -28,7 +28,7 @@ use Lechimp\PHP2JS\JS\API\Window;
  */
 class WindowImpl implements Window {
     public function alert(string $message) {
-        $window->alert($message); 
+        $JS_NATIVE_window->alert($message);
     }
 }
 

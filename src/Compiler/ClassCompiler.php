@@ -257,7 +257,14 @@ class ClassCompiler {
     }
 
     public function compile_Expr_Variable(PhpNode $n) {
-        return $this->js_factory->identifier($n->name);
+        $name = $n->name;
+        if ($this->startsWith_JS_NATIVE($name)) {
+            $name = $this->remove_JS_NATIVE($name);
+        }
+        else if ($n->name !== "this") {
+            $name = '$'.$name;
+        }
+        return $this->js_factory->identifier($name);
     }
 
     public function compile_Name_FullyQualified(PhpNode $n) {
@@ -471,12 +478,20 @@ class ClassCompiler {
 
     const JS_NATIVE = "JS_NATIVE_";
 
+    protected function startsWith_JS_NATIVE(string $s) : bool {
+        return strpos($s, self::JS_NATIVE) === 0;
+    }
+
+    protected function remove_JS_NATIVE(string $s) : string {
+        return substr($s, strlen(self::JS_NATIVE));
+    }
+
     public function compile_Expr_New_(PhpNode $n) {
         $f = $this->js_factory;
 
-        if (strpos($n->class->value(), self::JS_NATIVE) === 0) {
+        if ($this->startsWith_JS_NATIVE($n->class->value())) {
             return $f->new_(
-                $f->identifier(substr($n->class->value(), strlen(self::JS_NATIVE))),
+                $f->identifier($this->remove_JS_NATIVE($n->class->value())),
                 ...$n->args
             );
         }
