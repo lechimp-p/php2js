@@ -450,7 +450,7 @@ PHP
         $this->assertRegExp("/.*_protected.window = window.*/ms", $result);
         $this->assertRegExp("/.*\"construct\"\\s+:\\s+function\\(window\\)*/ms", $result);
         $this->assertRegExp("/.*TestScript.__construct\\(_WindowImpl.__construct\\(\\)\\);.*/", $result);
-        $this->assertRegExp("/.*var _WindowImpl = \\(function\\(\\) {.*/", $result);
+        $this->assertRegExp("/.*var _WindowImpl = \\(function\\(parent\\) {.*/", $result);
     }
 
 

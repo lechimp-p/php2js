@@ -79,7 +79,7 @@ class ClassCompiler {
         $protected = $js->identifier("_protected");
         $private = $js->identifier("_private");
         $create_class = $js->identifier("create_class");
-
+        $parent = $js->identifier("parent");
 
         list($constructor, $methods, $properties) = $this->sortMethods($n->stmts);
 
@@ -98,39 +98,41 @@ class ClassCompiler {
             );
         }
 
-        return $js->assignVar(
-            $js->identifier(Compiler::normalizeFQN($name)),
-            $js->call($js->function_([], $js->block(
-                $js->assignVar(
-                    $construct_raw,
-                    $js->function_([], $js->block(
-                        $js->assignVar($public, $js->object_([])),
-                        $js->assignVar($protected, $js->object_([])),
-                        $js->assignVar($private, $js->object_([])),
-                        $js->block(...$properties),
-                        $js->block(...$methods),
-                        $js->return_($js->object_([
-                            "construct" => $constructor,
-                            "_public" => $public,
-                            "_protected" => $protected
-                        ]))
-                    ))
-                ),
-                $js->assignVar(
-                    $extend,
-                    $js->function_([$create_class], $js->block(
-                        $js->call($create_class, $construct_raw)
-                    ))
-                ),
-                $js->return_($js->object_([
-                    "__extend" => $extend,
-                    "__construct" => $js->propertyOf(
-                        $js->call($construct_raw),
-                        $js->identifier("construct")
-                    )
-                ]))
-            )))
-        );
+
+        if (is_null($n->extends)) {
+            return $this->classDefinition(
+                $name,
+                $properties,
+                $methods,
+                $constructor,
+                function ($f) use ($js) {
+                    return $js->call(
+                        $f,
+                        $js->object_([
+                            "public" => $js->object_([]),
+                            "protected" => $js->object_([])
+                        ])
+                    );
+                }
+            );
+        }
+        else {
+            return $this->classDefinition(
+                $name,
+                $properties,
+                $methods,
+                $constructor,
+                function ($f) use ($js, $n) {
+                    return $js->call(
+                        $js->propertyOf(
+                            $js->identifier(Compiler::normalizeFQN($n->extends->value())),
+                            $js->identifier("__extend")
+                        ),
+                        $f
+                    );
+                }
+            );
+        }
     }
 
     protected function sortMethods(array $nodes) {
@@ -160,6 +162,69 @@ class ClassCompiler {
         }
         return [$constructor, $methods, $properties];
     }
+
+    protected function classDefinition($name, $properties, $methods, $constructor, $initial_call) {
+        $js = $this->js_factory;
+
+        $construct_raw = $js->identifier("construct_raw");
+        $extend = $js->identifier("extend");
+        $public = $js->identifier("_public");
+        $protected = $js->identifier("_protected");
+        $private = $js->identifier("_private");
+        $create_class = $js->identifier("create_class");
+        $parent = $js->identifier("parent");
+
+        $clone = function ($which) use ($js) {
+            return $js->call(
+                $js->propertyOf(
+                    $js->identifier("Object"),
+                    $js->identifier("assign")
+                ),
+                $js->object_([]),
+                $which
+            );
+        };
+
+        return $js->assignVar(
+            $js->identifier(Compiler::normalizeFQN($name)),
+            $initial_call($js->function_([$parent], $js->block(
+                $js->assignVar(
+                    $construct_raw,
+                    $js->function_([], $js->block(
+                        $js->assignVar($public, $clone($js->propertyOf($parent, $public))),
+                        $js->assignVar($protected, $clone($js->propertyOf($parent, $protected))),
+                        $js->assignVar($private, $js->object_([])),
+                        $js->block(...$properties),
+                        $js->block(...$methods),
+                        $js->return_($js->object_([
+                            "construct" => $constructor,
+                            "_public" => $public,
+                            "_protected" => $protected
+                        ]))
+                    ))
+                ),
+                $js->assignVar(
+                    $extend,
+                    $js->function_([$create_class], $js->block(
+                        $js->return_(
+                            $js->call(
+                                $create_class,
+                                $js->call($construct_raw)
+                            )
+                        )
+                    ))
+                ),
+                $js->return_($js->object_([
+                    "__extend" => $extend,
+                    "__construct" => $js->propertyOf(
+                        $js->call($construct_raw),
+                        $js->identifier("construct")
+                    )
+                ]))
+            )))
+        );
+    }
+
 
     protected static $string_replacements = [
         "\n" => "\\n",
