@@ -587,14 +587,28 @@ class ClassCompiler {
 
     public function compile_Expr_PropertyFetch(PhpNode $n) {
         $js = $this->js_factory;
-        if ($n->var instanceof JS\AST\Identifier && $n->var->value() === "this") {
+        if ($n->var instanceof JS\AST\Identifier
+        && in_array($n->var->value(), ["this", "parent"])) {
             if (!$n->hasAttribute(Compiler::ATTR_VISIBILITY)) {
                 throw new \LogicException(
                     "Property access to \$this should have attribute for visibility."
                 );
             }
             $visibility = $n->getAttribute(Compiler::ATTR_VISIBILITY);
-            $source = $js->identifier("_".$visibility);
+            if ($n->var->value() === "this") {
+                $source = $js->identifier("_".$visibility);
+            }
+            else if ($n->var->value() === "parent") {
+                $source = $js->propertyOf(
+                    $n->var,
+                    $js->identifier("_".$visibility)
+                );
+            }
+            else {
+                throw new \LogicException(
+                    "Expected 'this' or ".RewriteParentAccess::JS_NATIVE_parent
+                );
+            }
         }
         else {
             $source = $n->var;

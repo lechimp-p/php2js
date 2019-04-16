@@ -81,7 +81,13 @@ class DefineUndefinedVariables extends NodeVisitorAbstract {
         ||  $n instanceof Node\Stmt\Function_
         ||  $n instanceof Node\Expr\Closure
         ) {
-            $undefined = array_unique(array_diff($this->used, $this->defined, ["this"]));
+            $undefined = array_unique(
+                array_diff(
+                    $this->used,
+                    $this->defined,
+                    ["this", RewriteParentAccess::JS_NATIVE_parent]
+                )
+            );
             list($this->defined, $this->used) = array_pop($this->stack);
 
             $n->stmts = array_merge(

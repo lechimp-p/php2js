@@ -201,6 +201,9 @@ class Compiler {
         $rewrite_array_code = new NodeTraverser();
         $rewrite_array_code->addVisitor(new RewriteArrayCode());
 
+        $rewrite_parent_access = new NodeTraverser();
+        $rewrite_parent_access->addVisitor(new RewriteParentAccess());
+
         $define_undefined_variables = new NodeTraverser();
         $define_undefined_variables->addVisitor(new DefineUndefinedVariables());
 
@@ -209,6 +212,7 @@ class Compiler {
             $remove_use_namespace,
             $rewrite_operators,
             $rewrite_array_code,
+            $rewrite_parent_access,
             $define_undefined_variables
         ];
 
