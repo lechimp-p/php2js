@@ -189,35 +189,19 @@ class Compiler {
     }
 
     protected function simplifyAST(PhpNode ...$nodes) : array {
-        $name_resolver = new NodeTraverser();
-        $name_resolver->addVisitor(new NodeVisitor\NameResolver());
-
-        $remove_use_namespace = new NodeTraverser();
-        $remove_use_namespace->addVisitor(new RemoveUseNamespace());
-
-        $rewrite_operators = new NodeTraverser();
-        $rewrite_operators->addVisitor(new RewriteOperators());
-
-        $rewrite_array_code = new NodeTraverser();
-        $rewrite_array_code->addVisitor(new RewriteArrayCode());
-
-        $rewrite_parent_access = new NodeTraverser();
-        $rewrite_parent_access->addVisitor(new RewriteParentAccess());
-
-        $define_undefined_variables = new NodeTraverser();
-        $define_undefined_variables->addVisitor(new DefineUndefinedVariables());
-
         $pipeline = [
-            $name_resolver,
-            $remove_use_namespace,
-            $rewrite_operators,
-            $rewrite_array_code,
-            $rewrite_parent_access,
-            $define_undefined_variables
+            new NodeVisitor\NameResolver(),
+            new RemoveUseNamespace(),
+            new RewriteOperators(),
+            new RewriteArrayCode(),
+            new RewriteParentAccess(),
+            new DefineUndefinedVariables()
         ];
 
         foreach($pipeline as $p) {
-            $nodes = $p->traverse($nodes);
+            $t = new NodeTraverser();
+            $t->addVisitor($p);
+            $nodes = $t->traverse($nodes);
         }
         return $nodes;
     }
