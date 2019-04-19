@@ -25,7 +25,7 @@ class TestRunner implements Lechimp\PHP2JS\JS\Script {
         echo "Tests ok!\n";
     }
 
-    protected function buildTests() {
+    public function buildTests() {
         return [
             new JS_Tests\SmokeTest(),
             new JS_Tests\NotIssetTest(),

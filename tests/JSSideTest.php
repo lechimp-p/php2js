@@ -19,20 +19,23 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\JS_Tests\Closure;
+namespace Lechimp\PHP2JS\Test;
 
-class VariableCaptureUsageOnlyTest {
-    public function name() {
-        return "Closure\\VariableCaptureUsageOnlyTest";
+require_once(__DIR__."/../js_tests/main.php");
+
+class JSSideTest extends \PHPUnit\Framework\TestCase {
+    /**
+     * @dataProvider caseProvider
+     */
+    public function test_run($name, $test) {
+        $this->assertTrue($test->perform()); 
     }
 
-    public function perform() {
-        $foo = "foo";
-
-        $closure = function() {
-            return $foo;
-        };
-
-        return !($closure === null) && $foo === "foo";
+    public function caseProvider() {
+        $runner = new \TestRunner();
+        $tests = $runner->buildTests();
+        return array_map(function($t) {
+            return [$t->name(), $t];
+        }, $tests); 
     }
 }
