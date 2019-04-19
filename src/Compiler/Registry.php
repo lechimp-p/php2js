@@ -37,9 +37,15 @@ class Registry {
      */
     protected $visibilities;
 
+    /**
+     * @var
+     */
+    protected $namespaces;
+
     public function __construct() {
         $this->classes = [];
         $this->visibilities = [];
+        $this->namespaces = [];
     }
 
     /**
@@ -69,6 +75,7 @@ class Registry {
         }
 
         $this->classes[$fqn] = $class;
+        $this->addNamespace($fqn);
     }
 
     public function getFullyQualifiedClassNames() {
@@ -150,5 +157,24 @@ class Registry {
         }
 
         return $visibility;
+    }
+
+    public function getNamespaces() : array {
+        return $this->namespaces;
+    }
+
+    protected function addNamespace(string $fqn) : void {
+        $names = explode("\\", $fqn);
+        if ($names[0] === "") {
+            array_shift($names);
+        }
+        array_pop($names);
+        $cur = &$this->namespaces;
+        foreach($names as $n) {
+            if (!isset($cur[$n])) {
+                $cur[$n] = [];
+            }
+            $cur = &$cur[$n];
+        }
     }
 }

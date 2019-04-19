@@ -149,4 +149,45 @@ PHP
         catch(\LogicException $e) {
         }
     }
+
+
+    public function test_getNamespaces() {
+        $my_class_name1 = "\\A";
+        $my_class1 = $this->builder->class($my_class_name1)->getNode();
+        $my_class1->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name1);
+
+        $my_class_name2 = "\\A\\B";
+        $my_class2 = $this->builder->class($my_class_name2)->getNode();
+        $my_class2->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name2);
+
+        $my_class_name3 = "\\A\\B\\C";
+        $my_class3 = $this->builder->class($my_class_name3)->getNode();
+        $my_class3->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name3);
+
+        $my_class_name4 = "\\A\\C\\D";
+        $my_class4 = $this->builder->class($my_class_name4)->getNode();
+        $my_class4->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name4);
+
+        $my_class_name5 = "\\A\\B\\C\\D";
+        $my_class5 = $this->builder->class($my_class_name5)->getNode();
+        $my_class5->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name5);
+
+        $registry = new Registry();
+        $registry->addClass($my_class1);
+        $registry->addClass($my_class2);
+        $registry->addClass($my_class3);
+        $registry->addClass($my_class4);
+        $registry->addClass($my_class5);
+
+        $expected = [
+            "A" => [
+                "B" => [
+                    "C" => []
+                ],
+                "C" => []
+            ]
+        ];
+
+        $this->assertEquals($expected, $registry->getNamespaces());
+    }
 }
