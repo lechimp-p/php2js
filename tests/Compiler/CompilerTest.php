@@ -887,4 +887,51 @@ PHP
 
         $this->assertRegExp("/.*\\(\\(typeof \\(_public\\.n\\)\\) !== \\(\"undefined\"\\)\\) && \\(\\(_public\\.n\\) !== \\(null\\)\\);.*/ms", $result);
     }
+
+//------------------------------------------------------------------------------
+// TEST: Compile class-constants
+//------------------------------------------------------------------------------
+    public function test_compile_class_constant() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP2JS\JS\Script;
+
+class TestScript implements Script {
+    const CONSTANT = "CONSTANT";
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*var constants = {.*/ms", $result);
+        $this->assertRegExp("/.*\"CONSTANT\" : \"CONSTANT\".*/ms", $result);
+        $this->assertRegExp("/.*\"__constants\" : constants.*/ms", $result);
+    }
+
+
+//------------------------------------------------------------------------------
+// TEST: Compile fetching of class-constants
+//------------------------------------------------------------------------------
+    public function test_compile_class_constant_fetch() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP2JS\JS\Script;
+
+class TestScript implements Script {
+    public function foo() {
+        return OtherClass::BAR;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*_OtherClass.__constants.BAR.*/ms", $result);
+    }
 }

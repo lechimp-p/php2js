@@ -81,7 +81,7 @@ class ClassCompiler {
         $create_class = $js->identifier("create_class");
         $parent = $js->identifier("parent");
 
-        list($constructor, $methods, $properties) = $this->sortMethods($n->stmts);
+        list($constructor, $methods, $properties, $constants) = $this->sortClassBody($n->stmts);
 
         if ($constructor === null) {
             $constructor = $js->function_([], $js->block(
@@ -105,6 +105,7 @@ class ClassCompiler {
                 $properties,
                 $methods,
                 $constructor,
+                $constants,
                 function ($f) use ($js) {
                     return $js->call(
                         $f,
@@ -122,6 +123,7 @@ class ClassCompiler {
                 $properties,
                 $methods,
                 $constructor,
+                $constants,
                 function ($f) use ($js, $n) {
                     return $js->call(
                         $js->propertyOf(
@@ -135,12 +137,13 @@ class ClassCompiler {
         }
     }
 
-    protected function sortMethods(array $nodes) {
+    protected function sortClassBody(array $nodes) {
         $js = $this->js_factory;
 
         $constructor = null;
         $methods = [];
         $properties = [];
+        $constants = [];
         foreach ($nodes as $n) {
             list($n, $compiled) = $n;
             if ($n instanceof PhpNode\Stmt\ClassMethod) {
@@ -154,16 +157,19 @@ class ClassCompiler {
             elseif ($n instanceof PhpNode\Stmt\Property) {
                 $properties[] = $compiled;
             }
+            elseif ($n instanceof PhpNode\Const_) {
+                $constants[$compiled[0]] = $compiled[1];
+            }
             else {
                 throw new \LogicException(
                     "Cannot process '".get_class($n)."'"
                 );
             }
         }
-        return [$constructor, $methods, $properties];
+        return [$constructor, $methods, $properties, $constants];
     }
 
-    protected function classDefinition($name, $properties, $methods, $constructor, $initial_call) {
+    protected function classDefinition($name, $properties, $methods, $constructor, $constants, $initial_call) {
         $js = $this->js_factory;
 
         $construct_raw = $js->identifier("construct_raw");
@@ -214,12 +220,17 @@ class ClassCompiler {
                         )
                     ))
                 ),
+                $js->assignVar(
+                    $js->identifier("constants"),
+                    $js->object_($constants)
+                ),
                 $js->return_($js->object_([
                     "__extend" => $extend,
                     "__construct" => $js->propertyOf(
                         $js->call($construct_raw),
                         $js->identifier("construct")
-                    )
+                    ),
+                    "__constants" => $js->identifier("constants")
                 ]))
             )))
         );
@@ -358,6 +369,17 @@ class ClassCompiler {
     public function compile_Expr_BooleanNot(PhpNode $n) {
         return $this->js_factory->not(
             $n->expr
+        );
+    }
+
+    public function compile_Expr_ClassConstFetch(PhpNode $n) {
+        $js = $this->js_factory;
+        return $js->propertyOf(
+            $js->propertyOf(
+                $js->identifier(Compiler::normalizeFQN($n->class->value())),
+                $js->identifier("__constants")
+            ),
+            $n->name
         );
     }
 
@@ -559,6 +581,22 @@ class ClassCompiler {
                 )
             )
         ];
+    }
+
+    public function compile_Const_(PhpNode $n) {
+        return [
+            $n,
+            [ $n->name->value(), $n->value ]
+        ];
+    }
+
+    public function compile_Stmt_ClassConst(PhpNode $n) {
+        if ($n->flags !== 0 || count($n->consts) !== 1) {
+            throw new \LogicException(
+                "Expected flags = 0 and only one constant in consts."
+            );
+        }
+        return $n->consts[0];
     }
 
     public function compile_Stmt_Expression(PhpNode $n) {

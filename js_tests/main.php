@@ -38,6 +38,7 @@ class TestRunner implements Lechimp\PHP2JS\JS\Script {
             new JS_Tests\Class_\ExtendsOverwritesTest(),
             new JS_Tests\Class_\ExtendsGivesAccessToProtectedTest(),
             new JS_Tests\Class_\AccessParentTest(),
+            new JS_Tests\Class_\ConstantTest(),
             new JS_Tests\Closure\VariableCaptureTest(),
             new JS_Tests\Closure\VariableCaptureUsageOnlyTest(),
             new JS_Tests\Closure\UseVariableTest(),
