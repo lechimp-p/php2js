@@ -390,11 +390,18 @@ class ClassCompiler {
 
     public function compile_Expr_ClassConstFetch(PhpNode $n) {
         $js = $this->js_factory;
-        return $js->propertyOf(
-            $js->propertyOf(
+        if ($n->class->value() === "self") {
+            $constants = $js->identifier("constants");
+        }
+        else {
+            $constants = $js->propertyOf(
                 $this->compileClassName($n->class->value()),
                 $js->identifier("__constants")
-            ),
+            );
+        }
+        
+        return $js->propertyOf(
+            $constants,
             $n->name
         );
     }
