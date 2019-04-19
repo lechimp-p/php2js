@@ -50,6 +50,22 @@ class ClassCompiler {
         $this->build_in_compiler = $build_in_compiler;
     }
 
+    public function compileClassName(string $name) {
+        $js = $this->js_factory;
+        $name = explode("\\", $name);
+        if ($name[0] === "") {
+            array_shift($name);
+        }
+        $cur = $js->identifier("php2js");
+        while(count($name) > 0) {
+            $cur = $js->propertyOf(
+                $cur,
+                $js->identifier(array_shift($name))
+            );
+        }
+        return $cur;
+    }
+
     public function compile(PhpNode\Stmt\Class_ $class) : JS\AST\Node {
         if (!$class->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
             throw new \LogicException(
@@ -127,7 +143,7 @@ class ClassCompiler {
                 function ($f) use ($js, $n) {
                     return $js->call(
                         $js->propertyOf(
-                            $js->identifier(Compiler::normalizeFQN($n->extends->value())),
+                            $this->compileClassName($n->extends->value()),
                             $js->identifier("__extend")
                         ),
                         $f
@@ -191,8 +207,8 @@ class ClassCompiler {
             );
         };
 
-        return $js->assignVar(
-            $js->identifier(Compiler::normalizeFQN($name)),
+        return $js->assign(
+            $this->compileClassName($name),
             $initial_call($js->function_([$parent], $js->block(
                 $js->assignVar(
                     $construct_raw,
@@ -279,7 +295,7 @@ class ClassCompiler {
     }
 
     public function compile_Name_FullyQualified(PhpNode $n) {
-        return $this->js_factory->identifier(join("_", $n->parts));
+        return $this->js_factory->identifier("".$n);
     }
 
     public function compile_Expr_ConstFetch(PhpNode $n) {
@@ -376,7 +392,7 @@ class ClassCompiler {
         $js = $this->js_factory;
         return $js->propertyOf(
             $js->propertyOf(
-                $js->identifier(Compiler::normalizeFQN($n->class->value())),
+                $this->compileClassName($n->class->value()),
                 $js->identifier("__constants")
             ),
             $n->name
@@ -520,11 +536,7 @@ class ClassCompiler {
 
         return $f->call(
             $f->propertyOf(
-                $f->identifier(
-                    Compiler::normalizeFQN(
-                        $n->class->value()
-                    )
-                ),
+                $this->compileClassName($n->class->value()),
                 $f->identifier("__construct")
             ),
             ...$n->args

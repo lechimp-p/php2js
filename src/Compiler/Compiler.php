@@ -59,6 +59,11 @@ class Compiler {
      */
     protected $dependency_locator;
 
+    /**
+     * @var ClassCompiler
+     */
+    protected $class_compiler;
+
     protected static $internal_dependencies = [
         JS\Script::class => null,
         JS\API\Window::class => __DIR__."/API/WindowImpl.php",
@@ -92,6 +97,12 @@ class Compiler {
             $locator,
             true,
             self::$internal_dependencies
+        );
+        $this->class_compiler = new ClassCompiler(
+            $this->js_factory,
+            new BuildInCompiler(
+                $this->js_factory
+            )
         );
     }
 
@@ -265,6 +276,7 @@ JS;
         $compiled_code = $this->js_printer->print(
             $this->js_factory->block(
                 ...array_merge(
+                    $this->compileNamespaceCreation($registry),
                     $this->compileClassesFromRegistry($registry),
                     $this->compileScriptInvocationFromRegistry($registry)
                 )
@@ -272,6 +284,23 @@ JS;
         );
 
         return $prelude.$compiled_code;
+    }
+
+    protected function compileNamespaceCreation(Registry $registry) {
+        $f = null;
+        $f = function ($n) use (&$f) {
+            $js = [];
+            foreach ($n as $k => $v) {
+                $js[$k] = $f($v);
+            }
+            return $this->js_factory->object_($js);
+        };
+        return [
+            $this->js_factory->assignVar(
+                $this->js_factory->identifier("php2js"),
+                $f($registry->getNamespaces())
+            )
+        ];
     }
 
     protected function compileClassesFromRegistry(Registry $registry) {
@@ -283,14 +312,8 @@ JS;
         // TODO: Check compliance with interfaces.
         // TODO: Check compliance with extended classes.
 
-        $class_compiler = new ClassCompiler(
-            $this->js_factory,
-            new BuildInCompiler(
-                $this->js_factory
-            )
-        );
         foreach ($classes as $cls) {
-            $stmts[] = $class_compiler->compile(
+            $stmts[] = $this->class_compiler->compile(
                 $traverser->traverse(
                     [$registry->getClass($cls)]
                 )[0]
@@ -308,10 +331,8 @@ JS;
         assert(count($script_classes) === 1);
         $php_script_class = array_pop($script_classes);
 
-        $script_class = $js->identifier(
-            self::normalizeFQN(
-                $php_script_class->getAttribute(self::ATTR_FULLY_QUALIFIED_NAME)
-            )
+        $script_class = $this->class_compiler->compileClassName(
+            $php_script_class->getAttribute(self::ATTR_FULLY_QUALIFIED_NAME)
         );
         $script = $js->identifier("script");
 
@@ -321,7 +342,7 @@ JS;
                 $name = array_pop($names);
                 return $js->call(
                     $js->propertyOf(
-                        $js->identifier("_{$name}Impl"),
+                        $this->class_compiler->compileClassName("{$name}Impl"),
                         $js->identifier("__construct")
                     )
                 );
@@ -342,13 +363,6 @@ JS;
         );
 
         return $stmts;
-    }
-
-    static public function normalizeFQN(string $name) {
-        if (substr($name, 0, 1) !== "\\") {
-            $name = "\\$name";
-        }
-        return str_replace("\\", "_", $name);    
     }
 
     static public function getVisibilityConst(PhpNode $n) {

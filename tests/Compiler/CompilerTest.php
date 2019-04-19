@@ -449,8 +449,8 @@ PHP
 
         $this->assertRegExp("/.*_protected.window = \\\$window.*/ms", $result);
         $this->assertRegExp("/.*\"construct\"\\s+:\\s+function\\(\\\$window\\)*/ms", $result);
-        $this->assertRegExp("/.*TestScript.__construct\\(_WindowImpl.__construct\\(\\)\\);.*/", $result);
-        $this->assertRegExp("/.*var _WindowImpl = \\(function\\(parent\\) {.*/", $result);
+        $this->assertRegExp("/.*php2js.TestScript.__construct\\(php2js.WindowImpl.__construct\\(\\)\\);.*/", $result);
+        $this->assertRegExp("/.*php2js.WindowImpl = \\(function\\(parent\\) {.*/", $result);
     }
 
 
@@ -670,7 +670,7 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*_PhpArray\\.__construct\\(\\)\\.setItemAt\\(\"one\", 1\\);.*/ms", $result);
+        $this->assertRegExp("/.*php2js.PhpArray\\.__construct\\(\\)\\.setItemAt\\(\"one\", 1\\);.*/ms", $result);
         $this->assertRegExp("/.*_protected\\.foobar\\.setItemAt\\(\"two\", 2\\);.*/ms", $result);
     }
 
@@ -911,7 +911,6 @@ PHP
         $this->assertRegExp("/.*\"__constants\" : constants.*/ms", $result);
     }
 
-
 //------------------------------------------------------------------------------
 // TEST: Compile fetching of class-constants
 //------------------------------------------------------------------------------
@@ -932,6 +931,26 @@ PHP
 
         $result = $this->real_compiler->compile($filename);
 
-        $this->assertRegExp("/.*_OtherClass.__constants.BAR.*/ms", $result);
+        $this->assertRegExp("/.*php2js.OtherClass.__constants.BAR.*/ms", $result);
+    }
+
+//------------------------------------------------------------------------------
+// TEST: Use objects as namespace
+//------------------------------------------------------------------------------
+    public function test_use_objects_as_namespace() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP2JS\JS\Script;
+
+class TestScript implements Script {
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*php2js\\.TestScript = .*/ms", $result);
     }
 }
