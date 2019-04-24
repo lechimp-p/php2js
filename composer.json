@@ -1,6 +1,5 @@
 {
     "name": "lechimp-p/php2js",
-    "version": "0.1.0",
     "description": "Compiles sane PHP to javascript.",
     "keywords": ["compiler", "javascript", "client"],
     "type": "library",
