@@ -53,7 +53,7 @@ class Factory {
     public function function_(array $parameters, Block $block) : Node {
         foreach ($parameters as $p) {
             if (!($p instanceof Identifier)) {
-                throw new InvalidArgumentException(
+                throw new \InvalidArgumentException(
                     "Expected Identifiers as parameters"
                 );
             }
