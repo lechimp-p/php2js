@@ -123,6 +123,11 @@ class Printer {
             ($e ? "\nelse {\n    $e}" : "");
     }
 
+    protected function print_While_(Node $original, Node $n) {
+        $t = str_replace("\n", "\n    ", $n->do_());
+        return "while ({$n->while_()}) {\n    $t\n}";
+    }
+
     protected function print_TernaryOp(Node $original, Node $n) {
         return "({$n->if_()}) ? ({$n->then_()}) : ({$n->else_()})";
     }

@@ -173,6 +173,10 @@ class Factory {
         return new If_($if, $then, $else);
     }
 
+    public function while_(Expression $while, Block $do) : Node {
+        return new While_($while, $do);
+    }
+
     public function ternary(Expression $if, Expression $then, Expression $else) : Node {
         return new TernaryOp($if, $then, $else);
     }

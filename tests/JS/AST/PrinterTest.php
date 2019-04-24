@@ -307,4 +307,20 @@ JS;
 
         $this->assertEquals($expected, $result);
     }
+
+    public function test_while() {
+        $f = $this->factory;
+
+        $ast = $f->while_(
+            $f->literal(1),
+            $f->block(
+                $f->call($f->identifier("foo"))
+            )
+        );
+
+        $result = $this->printer->print($ast);
+        $expected  = "while (1) {\n    foo();\n}";
+
+        $this->assertEquals($expected, $result);
+    }
 }
