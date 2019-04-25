@@ -267,6 +267,13 @@ Object.prototype.getItemAt = function (key) {
 Object.prototype.setItemAt = function (key, value) {
     this[key] = value;
 }
+Array.prototype.toPHPArray = function () {
+    var arr = php2js.PhpArray.__construct();
+    this.forEach(function(e) {
+        arr.push(e);
+    });
+    return arr;
+}
 
 // PRELUDE END
 

@@ -417,9 +417,11 @@ class ClassCompiler {
 
         $f = $this->js_factory;
 
+        list($params, $stmts) = $this->unrollParameters(...$n->params);
+
         $fun = $f->function_(
-            $n->params,
-            $f->block(...$n->stmts)
+            $params,
+            $f->block(...array_merge($stmts, $n->stmts))
         );
 
         if (count($uses_by_val) === 0) {
@@ -569,10 +571,37 @@ class ClassCompiler {
     }
 
     public function compile_Param(PhpNode $n) {
-        if (isset($n->type) || $n->byRef || $n->variadic || isset($n->default)) {
+        if (isset($n->type) || $n->byRef || isset($n->default)) {
             throw new \LogicException(
                 "Cannot compile typed, variadic, pass-by-ref or defaulted parameter."
             );
+        }
+        if ($n->variadic) {
+            return function(int $position) use ($n) {
+                $js = $this->js_factory;
+                return $js->assignVar(
+                    $n->var,
+                    $js->call(
+                        $js->propertyOf(
+                            $js->call(
+                                $js->propertyOf(
+                                    $js->propertyOf(
+                                        $js->propertyOf(
+                                            $js->identifier("Array"),
+                                            $js->identifier("prototype")
+                                        ),
+                                        $js->identifier("slice")
+                                    ),
+                                    $js->identifier("call")
+                                ),
+                                $js->identifier("arguments"),
+                                $js->literal($position)
+                            ),
+                            $js->identifier("toPHPArray")
+                        )
+                    )
+                );
+            };
         }
         return $n->var;
     }
@@ -587,6 +616,8 @@ class ClassCompiler {
             );
         }
 
+        list($params, $stmts) = $this->unrollParameters(...$n->params);
+
         return [
             $n,
             $js->assign(
@@ -595,11 +626,30 @@ class ClassCompiler {
                     $js->identifier($n->name->value())
                 ),
                 $js->function_(
-                    $n->params,
-                    $js->block(...$n->stmts)
+                    $params,
+                    $js->block(...array_merge($stmts, $n->stmts))
                 )
             )
         ];
+    }
+
+    protected function unrollParameters(...$params) {
+        $unrolled = [];
+        for ($i = 0; $i < count($params); $i++) {
+            $p = $params[$i];
+            if ($p instanceof \Closure) {
+                if ($i+1 !== count($params)) {
+                    throw new Exception(
+                        "Expected splat-operator to be used on last argument."
+                    );
+                }
+                return [$unrolled, [$p($i)]];
+            }
+            else {
+                $unrolled[] = $p;
+            }
+        }
+        return [$unrolled, []];
     }
 
     public function compile_Const_(PhpNode $n) {

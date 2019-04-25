@@ -953,4 +953,26 @@ PHP
 
         $this->assertRegExp("/.*php2js\\.TestScript = .*/ms", $result);
     }
+
+//------------------------------------------------------------------------------
+// TEST: Splat-operator
+//------------------------------------------------------------------------------
+    public function test_splat_operator() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP2JS\JS\Script;
+
+class TestScript implements Script {
+    public function method($arg, ...$args) {
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*\\\$args = Array\\.prototype\\.slice\\.call\\(arguments, 1\\).toPHPArray().*/ms", $result);
+    }
 }
