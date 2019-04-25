@@ -1,6 +1,7 @@
 set -e
 composer install --no-dev
 php -d phar.readonly=0 build_phar.php
+composer install
 mkdir -p bin
 mv php2js.phar bin/php2js
 git add bin/php2js

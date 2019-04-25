@@ -23,7 +23,7 @@ $base_dir = __DIR__;
 
 $src_dir = "$base_dir/src";
 $vendor_dir = "$base_dir/vendor";
-$php2js_path = "$base_dir/dicto.php";
+$php2js_path = "$base_dir/php2js.php";
 
 $build_dir = __DIR__;
 $phar_name = "php2js.phar";
@@ -40,7 +40,21 @@ $phar = new Phar
     , $phar_name
     );
 
-$phar->buildFromDirectory($base_dir);
+$phar->buildFromIterator((function() use ($src_dir, $vendor_dir, $php2js_path) {
+        $src = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src_dir));
+        foreach ($src as $path => $info) {
+            yield $path => $info;
+        }
+
+        $vendor = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($vendor_dir));
+        foreach ($vendor as $path => $info) {
+            yield $path => $info;
+        }
+
+        yield $php2js_path => new \SplFileInfo($php2js_path);
+    })(),
+    $base_dir
+);
 
 $phar->setStub(<<<STUB
 #!/usr/bin/env php
