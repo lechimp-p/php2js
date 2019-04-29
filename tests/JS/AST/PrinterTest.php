@@ -1,6 +1,6 @@
 <?php
 /**********************************************************************
- * php.js runs PHP code on the client side using javascript.
+ * php2js runs PHP code on the client side using javascript.
  * Copyright (C) 2017 Richard Klees <richard.klees@rwth-aachen.de>
  *
  * This program is free software: you can redistribute it and/or modify
