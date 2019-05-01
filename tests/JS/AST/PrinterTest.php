@@ -323,4 +323,26 @@ JS;
 
         $this->assertEquals($expected, $result);
     }
+
+    public function test_print_try() {
+        $f = $this->factory;
+
+        $ast = $f->try_(
+            $f->block(
+                $f->call($f->identifier("foo"))
+            ),
+            $f->identifier("e"),
+            $f->block(
+                $f->call($f->identifier("bar"))
+            ),
+            $f->block(
+                $f->call($f->identifier("baz"))
+            )
+        );
+
+        $result = $this->printer->print($ast);
+        $expected = "try {\n    foo();\n}\ncatch(e) {\n    bar();\n}\nfinally {\n    baz();\n}";
+
+        $this->assertEquals($expected, $result);
+    }
 }

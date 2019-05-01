@@ -131,4 +131,13 @@ class Printer {
     protected function print_TernaryOp(Node $original, Node $n) {
         return "({$n->if_()}) ? ({$n->then_()}) : ({$n->else_()})";
     }
+
+    protected function print_Try_(Node $original, Node $n) {
+        $t = str_replace("\n", "\n    ", $n->try_());
+        $c = str_replace("\n", "\n    ", $n->catch_());
+        $f = $n->finally_() ? str_replace("\n", "\n    ", $n->finally_()) : null;
+        return
+            "try {\n    $t\n}\ncatch({$n->catchIdentifier()}) {\n    $c\n}".
+            ($f ? "\nfinally {\n    $f\n}" : "");
+    }
 }

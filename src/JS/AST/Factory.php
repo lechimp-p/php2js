@@ -192,4 +192,8 @@ class Factory {
     public function throw_(Expression $other) {
         return new UnaryOp("throw ", $other);
     }
+
+    public function try_(Block $try, Identifier $catch_identifier, Block $catch, Block $finally = null) : Node {
+        return new Try_($try, $catch_identifier, $catch, $finally);
+    }
 }
