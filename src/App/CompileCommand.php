@@ -80,6 +80,11 @@ class CompileCommand extends Command {
                     "psr4-namespaces must be given in the form \$NAMESPACE:\$PATH"
                 );
             }
+            if (substr($raw[0], 0, 1) === "\\") {
+                throw new Symfoncy\Component\Console\Exception\InvalidOptionException(
+                    "Do not prefix psr4-namespaces with '\\'!"
+                );
+            }
             $psr4[$raw[0]] = $raw[1];
         }
         return $psr4;
