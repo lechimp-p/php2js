@@ -120,7 +120,7 @@ class Printer {
         $e = $n->else_() ? str_replace("\n", "\n    ", $n->else_()) : null;
         return
             "if ({$n->if_()}) {\n    $t\n}".
-            ($e ? "\nelse {\n    $e}" : "");
+            ($e ? "\nelse {\n    $e\n}" : "");
     }
 
     protected function print_While_(Node $original, Node $n) {
