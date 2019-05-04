@@ -696,6 +696,37 @@ class ClassCompiler {
         ];
     }
 
+    public function compile_Stmt_TryCatch(PhpNode $n) {
+        $js = $this->js_factory;
+        $var = $js->identifier("e");
+        $catch = $js->block($js->throw_($var));
+        while(count($n->catches) > 0) {
+            list($p, $b) = array_pop($n->catches);
+            $catch = $js->block($js->if_($p, $b, $catch));
+        }
+        return $js->try_($js->block(...$n->stmts), $var, $catch, $n->finally);
+    }
+
+    public function compile_Stmt_Catch_(PhpNode $n) {
+        $js = $this->js_factory;
+        $var = $js->identifier("e");
+        return [
+            (count($n->types) > 0)
+                ? $js->or_(...array_map(function($t) use ($js, $var) {
+                    return $js->call(
+                        $js->propertyOf($var, $js->identifier("__instanceof")),
+                        $this->compileClassName($t->value())
+                    );
+                }, $n->types))
+                : $js->identifier(true),
+            $js->block($js->call($js->function_([$n->var], $js->block(...$n->stmts)), $var))
+        ];
+    }
+
+    public function compile_Stmt_Finally_(PhpNode $n) {
+        return $this->js_factory->block(...$n->stmts);
+    }
+
     public function compile_Stmt_ClassConst(PhpNode $n) {
         if ($n->flags !== 0 || count($n->consts) !== 1) {
             throw new \LogicException(

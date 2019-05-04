@@ -30,6 +30,7 @@ class TestRunner implements Lechimp\PHP2JS\JS\Script {
             new JS_Tests\SmokeTest(),
             new JS_Tests\NotIssetTest(),
             new JS_Tests\UseLocalVariablesTest(),
+            new JS_Tests\CatchTest(),
             new JS_Tests\Array_\IndexFetchTest(),
             new JS_Tests\Array_\ForeachWithoutKeyTest(),
             new JS_Tests\Array_\ForeachWithKeyTest(),

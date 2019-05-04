@@ -977,6 +977,40 @@ PHP
     }
 
 //------------------------------------------------------------------------------
+// TEST: Try/catch/finally
+//------------------------------------------------------------------------------
+    public function test_try_catch_finally() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP2JS\JS\Script;
+
+class TestScript implements Script {
+    public function method() {
+        try {
+            return 0;
+        }
+        catch (\InvalidArgumentException $e) {
+            return 0;
+        }
+        finally {
+            return 0;
+        }
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*try \\{.*/ms", $result);
+        $this->assertRegExp("/.*if \\(.*__instanceof\\(php2js[.]InvalidArgumentException.*/ms", $result);
+        $this->assertRegExp("/.*throw.*/ms", $result);
+        $this->assertRegExp("/.finally.*/ms", $result);
+    }
+
+//------------------------------------------------------------------------------
 // TEST: Return void
 //------------------------------------------------------------------------------
     public function test_return_void() {
