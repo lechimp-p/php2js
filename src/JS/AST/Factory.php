@@ -85,7 +85,7 @@ class Factory {
         return new Object_($fields);
     }
 
-    public function return_(Expression $expr) : Node {
+    public function return_(Expression $expr = null) : Node {
         return new Return_($expr);
     }
 

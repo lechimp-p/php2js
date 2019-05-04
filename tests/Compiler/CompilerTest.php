@@ -975,4 +975,28 @@ PHP
 
         $this->assertRegExp("/.*\\\$args = Array\\.prototype\\.slice\\.call\\(arguments, 1\\).toPHPArray().*/ms", $result);
     }
+
+//------------------------------------------------------------------------------
+// TEST: Return void
+//------------------------------------------------------------------------------
+    public function test_return_void() {
+        $filename = tempnam("/tmp", "php.js");
+        file_put_contents($filename,<<<'PHP'
+<?php
+
+use Lechimp\PHP2JS\JS\Script;
+
+class TestScript implements Script {
+    public function method() {
+        return;
+    }
+}
+PHP
+        );
+
+        $result = $this->real_compiler->compile($filename);
+
+        $this->assertRegExp("/.*return.*/ms", $result);
+    }
+
 }

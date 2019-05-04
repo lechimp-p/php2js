@@ -30,7 +30,7 @@ class Return_ extends Node {
      */
     protected $value;
 
-    public function __construct($value) {
+    public function __construct($value = null) {
         $this->value = $value;
     }
 
@@ -38,7 +38,7 @@ class Return_ extends Node {
      * @return Node (specificially the implementing class)
      */
     public function fmap(callable $f) {
-        return new Return_($f($this->value));
+        return new Return_($this->value ? $f($this->value) : null);
     }
 
     public function value() {
