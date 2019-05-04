@@ -281,6 +281,12 @@ Array.prototype.toPHPArray = function () {
 String.prototype.__instanceof = function(cls) {
     return cls === String;
 }
+Number.prototype.__instanceof = function(cls) {
+    return cls === Number;
+}
+Boolean.prototype.__instanceof = function(cls) {
+    return cls === Boolean;
+}
 
 // PRELUDE END
 
@@ -290,12 +296,18 @@ JS;
         $php2js = $js->identifier("php2js");
         $String = $js->identifier("String");
         $string = $js->identifier("string");
+        $Number = $js->identifier("Number");
+        $int = $js->identifier("int");
+        $Bool = $js->identifier("Boolean");
+        $bool = $js->identifier("bool");
 
         $compiled_code = $this->js_printer->print(
             $this->js_factory->block(
                 ...array_merge(
                     $this->compileNamespaceCreation($registry),
                     [ $js->assign($js->propertyOf($php2js, $string), $String)
+                    , $js->assign($js->propertyOf($php2js, $int), $Number)
+                    , $js->assign($js->propertyOf($php2js, $bool), $Bool)
                     ],
                     $this->compileClassesFromRegistry($registry),
                     $this->compileScriptInvocationFromRegistry($registry)
