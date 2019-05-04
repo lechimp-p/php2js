@@ -109,12 +109,16 @@ class Factory {
         return new BinaryOp("!==", $left, $right);
     }
 
-    public function and_(Expression $left, Expression $right) : Node {
-        return new BinaryOp("&&", $left, $right);
+    public function and_(Expression ...$operands) : Node {
+        return $this->chainOperands($operands, function(Expression $l, Expression $r) {
+            return new BinaryOp("&&", $l, $r);
+        });
     }
 
-    public function or_(Expression $left, Expression $right) : Node {
-        return new BinaryOp("||", $left, $right);
+    public function or_(Expression ...$operands) : Node {
+        return $this->chainOperands($operands, function(Expression $l, Expression $r) {
+            return new BinaryOp("||", $l, $r);
+        });
     }
 
     public function add(Expression $left, Expression $right) : Node {
@@ -195,5 +199,16 @@ class Factory {
 
     public function try_(Block $try, Identifier $catch_identifier, Block $catch, Block $finally = null) : Node {
         return new Try_($try, $catch_identifier, $catch, $finally);
+    }
+
+    protected function chainOperands(array $operands, \Closure $how) {
+        if (count($operands) === 0) {
+            throw new \LogicException("Expected at least 1 operand.");
+        }
+        $o = array_shift($operands);
+        while(count($operands) > 0) {
+            $o = $how($o, array_shift($operands));
+        }
+        return $o;
     }
 }
