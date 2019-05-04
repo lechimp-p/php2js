@@ -1,6 +1,6 @@
 <?php
 /**********************************************************************
- * php.js runs PHP code on the client side using javascript.
+ * php2js runs PHP code on the client side using javascript.
  * Copyright (C) 2017 Richard Klees <richard.klees@rwth-aachen.de>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,21 +19,18 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\JS_Tests;
+/**
+ * ATTENTION: This is not supposed to work in a PHP-environment.
+ * This is just a stub that gets compiled to JS to implement the
+ * JS\PhpArray. Do not use it yourself.
+ */
+class TypeError { 
+    /**
+     * @var string
+     */
+    protected $message;
 
-class CatchTest {
-    public function name() {
-        return "CatchTest";
-    }
-
-    public function perform() {
-        $caught = false;
-        try {
-            throw new \InvalidArgumentException("");
-        }
-        catch (\InvalidArgumentException $e) {
-            $caught = true;
-        }
-        return $caught;
+    public function __construct(string $message) {
+        $this->message = $message;
     }
 }

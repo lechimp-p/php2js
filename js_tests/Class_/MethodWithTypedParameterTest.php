@@ -19,21 +19,43 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\JS_Tests;
+namespace Lechimp\PHP2JS\JS_Tests\Class_;
 
-class CatchTest {
+class A9 {
+}
+
+class B9 {
+}
+
+class MethodWithTypedParameterTest {
     public function name() {
-        return "CatchTest";
+        return "Class_\\MethodWithTypedParameterTest";
     }
 
     public function perform() {
-        $caught = false;
+        $thrown1 = false;
+        $thrown2 = false;
+
+        $a = new A9();
+        $b = new B9();
+
         try {
-            throw new \InvalidArgumentException("");
+            $this->method($a);
         }
-        catch (\InvalidArgumentException $e) {
-            $caught = true;
+        catch (\TypeError $e) {
+            $thrown1 = true;
         }
-        return $caught;
+
+        try {
+            $this->method($b);
+        }
+        catch (\TypeError $e) {
+            $thrown2 = true;
+        }
+
+        return !$thrown1 && $thrown2;
+    }
+
+    protected function method(A9 $a) {
     }
 }

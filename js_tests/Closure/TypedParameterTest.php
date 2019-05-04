@@ -19,21 +19,43 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\JS_Tests;
+namespace Lechimp\PHP2JS\JS_Tests\Closure;
 
-class CatchTest {
+class A1 {
+}
+
+class B1 {
+}
+
+class TypedParameterTest {
     public function name() {
-        return "CatchTest";
+        return "Closure\\TypedParameterTest";
     }
 
     public function perform() {
-        $caught = false;
+        $closure = function (A1 $a) {
+        };
+
+        $thrown1 = false;
+        $thrown2 = false;
+
+        $a = new A1();
+        $b = new B1();
+
         try {
-            throw new \InvalidArgumentException("");
+            $closure($a);
         }
-        catch (\InvalidArgumentException $e) {
-            $caught = true;
+        catch (\TypeError $e) {
+            $thrown1 = true;
         }
-        return $caught;
+
+        try {
+            $closure($b);
+        }
+        catch (\TypeError $e) {
+            $thrown2 = true;
+        }
+
+        return !$thrown1 && $thrown2;
     }
 }

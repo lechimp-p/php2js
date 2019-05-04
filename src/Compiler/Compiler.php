@@ -78,6 +78,7 @@ class Compiler {
         \JS_NATIVE_Array::class => null,
         \JS_NATIVE_Object::class => null,
         \InvalidArgumentException::class => __DIR__."/InvalidArgumentExceptionImpl.php",
+        \TypeError::class => __DIR__."/TypeErrorImpl.php",
         // TODO: make this use BuildInCompiler somehow
         "is_string" => null,
         "is_int" => null,
@@ -208,6 +209,7 @@ class Compiler {
             new RewriteOperators(),
             new RewriteArrayCode(),
             new RewriteParentAccess(),
+            new RewriteTypeHints(),
             new DefineUndefinedVariables()
         ];
 
@@ -256,6 +258,8 @@ class Compiler {
     }
 
     protected function compileRegistry(Registry $registry) {
+        $js = $this->js_factory;
+
         // TODO: move this to a single file
         // TODO: maybe find a way to let users add stuff here
         $prelude = <<<JS
@@ -274,16 +278,25 @@ Array.prototype.toPHPArray = function () {
     });
     return arr;
 }
+String.prototype.__instanceof = function(cls) {
+    return cls === String;
+}
 
 // PRELUDE END
 
 
 JS;
 
+        $php2js = $js->identifier("php2js");
+        $String = $js->identifier("String");
+        $string = $js->identifier("string");
+
         $compiled_code = $this->js_printer->print(
             $this->js_factory->block(
                 ...array_merge(
                     $this->compileNamespaceCreation($registry),
+                    [ $js->assign($js->propertyOf($php2js, $string), $String)
+                    ],
                     $this->compileClassesFromRegistry($registry),
                     $this->compileScriptInvocationFromRegistry($registry)
                 )
