@@ -126,8 +126,12 @@ class ClassCompiler {
                     return $js->call(
                         $f,
                         $js->object_([
-                            "public" => $js->object_([]),
-                            "protected" => $js->object_([])
+                            "_public" => $js->object_([
+                                "__instanceof" => $js->function_([$js->identifier("cls")], $js->block(
+                                    $js->return_($js->identifier("false"))
+                                ))
+                             ]),
+                            "_protected" => $js->object_([])
                         ])
                     );
                 }
@@ -166,6 +170,11 @@ class ClassCompiler {
                 if ($n->name->toLowerString() === "__construct") {
                     $constructor = $compiled->value();
                 }
+                else if ($n->name->toLowerString() === "__instanceof") {
+                    throw new Exception(
+                        "Method cannot be named `__instanceof`, that name is used internally."
+                    );
+                }
                 else {
                     $methods[] = $compiled;
                 }
@@ -195,6 +204,8 @@ class ClassCompiler {
         $private = $js->identifier("_private");
         $create_class = $js->identifier("create_class");
         $parent = $js->identifier("parent");
+        $class = $js->identifier("cls");
+        $instanceof = $js->identifier("__instanceof");
 
         $clone = function ($which) use ($js) {
             return $js->call(
@@ -218,6 +229,21 @@ class ClassCompiler {
                         $js->assignVar($private, $js->object_([])),
                         $js->block(...$properties),
                         $js->block(...$methods),
+                        $js->assign(
+                            $js->propertyOf($public, $instanceof),
+                            $js->function_([$class], $js->block(
+                                $js->return_($js->or_(
+                                    $js->identical($class, $this->compileClassName($name)),
+                                    $js->call(
+                                        $js->propertyOf(
+                                            $js->propertyOf($parent, $public),
+                                            $instanceof
+                                        ),
+                                        $class
+                                    )
+                                ))
+                            ))
+                        ),
                         $js->return_($js->object_([
                             "construct" => $constructor,
                             "_public" => $public,
@@ -496,6 +522,17 @@ class ClassCompiler {
         return $this->js_factory->assign(
             $n->var,
             $n->expr
+        );
+    }
+
+    public function compile_Expr_InstanceOf_(PhpNode $n) {
+        $js = $this->js_factory;
+        return $js->call(
+            $js->propertyOf(
+                $n->expr,
+                $js->identifier("__instanceof")
+            ),
+            $this->compileClassName($n->class->value())
         );
     }
 
