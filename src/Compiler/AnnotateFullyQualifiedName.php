@@ -40,6 +40,7 @@ class AnnotateFullyQualifiedName extends NodeVisitorAbstract {
                 $this->namespaces[] = (string)$n->name;
                 break;
             case Node\Stmt\Class_::class:
+            case Node\Stmt\Interface_::class:
                 if ($n->name !== null) {
                     $n->setAttribute(
                         Compiler::ATTR_FULLY_QUALIFIED_NAME,

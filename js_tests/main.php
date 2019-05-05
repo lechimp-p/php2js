@@ -44,6 +44,7 @@ class TestRunner implements Lechimp\PHP2JS\JS\Script {
             new JS_Tests\Class_\MethodWithSplatOperatorTest(),
             new JS_Tests\Class_\InstanceOfTest(),
             new JS_Tests\Class_\InstanceOfExtendedTest(),
+            new JS_Tests\Class_\InstanceOfInterfaceTest(),
             new JS_Tests\Class_\MethodWithTypedParameterTest(),
             new JS_Tests\Closure\VariableCaptureTest(),
             new JS_Tests\Closure\VariableCaptureUsageOnlyTest(),

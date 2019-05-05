@@ -118,7 +118,7 @@ class Compiler {
             if (array_key_exists($dep, $compiled_deps)) {
                 continue;
             }
-            if ($registry->hasClass($dep)) {
+            if ($registry->hasClass($dep) || $registry->hasInterface($dep)) {
                 continue;
             }
 
@@ -309,6 +309,7 @@ JS;
                     , $js->assign($js->propertyOf($php2js, $int), $Number)
                     , $js->assign($js->propertyOf($php2js, $bool), $Bool)
                     ],
+                    $this->compileInterfacesFromRegistry($registry),
                     $this->compileClassesFromRegistry($registry),
                     $this->compileScriptInvocationFromRegistry($registry)
                 )
@@ -333,6 +334,21 @@ JS;
                 $f($registry->getNamespaces())
             )
         ];
+    }
+
+    protected function compileInterfacesFromRegistry(Registry $registry) {
+        $js = $this->js_factory;
+        $interfaces = $registry->getFullyQualifiedInterfaceNames();
+        $stmts = [];
+
+        foreach ($interfaces as $i) {
+            $stmts[] = $js->assign(
+                $this->class_compiler->compileClassName($i),
+                $js->object_([])
+            );
+        }
+
+        return $stmts;
     }
 
     protected function compileClassesFromRegistry(Registry $registry) {

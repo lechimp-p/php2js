@@ -1,6 +1,6 @@
 <?php
 /**********************************************************************
- * php2js runs PHP code on the client side using javascript.
+ * php.js runs PHP code on the client side using javascript.
  * Copyright (C) 2017 Richard Klees <richard.klees@rwth-aachen.de>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,34 +19,21 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler;
+namespace Lechimp\PHP2JS\JS_Tests\Class_;
 
-use PhpParser\Node;
-use PhpParser\NodeVisitorAbstract;
+interface I10 {
+}
 
-class FillRegistry extends NodeVisitorAbstract {
-    /**
-     * @var Registry|null
-     */
-    protected $registry = null;
+class A10 implements I10 {
+}
 
-    public function getRegistry() : Registry {
-        return $this->registry;
+class InstanceOfInterfaceTest {
+    public function name() {
+        return "InstanceOfInterfaceTest";
     }
 
-    public function beforeTraverse(array $nodes) {
-        $this->registry = new Registry();
-
-    }
-
-    public function enterNode(Node $n) {
-        switch (get_class($n)) {
-            case Node\Stmt\Class_::class:
-                $this->registry->addClass($n);
-                break;
-            case Node\Stmt\Interface_::class:
-                $this->registry->addInterface($n);
-                break;
-        }
+    public function perform() {
+        $a = new A10();
+        return ($a instanceof A10) && ($a instanceof I10);
     }
 }

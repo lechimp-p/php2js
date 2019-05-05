@@ -118,6 +118,7 @@ class ClassCompiler {
         if (is_null($n->extends)) {
             return $this->classDefinition(
                 $name,
+                $n->implements,
                 $properties,
                 $methods,
                 $constructor,
@@ -140,6 +141,7 @@ class ClassCompiler {
         else {
             return $this->classDefinition(
                 $name,
+                $n->implements,
                 $properties,
                 $methods,
                 $constructor,
@@ -194,7 +196,7 @@ class ClassCompiler {
         return [$constructor, $methods, $properties, $constants];
     }
 
-    protected function classDefinition($name, $properties, $methods, $constructor, $constants, $initial_call) {
+    protected function classDefinition($name, $implements, $properties, $methods, $constructor, $constants, $initial_call) {
         $js = $this->js_factory;
 
         $construct_raw = $js->identifier("construct_raw");
@@ -240,7 +242,13 @@ class ClassCompiler {
                                             $instanceof
                                         ),
                                         $class
-                                    )
+                                    ),
+                                    ...array_map(function($i) use ($class, $js) {
+                                        return $js->identical(
+                                            $class,
+                                            $this->compileClassName($i->value())
+                                        );
+                                    }, $implements)
                                 ))
                             ))
                         ),
