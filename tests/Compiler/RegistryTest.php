@@ -41,15 +41,37 @@ class RegistryTest extends \PHPUnit\Framework\TestCase {
         $my_class2 = $this->builder->class($my_class_name2)->getNode();
         $my_class2->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name2);
 
+        $my_interface_name1 = "MY_INTERFACE_ONE";
+        $my_interface1 = $this->builder->interface($my_interface_name1)->getNode();
+        $my_interface1->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_interface_name1);
+        $my_interface_name2 = "MY_INTERFACE_TWO";
+        $my_interface2 = $this->builder->interface($my_interface_name2)->getNode();
+        $my_interface2->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_interface_name2);
+
         $registry1 = new Registry();
         $registry1->addClass($my_class1);
+        $registry1->addInterface($my_interface1);
 
         $registry2 = new Registry();
         $registry2->addClass($my_class2);
+        $registry2->addInterface($my_interface2);
 
         $registry1->append($registry2);
 
         $this->assertEquals([$my_class_name1, $my_class_name2], $registry1->getFullyQualifiedClassNames());  
+        $this->assertEquals([$my_interface_name1, $my_interface_name2], $registry1->getFullyQualifiedInterfaceNames());  
+
+        $this->assertEquals($my_class1, $registry1->getClass($my_class_name1));
+        $this->assertEquals($my_class2, $registry1->getClass($my_class_name2));
+
+        $this->assertEquals($my_interface1, $registry1->getInterface($my_interface_name1));
+        $this->assertEquals($my_interface2, $registry1->getInterface($my_interface_name2));
+
+        $this->assertTrue($registry1->hasClass($my_class_name1));
+        $this->assertTrue($registry1->hasClass($my_class_name2));
+
+        $this->assertTrue($registry1->hasInterface($my_interface_name1));
+        $this->assertTrue($registry1->hasInterface($my_interface_name2));
     }
 
     public function test_getVisibility() {

@@ -33,6 +33,11 @@ class Registry {
     protected $classes;
 
     /**
+     * @var Node\Stmt\Interface_[]
+     */
+    protected $interfaces;
+
+    /**
      * @var array
      */
     protected $visibilities;
@@ -44,6 +49,7 @@ class Registry {
 
     public function __construct() {
         $this->classes = [];
+        $this->interfaces = [];
         $this->visibilities = [];
         $this->namespaces = [];
     }
@@ -55,26 +61,55 @@ class Registry {
         foreach ($other->getFullyQualifiedClassNames() as $class) {
             $this->addClass($other->getClass($class));
         }
+        foreach ($other->getFullyQualifiedInterfaceNames() as $interface) {
+            $this->addInterface($other->getInterface($interface));
+        }
     }
 
     /**
      * @return void
      */
     public function addClass(Node\Stmt\Class_ $class) {
-        if (!$class->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
+        $this->addClassOrInterface($class);
+    }
+
+    /**
+     * @return void
+     */
+    public function addInterface(Node\Stmt\Interface_ $interface) {
+        $this->addClassOrInterface($interface);
+    }
+
+    protected function addClassOrInterface($class_or_interface) {
+        if (!$class_or_interface->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
             throw new \LogicException(
-                "Class for Result should have fully qualified name."
+                "Class/interface for Registry should have fully qualified name."
             );
         }
-        $fqn = $class->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME);
+        $fqn = $class_or_interface->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME);
 
-        if (isset($this->classes[$fqn])) {
-            throw new Exception(
-                "Class '$fqn' defined twice."
+        if ($class_or_interface instanceof Node\Stmt\Class_) {
+            if (isset($this->classes[$fqn])) {
+                throw new Exception(
+                    "Class '$fqn' defined twice."
+                );
+            }
+            $this->classes[$fqn] = $class_or_interface;
+        }
+        else if ($class_or_interface instanceof Node\Stmt\Interface_) {
+            if (isset($this->interfaces[$fqn])) {
+                throw new Exception(
+                    "Interface '$fqn' defined twice."
+                );
+            }
+            $this->interfaces[$fqn] = $class_or_interface;
+        }
+        else {
+            throw new \LogicException(
+                "Cannot process '".get_class($class_or_interface)."' here."
             );
         }
 
-        $this->classes[$fqn] = $class;
         $this->addNamespace($fqn);
     }
 
@@ -82,8 +117,16 @@ class Registry {
         return array_keys($this->classes);
     }
 
+    public function getFullyQualifiedInterfaceNames() {
+        return array_keys($this->interfaces);
+    }
+
     public function hasClass(string $fully_qualified_name) : bool {
         return isset($this->classes[$fully_qualified_name]);
+    }
+
+    public function hasInterface(string $fully_qualified_name) : bool {
+        return isset($this->interfaces[$fully_qualified_name]);
     }
 
     public function getClass(string $fully_qualified_name) {
@@ -93,6 +136,15 @@ class Registry {
             );
         }
         return $this->classes[$fully_qualified_name];
+    }
+
+    public function getInterface(string $fully_qualified_name) {
+        if (!isset($this->interfaces[$fully_qualified_name])) {
+            throw new \LogicException(
+                "Unknown interface '$fully_qualified_name'"
+            );
+        }
+        return $this->interfaces[$fully_qualified_name];
     }
 
     /**
