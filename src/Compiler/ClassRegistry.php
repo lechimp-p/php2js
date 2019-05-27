@@ -42,11 +42,17 @@ class ClassRegistry {
      */
     protected $properties;
 
+    /**
+     * @var Node\Stmt\ClassMethod|null
+     */
+    protected $constructor;
+
 
     public function __construct(string $fqn) {
         $this->fqn = $fqn;
         $this->methods = [];
         $this->properties = [];
+        $this->constructor = null;
     }
 
     /**
@@ -58,6 +64,12 @@ class ClassRegistry {
                 "Expected method to have visibility-attribute."
             );
         }
+
+        if ((string)$method->name === "__construct") {
+            $this->constructor = $method;
+            return;
+        }
+
         $this->methods[(string)$method->name] = $method; 
     }  
 
@@ -77,7 +89,7 @@ class ClassRegistry {
     /**
      * @return  string[]
      */
-    public function getMethodNames(string $visibility = null) : array{
+    public function getMethodNames(string $visibility = null) : array {
         if ($visibility === null) {
             return array_keys($this->methods);
         }
@@ -90,6 +102,10 @@ class ClassRegistry {
                 }
             )
         );
+    }
+
+    public function getConstructor() : ?Node\Stmt\ClassMethod {
+        return $this->constructor;
     }
 
     /**

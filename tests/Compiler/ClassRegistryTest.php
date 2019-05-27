@@ -113,5 +113,18 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(["prop2", "prop3"], $this->registry->getPropertyNames(Compiler::ATTR_PROTECTED));
         $this->assertEquals(["prop4"], $this->registry->getPropertyNames(Compiler::ATTR_PRIVATE));
     }
+
+    public function test_addMethod_for_constructor() {
+        $constructor = new Node\Stmt\ClassMethod(
+            "__construct",
+            [],
+            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PUBLIC]
+        );
+        $this->registry->addMethod($constructor);
+
+        $this->assertEquals([], $this->registry->getMethodNames());
+
+        $this->assertEquals($constructor, $this->registry->getConstructor());
+    }
 }
 
