@@ -237,6 +237,7 @@ class Compiler {
         $traverser->addVisitor(new AnnotateFullyQualifiedName());
         $traverser->addVisitor(new AnnotateScriptDependencies());
         $traverser->addVisitor(new AnnotateFirstVariableAssignment());
+        $traverser->addVisitor(new AnnotateVisibility());
 
         return $traverser->traverse($nodes);
     }
