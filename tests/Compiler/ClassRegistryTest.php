@@ -64,5 +64,54 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(["method2"], $this->registry->getMethodNames(Compiler::ATTR_PROTECTED));
         $this->assertEquals(["method3"], $this->registry->getMethodNames(Compiler::ATTR_PRIVATE));
     }
+
+    public function test_addProperty() {
+        $prop1 = new Node\Stmt\Property(
+            0,
+            [ new Node\Stmt\PropertyProperty("prop1")
+            ],
+            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PUBLIC]
+        );
+        $this->registry->addProperty($prop1);
+        $prop23 = new Node\Stmt\Property(
+            0,
+            [ new Node\Stmt\PropertyProperty("prop2")
+            , new Node\Stmt\PropertyProperty("prop3")
+            ],
+            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+        );
+        $this->registry->addProperty($prop23);
+        $prop4 = new Node\Stmt\Property(
+            0,
+            [ new Node\Stmt\PropertyProperty("prop4")
+            ],
+            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PRIVATE]
+        );
+        $this->registry->addProperty($prop4);
+
+        $prop2 = new Node\Stmt\Property(
+            0,
+            [ new Node\Stmt\PropertyProperty("prop2")
+            ],
+            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+        );
+        $prop3 = new Node\Stmt\Property(
+            0,
+            [ new Node\Stmt\PropertyProperty("prop3")
+            ],
+            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+        );
+
+        $this->assertEquals($prop1, $this->registry->getProperty("prop1"));
+        $this->assertEquals($prop2, $this->registry->getProperty("prop2"));
+        $this->assertEquals($prop3, $this->registry->getProperty("prop3"));
+        $this->assertEquals($prop4, $this->registry->getProperty("prop4"));
+
+        $this->assertEquals(["prop1", "prop2", "prop3", "prop4"], $this->registry->getPropertyNames());
+
+        $this->assertEquals(["prop1"], $this->registry->getPropertyNames(Compiler::ATTR_PUBLIC));
+        $this->assertEquals(["prop2", "prop3"], $this->registry->getPropertyNames(Compiler::ATTR_PROTECTED));
+        $this->assertEquals(["prop4"], $this->registry->getPropertyNames(Compiler::ATTR_PRIVATE));
+    }
 }
 

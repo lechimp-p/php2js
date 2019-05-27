@@ -37,11 +37,21 @@ class ClassRegistry {
      */
     protected $methods;
 
+    /**
+     * @var Node\Stmt\Property[]
+     */
+    protected $properties;
+
+
     public function __construct(string $fqn) {
         $this->fqn = $fqn;
         $this->methods = [];
+        $this->properties = [];
     }
 
+    /**
+     * @return void
+     */
     public function addMethod(Node\Stmt\ClassMethod $method) {
         if (!$method->hasAttribute(Compiler::ATTR_VISIBILITY)) {
             throw new \LogicException(
@@ -77,6 +87,55 @@ class ClassRegistry {
                 $this->methods,
                 function ($m) use ($visibility) {
                     return $m->getAttribute(Compiler::ATTR_VISIBILITY) === $visibility;
+                }
+            )
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function addProperty(Node\Stmt\Property $property) {
+        if (!$property->hasAttribute(Compiler::ATTR_VISIBILITY)) {
+            throw new \LogicException(
+                "Expected property to have visibility-attribute."
+            );
+        }
+
+        for ($i = 0; $i < count($property->props); $i++) {
+            $clone = clone $property;
+            $p = $clone->props[$i];
+            $clone->props = [$p];
+            $this->properties[(string)$p->name] = $clone;
+        }
+    }
+
+    /**
+     * @throws \InvalidArgumentException if method with name is not known.
+     */
+    public function getProperty(string $name) : Node\Stmt\Property{
+        if (!isset($this->properties[$name])) {
+            throw new \InvalidArgumentException(
+                "Unknown property $name."
+            );
+        }
+
+        return $this->properties[$name];
+    }
+
+    /**
+     * @return  string[]
+     */
+    public function getPropertyNames(string $visibility = null) : array{
+        if ($visibility === null) {
+            return array_keys($this->properties);
+        }
+
+        return array_keys(
+            array_filter(
+                $this->properties,
+                function ($p) use ($visibility) {
+                    return $p->getAttribute(Compiler::ATTR_VISIBILITY) === $visibility;
                 }
             )
         );
