@@ -32,22 +32,27 @@ use Lechimp\PHP2JS\JS;
  * Compiles a class to JS.
  */
 class ClassCompiler {
+    use OpsCompiler;
+    use ControlCompiler;
+    use ScalarCompiler;
+    use BuildInCompiler;
+
     /**
      * @var JS\AST\Factory
      */
     protected $js_factory;
 
     /**
-     * @var BuildInCompiler
+     * @var BuildInFunctionsCompiler
      */
-    protected $build_in_compiler;
+    protected $build_in_functions_compiler;
 
     public function __construct(
         JS\AST\Factory $js_factory,
-        BuildInCompiler $build_in_compiler
+        BuildInFunctionsCompiler $build_in_functions_compiler
     ) {
         $this->js_factory = $js_factory;
-        $this->build_in_compiler = $build_in_compiler;
+        $this->build_in_functions_compiler = $build_in_functions_compiler;
     }
 
     public function compileClassName(string $name) {
@@ -294,17 +299,6 @@ class ClassCompiler {
         "\\" => "\\\\"
     ];
 
-    public function compile_Scalar_String_(PhpNode $n) {
-        return $this->js_factory->literal(strtr ($n->value, self::$string_replacements));
-    }
-
-    public function compile_Scalar_LNumber(PhpNode $n) {
-        if ($n->getAttribute("kind") != 10) {
-            throw new \LogicException("Cannot compile LNumbers with kind != 10");
-        }
-        return $this->js_factory->literal($n->value);
-    }
-
     public function compile_Identifier(PhpNode $n) {
         return $this->js_factory->identifier($n->name);
     }
@@ -340,86 +334,6 @@ class ClassCompiler {
             );
         }
         return $n->name;
-    }
-
-    public function compile_Expr_BinaryOp_Identical(PhpNode $n) {
-        return $this->js_factory->identical($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_Plus(PhpNode $n) {
-        return $this->js_factory->add($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_Minus(PhpNode $n) {
-        return $this->js_factory->sub($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_Mul(PhpNode $n) {
-        return $this->js_factory->mul($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_Div(PhpNode $n) {
-        return $this->js_factory->div($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_Mod(PhpNode $n) {
-        return $this->js_factory->mod($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_Pow(PhpNode $n) {
-        return $this->js_factory->pow($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_BitwiseAnd(PhpNode $n) {
-        return $this->js_factory->bitAnd($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_BitwiseOr(PhpNode $n) {
-        return $this->js_factory->bitOr($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_BitwiseXor(PhpNode $n) {
-        return $this->js_factory->bitXor($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_ShiftLeft(PhpNode $n) {
-        return $this->js_factory->bitShiftLeft($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_ShiftRight(PhpNode $n) {
-        return $this->js_factory->bitShiftRight($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_Greater(PhpNode $n) {
-        return $this->js_factory->greater($n->left, $n->right);
-    }
-
-    public function compile_Expr_BinaryOp_Concat(PhpNode $n) {
-        $f = $this->js_factory;
-        return $f->call(
-            $f->propertyOf($n->left, $f->identifier("concat")),
-            $n->right
-        );
-    }
-
-    public function compile_Expr_BinaryOp_BooleanAnd(PhpNode $n) {
-        return $this->js_factory->and_(
-            $n->left,
-            $n->right
-        );
-    }
-
-    public function compile_Expr_BinaryOp_BooleanOr(PhpNode $n) {
-        return $this->js_factory->or_(
-            $n->left,
-            $n->right
-        );
-    }
-
-    public function compile_Expr_BooleanNot(PhpNode $n) {
-        return $this->js_factory->not(
-            $n->expr
-        );
     }
 
     public function compile_Expr_ClassConstFetch(PhpNode $n) {
@@ -489,20 +403,9 @@ class ClassCompiler {
         return [$n->var, $n->byRef];
     }
 
-    public function compile_Expr_Exit_(PhpNode $n) {
-        $f = $this->js_factory;
-        return $f->call(
-            $f->propertyOf(
-                $f->identifier("process"),
-                $f->identifier("exit")
-            ),
-            $n->expr
-        );
-    }
-
     public function compile_Expr_FuncCall(PhpNode $n) {
-        if ($this->build_in_compiler->isBuildInFunction($n->name->toLowerString())) {
-            return $this->build_in_compiler->compile($n);
+        if ($this->build_in_functions_compiler->isBuildInFunction($n->name->toLowerString())) {
+            return $this->build_in_functions_compiler->compile($n);
         }
 
         return $this->js_factory->call(
@@ -531,27 +434,6 @@ class ClassCompiler {
             $n->var,
             $n->expr
         );
-    }
-
-    public function compile_Expr_InstanceOf_(PhpNode $n) {
-        $js = $this->js_factory;
-        return $js->call(
-            $js->propertyOf(
-                $n->expr,
-                $js->identifier("__instanceof")
-            ),
-            $this->compileClassName($n->class->value())
-        );
-    }
-
-    public function compile_Expr_Isset_(PhpNode $n) {
-        $vars = $n->vars;
-        $var = array_shift($vars);
-        $cur = $this->jsIsset($var);
-        foreach ($vars as $var) {
-            $cur = $f->and_($cur, $this->jsIsset($var));
-        }
-        return $cur;
     }
 
     protected function jsIsset(JS\AST\Expression $expr) {
@@ -594,14 +476,6 @@ class ClassCompiler {
                 $f->identifier("__construct")
             ),
             ...$n->args
-        );
-    }
-
-    public function compile_Expr_Ternary(PhpNode $n) {
-        return $this->js_factory->ternary(
-            $n->cond,
-            $n->if,
-            $n->else
         );
     }
 
@@ -704,37 +578,6 @@ class ClassCompiler {
         ];
     }
 
-    public function compile_Stmt_TryCatch(PhpNode $n) {
-        $js = $this->js_factory;
-        $var = $js->identifier("e");
-        $catch = $js->block($js->throw_($var));
-        while(count($n->catches) > 0) {
-            list($p, $b) = array_pop($n->catches);
-            $catch = $js->block($js->if_($p, $b, $catch));
-        }
-        return $js->try_($js->block(...$n->stmts), $var, $catch, $n->finally);
-    }
-
-    public function compile_Stmt_Catch_(PhpNode $n) {
-        $js = $this->js_factory;
-        $var = $js->identifier("e");
-        return [
-            (count($n->types) > 0)
-                ? $js->or_(...array_map(function($t) use ($js, $var) {
-                    return $js->call(
-                        $js->propertyOf($var, $js->identifier("__instanceof")),
-                        $this->compileClassName($t->value())
-                    );
-                }, $n->types))
-                : $js->identifier(true),
-            $js->block($js->call($js->function_([$n->var], $js->block(...$n->stmts)), $var))
-        ];
-    }
-
-    public function compile_Stmt_Finally_(PhpNode $n) {
-        return $this->js_factory->block(...$n->stmts);
-    }
-
     public function compile_Stmt_ClassConst(PhpNode $n) {
         if ($n->flags !== 0 || count($n->consts) !== 1) {
             throw new \LogicException(
@@ -803,38 +646,7 @@ class ClassCompiler {
         );
     }
 
-    public function compile_Stmt_Echo_(PhpNode $n) {
-        $f = $this->js_factory;
-        return $f->call(
-            $f->propertyOf(
-                $f->propertyOf(
-                    $f->identifier("process"),
-                    $f->identifier("stdout")
-                ),
-                $f->identifier("write")
-            ),
-            ...$n->exprs
-        );
-    }
-
     public function compile_Stmt_Return_(PhpNode $n) {
         return $this->js_factory->return_($n->expr);
-    }
-
-    public function compile_Stmt_If_(PhpNode $n) {
-        $f = $this->js_factory;
-        return $f->if_(
-            $n->cond,
-            $f->block(...$n->stmts),
-            $n->else ? $f->block(...$n->else) : null
-        );
-    }
-
-    public function compile_Stmt_Else_(PhpNode $n) {
-        return $n->stmts;
-    }
-
-    public function compile_Stmt_Throw_(PhpNode $n) {
-        return $this->js_factory->throw_($n->expr);
     }
 }

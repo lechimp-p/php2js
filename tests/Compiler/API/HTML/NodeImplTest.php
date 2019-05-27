@@ -23,7 +23,7 @@ namespace Lechimp\PHP2JS\Test\Compiler\API\HTML;
 
 use Lechimp\PHP2JS\JS\API\HTML;
 use Lechimp\PHP2JS\JS\API\Document;
-use Lechimp\PHP2JS\Compiler\BuildInCompiler;
+use Lechimp\PHP2JS\Compiler\BuildInFunctionsCompiler;
 use Lechimp\PHP2JS\Compiler\ClassCompiler;
 use Lechimp\PHP2JS\Compiler\Compiler;
 use Lechimp\PHP2JS\Compiler\AnnotateFullyQualifiedName;
@@ -50,7 +50,7 @@ class NodeImplTest extends \PHPUnit\Framework\TestCase {
 
     public function test_compile() {
         $js = new JS\AST\Factory();
-        $build_in_compiler = new BuildInCompiler($js);
+        $build_in_compiler = new BuildInFunctionsCompiler($js);
         $compiler = new ClassCompiler($js, $build_in_compiler);
         $registry = $this->createMock(Registry::class);
 

@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Lechimp\PHP2JS\Test\Compiler\API;
 
 use Lechimp\PHP2JS\JS\API\Window;
-use Lechimp\PHP2JS\Compiler\BuildInCompiler;
+use Lechimp\PHP2JS\Compiler\BuildInFunctionsCompiler;
 use Lechimp\PHP2JS\Compiler\ClassCompiler;
 use Lechimp\PHP2JS\Compiler\Compiler;
 use Lechimp\PHP2JS\Compiler\AnnotateFullyQualifiedName;
@@ -46,7 +46,7 @@ class WindowImplTest extends \PHPUnit\Framework\TestCase {
 
     public function compiled() {
         $js = new JS\AST\Factory();
-        $build_in_compiler = new BuildInCompiler($js);
+        $build_in_compiler = new BuildInFunctionsCompiler($js);
         $compiler = new ClassCompiler($js, $build_in_compiler);
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);

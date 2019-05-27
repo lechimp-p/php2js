@@ -21,89 +21,55 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP2JS\Compiler;
 
-use PhpParser\Node;
-use PhpParser\Parser;
-use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitor;
-use Lechimp\PHP2JS\JS;
-
+use PhpParser\Node as PhpNode;
 
 /**
- * Compiles PHP BuildIns.
+ * Compiles control structures to JS
  */
-class BuildInCompiler {
-    /**
-     * @var JS\AST\Factory
-     */
-    protected $js_factory;
-
-    public function __construct(
-        JS\AST\Factory $js_factory
-    ) {
-        $this->js_factory = $js_factory;
-    }
-
-    public function isBuildInFunction(string $name) : bool {
-        return method_exists($this, "compile_function_$name");
-    }
-
-    public function compile(Node\Expr\FuncCall $n) {
-        if (!$this->isBuildInFunction($n->name->toLowerString())) {
-            throw new \InvalidArgumentException("Unknown function \"{$n->name}\"");
-        }
-
-        $name = "compile_function_{$n->name->toLowerString()}";
-        return $this->$name($n);
-    }
-
-    protected function compile_function_is_string(Node\Expr\FuncCall $n) {
-        if (count($n->args) !== 1) {
-            throw new \InvalidArgumentException(
-                "Expected call to is_string to have exactly one param."
-            );
-        }
-
+trait BuildInCompiler {
+    public function compile_Expr_Exit_(PhpNode $n) {
         $f = $this->js_factory;
-        return $f->or_(
-            $f->identical(
-                $f->typeof($n->args[0]),
-                $f->literal("string")
+        return $f->call(
+            $f->propertyOf(
+                $f->identifier("process"),
+                $f->identifier("exit")
             ),
-            $f->instanceof_(
-                $n->args[0],
-                $f->identifier("String")
-            )
+            $n->expr
         );
     }
 
-    protected function compile_function_is_int(Node\Expr\FuncCall $n) {
-        if (count($n->args) !== 1) {
-            throw new \InvalidArgumentException(
-                "Expected call to is_int to have exactly one param."
-            );
-        }
-
-        $f = $this->js_factory;
-        return $f->identical(
-            $n->args[0],
-            $f->call(
-                $f->identifier("parseInt"),
-                $n->args[0],
-                $f->literal(10)
-            )
+    public function compile_Expr_InstanceOf_(PhpNode $n) {
+        $js = $this->js_factory;
+        return $js->call(
+            $js->propertyOf(
+                $n->expr,
+                $js->identifier("__instanceof")
+            ),
+            $this->compileClassName($n->class->value())
         );
     }
 
-    protected function compile_function_gettype(Node\Expr\FuncCall $n) {
-        if (count($n->args) !== 1) {
-            throw new \InvalidArgumentException(
-                "Expected call to gettype to have exactly one param."
-            );
+    public function compile_Expr_Isset_(PhpNode $n) {
+        $vars = $n->vars;
+        $var = array_shift($vars);
+        $cur = $this->jsIsset($var);
+        foreach ($vars as $var) {
+            $cur = $f->and_($cur, $this->jsIsset($var));
         }
+        return $cur;
+    }
 
+    public function compile_Stmt_Echo_(PhpNode $n) {
         $f = $this->js_factory;
-        return $f->typeof(
-            $n->args[0]
+        return $f->call(
+            $f->propertyOf(
+                $f->propertyOf(
+                    $f->identifier("process"),
+                    $f->identifier("stdout")
+                ),
+                $f->identifier("write")
+            ),
+            ...$n->exprs
         );
     }
 }

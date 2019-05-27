@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP2JS\Test\Compiler;
 
-use Lechimp\PHP2JS\Compiler\BuildInCompiler;
+use Lechimp\PHP2JS\Compiler\BuildInFunctionsCompiler;
 use Lechimp\PHP2JS\Compiler\ClassCompiler;
 use Lechimp\PHP2JS\JS;
 use PhpParser\BuilderFactory;
@@ -40,7 +40,7 @@ class ClassCompilerTest extends \PHPUnit\Framework\TestCase {
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
 
         $this->js = new JS\AST\Factory();
-        $build_in_compiler = new BuildInCompiler($this->js);
+        $build_in_compiler = new BuildInFunctionsCompiler($this->js);
         $this->compiler = new ClassCompilerForTest($this->js, $build_in_compiler);
     }
 

@@ -101,7 +101,7 @@ class Compiler {
         );
         $this->class_compiler = new ClassCompiler(
             $this->js_factory,
-            new BuildInCompiler(
+            new BuildInFunctionsCompiler(
                 $this->js_factory
             )
         );
