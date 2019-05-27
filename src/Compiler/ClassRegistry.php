@@ -30,7 +30,7 @@ class ClassRegistry {
     /**
      * @var string
      */
-    protected $fqn; 
+    protected $name; 
 
     /**
      * @var Node\Stmt\ClassMethod[]
@@ -53,12 +53,16 @@ class ClassRegistry {
     protected $constants;
 
 
-    public function __construct(string $fqn) {
-        $this->fqn = $fqn;
+    public function __construct(string $name) {
+        $this->name = $name;
         $this->methods = [];
         $this->constructor = null;
         $this->properties = [];
         $this->constants = [];
+    }
+
+    public function name() : string {
+        return $this->name;
     }
 
     /**
