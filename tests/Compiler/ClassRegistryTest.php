@@ -126,5 +126,40 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals($constructor, $this->registry->getConstructor());
     }
+
+    public function test_addConstant() {
+        $const12 = new Node\Stmt\ClassConst(
+            [
+                new Node\Const_("const1", new Node\Scalar\String_("const1")),
+                new Node\Const_("const2", new Node\Scalar\String_("const2"))
+            ],
+            0,
+            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+        );
+        $this->registry->addConstant($const12);
+
+        $const1 = new Node\Stmt\ClassConst(
+            [
+                new Node\Const_("const1", new Node\Scalar\String_("const1"))
+            ],
+            0,
+            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+        );
+        $const2 = new Node\Stmt\ClassConst(
+            [
+                new Node\Const_("const2", new Node\Scalar\String_("const2"))
+            ],
+            0,
+            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+        );
+
+        $this->assertEquals($const1, $this->registry->getConstant("const1"));
+        $this->assertEquals($const2, $this->registry->getConstant("const2"));
+
+        $this->assertEquals(["const1", "const2"], $this->registry->getConstantNames());
+        $this->assertEquals([], $this->registry->getConstantNames(Compiler::ATTR_PUBLIC));
+        $this->assertEquals(["const1", "const2"], $this->registry->getConstantNames(Compiler::ATTR_PROTECTED));
+        $this->assertEquals([], $this->registry->getConstantNames(Compiler::ATTR_PRIVATE));
+    }
 }
 

@@ -38,21 +38,27 @@ class ClassRegistry {
     protected $methods;
 
     /**
+     * @var Node\Stmt\ClassMethod|null
+     */
+    protected $constructor;
+
+    /**
      * @var Node\Stmt\Property[]
      */
     protected $properties;
 
     /**
-     * @var Node\Stmt\ClassMethod|null
+     * @var Node\Stmt\ClassConst
      */
-    protected $constructor;
+    protected $constants;
 
 
     public function __construct(string $fqn) {
         $this->fqn = $fqn;
         $this->methods = [];
-        $this->properties = [];
         $this->constructor = null;
+        $this->properties = [];
+        $this->constants = [];
     }
 
     /**
@@ -152,6 +158,52 @@ class ClassRegistry {
                 $this->properties,
                 function ($p) use ($visibility) {
                     return $p->getAttribute(Compiler::ATTR_VISIBILITY) === $visibility;
+                }
+            )
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function addConstant(Node\Stmt\ClassConst $const) {
+        if (!$const->hasAttribute(Compiler::ATTR_VISIBILITY)) {
+            throw new \LogicException(
+                "Expected property to have visibility-attribute."
+            );
+        }
+
+        for ($i = 0; $i < count($const->consts); $i++) {
+            $clone = clone $const;
+            $c = $clone->consts[$i];
+            $clone->consts = [$c];
+            $this->constants[(string)$c->name] = $clone;
+        }
+    }
+
+    public function getConstant(string $name) : Node\Stmt\ClassConst {
+        if (!isset($this->constants[$name])) {
+            throw new \InvalidArgumentException(
+                "Unknown constant $name."
+            );
+        }
+
+        return $this->constants[$name];
+    }
+
+    /**
+     * @return  string[]
+     */
+    public function getConstantNames(string $visibility = null) : array{
+        if ($visibility === null) {
+            return array_keys($this->constants);
+        }
+
+        return array_keys(
+            array_filter(
+                $this->constants,
+                function ($c) use ($visibility) {
+                    return $c->getAttribute(Compiler::ATTR_VISIBILITY) === $visibility;
                 }
             )
         );

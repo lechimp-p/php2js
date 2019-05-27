@@ -27,7 +27,8 @@ use PhpParser\NodeVisitorAbstract;
 class AnnotateVisibility extends NodeVisitorAbstract {
     public function enterNode(Node $n) {
         if ($n instanceof Node\Stmt\ClassMethod
-        ||  $n instanceof Node\Stmt\Property) {
+        ||  $n instanceof Node\Stmt\Property
+        ||  $n instanceof Node\Stmt\ClassConst) {
             if ($n->isPublic()) {
                 $n->setAttribute(Compiler::ATTR_VISIBILITY, Compiler::ATTR_PUBLIC);
             }
