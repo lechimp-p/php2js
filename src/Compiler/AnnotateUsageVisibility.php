@@ -24,7 +24,7 @@ namespace Lechimp\PHP2JS\Compiler;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class AnnotateVisibility extends NodeVisitorAbstract {
+class AnnotateUsageVisibility extends NodeVisitorAbstract {
     /**
      * @var Registry
      */

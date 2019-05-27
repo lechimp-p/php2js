@@ -356,7 +356,7 @@ JS;
         $stmts = [];
 
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new AnnotateVisibility($registry));
+        $traverser->addVisitor(new AnnotateUsageVisibility($registry));
         // TODO: Check compliance with interfaces.
         // TODO: Check compliance with extended classes.
 
