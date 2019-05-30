@@ -29,15 +29,20 @@ use PhpParser\Node;
 
 class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
     const CLASS_NAME = "MyClass";
+    const PARENT_CLASS_NAME = "MyParentClass";
 
     public function setUp() : void {
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->builder = new BuilderFactory;
-        $this->registry = new ClassRegistry(self::CLASS_NAME);
+        $this->registry = new ClassRegistry(self::CLASS_NAME, self::PARENT_CLASS_NAME);
     }
 
     public function test_name() {
         $this->assertEquals(self::CLASS_NAME, $this->registry->name());
+    }
+
+    public function test_parentName() {
+        $this->assertEquals(self::PARENT_CLASS_NAME, $this->registry->parentName());
     }
 
     public function test_addMethod() {
