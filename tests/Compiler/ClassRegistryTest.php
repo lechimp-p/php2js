@@ -30,11 +30,17 @@ use PhpParser\Node;
 class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
     const CLASS_NAME = "MyClass";
     const PARENT_CLASS_NAME = "MyParentClass";
+    const IMPLEMENTS1 = "MyInterface1";
+    const IMPLEMENTS2 = "MyInterface1";
 
     public function setUp() : void {
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->builder = new BuilderFactory;
-        $this->registry = new ClassRegistry(self::CLASS_NAME, self::PARENT_CLASS_NAME);
+        $this->registry = new ClassRegistry(
+            self::CLASS_NAME,
+            self::PARENT_CLASS_NAME,
+            [self::IMPLEMENTS1, self::IMPLEMENTS2]
+        );
     }
 
     public function test_name() {
@@ -43,6 +49,13 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
 
     public function test_parentName() {
         $this->assertEquals(self::PARENT_CLASS_NAME, $this->registry->parentName());
+    }
+
+    public function test_implementNames() {
+        $this->assertEquals(
+            [self::IMPLEMENTS1, self::IMPLEMENTS2],
+            $this->registry->implementsNames()
+        );
     }
 
     public function test_addMethod() {

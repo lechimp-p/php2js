@@ -38,6 +38,11 @@ class ClassRegistry {
     protected $parent_name;
 
     /**
+     * @var string[]
+     */
+    protected $implements_names;
+
+    /**
      * @var Node\Stmt\ClassMethod[]
      */
     protected $methods;
@@ -58,9 +63,14 @@ class ClassRegistry {
     protected $constants;
 
 
-    public function __construct(string $name, string $parent_name = null) {
+    public function __construct(
+        string $name,
+        string $parent_name = null,
+        array $implements_names = []
+    ) {
         $this->name = $name;
         $this->parent_name = $parent_name;
+        $this->implements_names = $implements_names;
         $this->methods = [];
         $this->constructor = null;
         $this->properties = [];
@@ -74,6 +84,13 @@ class ClassRegistry {
     public function parentName() : ?string {
         return $this->parent_name;
     }  
+
+    /**
+     * @var array
+     */
+    public function implementsNames() : array {
+        return $this->implements_names;
+    }
 
     /**
      * @return void
