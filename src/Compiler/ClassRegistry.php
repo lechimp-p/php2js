@@ -141,6 +141,13 @@ class ClassRegistry {
         );
     }
 
+    /**
+     * @return Node\Stmt\ClassMethod[]
+     */
+    public function getMethods() : array {
+        return $this->methods;
+    }
+
     public function getConstructor() : ?Node\Stmt\ClassMethod {
         return $this->constructor;
     }
@@ -195,6 +202,13 @@ class ClassRegistry {
     }
 
     /**
+     * @return Node\Stmt\Property[]
+     */
+    public function getProperties() : array {
+        return $this->properties;
+    }
+
+    /**
      * @return void
      */
     public function addConstant(Node\Stmt\ClassConst $const) {
@@ -238,5 +252,9 @@ class ClassRegistry {
                 }
             )
         );
+    }
+
+    public function getConstants() {
+        return $this->constants;
     }
 }

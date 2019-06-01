@@ -87,6 +87,11 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(["method1"], $this->registry->getMethodNames(Compiler::ATTR_PUBLIC));
         $this->assertEquals(["method2"], $this->registry->getMethodNames(Compiler::ATTR_PROTECTED));
         $this->assertEquals(["method3"], $this->registry->getMethodNames(Compiler::ATTR_PRIVATE));
+
+        $this->assertEquals(
+            ["method1" => $method1, "method2" => $method2, "method3" => $method3],
+            $this->registry->getMethods()
+        );
     }
 
     public function test_addProperty() {
@@ -136,6 +141,11 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals(["prop1"], $this->registry->getPropertyNames(Compiler::ATTR_PUBLIC));
         $this->assertEquals(["prop2", "prop3"], $this->registry->getPropertyNames(Compiler::ATTR_PROTECTED));
         $this->assertEquals(["prop4"], $this->registry->getPropertyNames(Compiler::ATTR_PRIVATE));
+
+        $this->assertEquals(
+            ["prop1" => $prop1, "prop2" => $prop2, "prop3" => $prop3, "prop4" => $prop4],
+            $this->registry->getProperties()
+        );
     }
 
     public function test_addMethod_for_constructor() {
@@ -184,6 +194,11 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals([], $this->registry->getConstantNames(Compiler::ATTR_PUBLIC));
         $this->assertEquals(["const1", "const2"], $this->registry->getConstantNames(Compiler::ATTR_PROTECTED));
         $this->assertEquals([], $this->registry->getConstantNames(Compiler::ATTR_PRIVATE));
+
+        $this->assertEquals(
+            ["const1" => $const1, "const2" => $const2],
+            $this->registry->getConstants()
+        );
     }
 }
 
