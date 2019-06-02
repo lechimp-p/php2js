@@ -34,7 +34,18 @@ class ClassRegistryBuilder {
             );
         }
 
-        $registry = new ClassRegistry($n->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME));
+        $registry = new ClassRegistry(
+            (string)$n->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME),
+            $n->extends ? (string)$n->extends : null,
+            array_map(function($i) {
+                if (!($i instanceof Node\Name\FullyQualified)) {
+                    throw new \LogicException(
+                        "Expected implemented interface to have FQN."
+                    );
+                }
+                return (string)$i;
+            }, $n->implements)
+        );
 
         foreach ($n->stmts as $s) {
             if ($s instanceof Node\Stmt\ClassMethod) {
@@ -42,6 +53,9 @@ class ClassRegistryBuilder {
             }
             elseif ($s instanceof Node\Stmt\Property) {
                 $registry->addProperty($s);
+            }
+            elseif ($s instanceof Node\Stmt\ClassConst) {
+                $registry->addConstant($s);
             }
             else {
                 throw new \LogicException(

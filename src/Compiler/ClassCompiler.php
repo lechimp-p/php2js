@@ -53,6 +53,22 @@ class ClassCompiler {
     ) {
         $this->js_factory = $js_factory;
         $this->build_in_functions_compiler = $build_in_functions_compiler;
+
+        $this->initIdentifiers();
+    }
+
+    protected function initIdentifiers() {
+        $js = $this->js_factory;
+
+        $this->_construct_raw = $js->identifier("construct_raw");
+        $this->_extend = $js->identifier("extend");
+        $this->_public = $js->identifier("_public");
+        $this->_protected = $js->identifier("_protected");
+        $this->_private = $js->identifier("_private");
+        $this->_create_class = $js->identifier("create_class");
+        $this->_parent = $js->identifier("parent");
+        $this->_class = $js->identifier("cls");
+        $this->_instanceof = $js->identifier("__instanceof");
     }
 
     public function compileClassName(string $name) {
@@ -72,62 +88,19 @@ class ClassCompiler {
     }
 
     public function compile(PhpNode\Stmt\Class_ $class) : JS\AST\Node {
+        $js = $this->js_factory;
+
         if (!$class->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
             throw new \LogicException(
                 "Class should have fully qualified name to be compiled."
             );
         }
-        return $this->compileRecursive($class);
-    }
 
-    protected function compileRecursive(PhpNode $n) {
-        $prefix_len = strrpos(PhpNode\Node::class, "\\") + 1;
-        return Recursion::cata($n, function(PhpNode $n) use ($prefix_len) {
-            $class = str_replace("\\", "_", substr(get_class($n), $prefix_len));
-            $method = "compile_$class";
-            return $this->$method($n);
-        });
-    }
+        $class_registry = (new ClassRegistryBuilder)->buildClassRegistryFrom($class);
 
-    public function compile_Stmt_Class_(PhpNode $n) {
-        $js = $this->js_factory;
-
-        $name = $n->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME);
-
-        $construct_raw = $js->identifier("construct_raw");
-        $extend = $js->identifier("extend");
-        $public = $js->identifier("_public");
-        $protected = $js->identifier("_protected");
-        $private = $js->identifier("_private");
-        $create_class = $js->identifier("create_class");
-        $parent = $js->identifier("parent");
-
-        list($constructor, $methods, $properties, $constants) = $this->sortClassBody($n->stmts);
-
-        if ($constructor === null) {
-            $constructor = $js->function_([], $js->block(
-                $js->return_($public)
-            ));
-        }
-        else {
-            $constructor = $js->function_(
-                $constructor->parameters(),
-                $js->block(
-                    $constructor->block(),
-                    $js->return_($public)
-                )
-            );
-        }
-
-
-        if (is_null($n->extends)) {
-            return $this->classDefinition(
-                $name,
-                $n->implements,
-                $properties,
-                $methods,
-                $constructor,
-                $constants,
+        if (!$class_registry->parentName()) {
+            return $this->buildClass(
+                $class_registry,
                 function ($f) use ($js) {
                     return $js->call(
                         $f,
@@ -144,17 +117,12 @@ class ClassCompiler {
             );
         }
         else {
-            return $this->classDefinition(
-                $name,
-                $n->implements,
-                $properties,
-                $methods,
-                $constructor,
-                $constants,
-                function ($f) use ($js, $n) {
+            return $this->buildClass(
+                $class_registry,
+                function ($f) use ($js, $class_registry) {
                     return $js->call(
                         $js->propertyOf(
-                            $this->compileClassName($n->extends->value()),
+                            $this->compileClassName($class_registry->parentName()),
                             $js->identifier("__extend")
                         ),
                         $f
@@ -162,57 +130,12 @@ class ClassCompiler {
                 }
             );
         }
+
+        return $this->compileRecursive($class);
     }
 
-    protected function sortClassBody(array $nodes) {
+    protected function buildClass(ClassRegistry $class_registry, callable $initial_call) {
         $js = $this->js_factory;
-
-        $constructor = null;
-        $methods = [];
-        $properties = [];
-        $constants = [];
-        foreach ($nodes as $n) {
-            list($n, $compiled) = $n;
-            if ($n instanceof PhpNode\Stmt\ClassMethod) {
-                if ($n->name->toLowerString() === "__construct") {
-                    $constructor = $compiled->value();
-                }
-                else if ($n->name->toLowerString() === "__instanceof") {
-                    throw new Exception(
-                        "Method cannot be named `__instanceof`, that name is used internally."
-                    );
-                }
-                else {
-                    $methods[] = $compiled;
-                }
-            }
-            elseif ($n instanceof PhpNode\Stmt\Property) {
-                $properties[] = $compiled;
-            }
-            elseif ($n instanceof PhpNode\Const_) {
-                $constants[$compiled[0]] = $compiled[1];
-            }
-            else {
-                throw new \LogicException(
-                    "Cannot process '".get_class($n)."'"
-                );
-            }
-        }
-        return [$constructor, $methods, $properties, $constants];
-    }
-
-    protected function classDefinition($name, $implements, $properties, $methods, $constructor, $constants, $initial_call) {
-        $js = $this->js_factory;
-
-        $construct_raw = $js->identifier("construct_raw");
-        $extend = $js->identifier("extend");
-        $public = $js->identifier("_public");
-        $protected = $js->identifier("_protected");
-        $private = $js->identifier("_private");
-        $create_class = $js->identifier("create_class");
-        $parent = $js->identifier("parent");
-        $class = $js->identifier("cls");
-        $instanceof = $js->identifier("__instanceof");
 
         $clone = function ($which) use ($js) {
             return $js->call(
@@ -226,63 +149,72 @@ class ClassCompiler {
         };
 
         return $js->assign(
-            $this->compileClassName($name),
-            $initial_call($js->function_([$parent], $js->block(
+            $this->compileClassName($class_registry->name()),
+            $initial_call($js->function_([$this->_parent], $js->block(
                 $js->assignVar(
-                    $construct_raw,
+                    $this->_construct_raw,
                     $js->function_([], $js->block(
-                        $js->assignVar($public, $clone($js->propertyOf($parent, $public))),
-                        $js->assignVar($protected, $clone($js->propertyOf($parent, $protected))),
-                        $js->assignVar($private, $js->object_([])),
-                        $js->block(...$properties),
-                        $js->block(...$methods),
+                        $js->assignVar($this->_public, $clone($js->propertyOf($this->_parent, $this->_public))),
+                        $js->assignVar($this->_protected, $clone($js->propertyOf($this->_parent, $this->_protected))),
+                        $js->assignVar($this->_private, $js->object_([])),
+                        $js->block(...array_values(array_map(
+                            [$this, "compileRecursive"],
+                            $class_registry->getProperties()
+                        ))),
+                        $js->block(...array_values(array_map(
+                            [$this, "compileRecursive"],
+                            $class_registry->getMethods()
+                        ))),
                         $js->assign(
-                            $js->propertyOf($public, $instanceof),
-                            $js->function_([$class], $js->block(
+                            $js->propertyOf($this->_public, $this->_instanceof),
+                            $js->function_([$this->_class], $js->block(
                                 $js->return_($js->or_(
-                                    $js->identical($class, $this->compileClassName($name)),
+                                    $js->identical($this->_class, $this->compileClassName($class_registry->name())),
                                     $js->call(
                                         $js->propertyOf(
-                                            $js->propertyOf($parent, $public),
-                                            $instanceof
+                                            $js->propertyOf($this->_parent, $this->_public),
+                                            $this->_instanceof
                                         ),
-                                        $class
+                                        $this->_class
                                     ),
-                                    ...array_map(function($i) use ($class, $js) {
+                                    ...array_map(function($i) use ($class_registry, $js) {
                                         return $js->identical(
-                                            $class,
-                                            $this->compileClassName($i->value())
+                                            $this->_class,
+                                            $this->compileClassName($i)
                                         );
-                                    }, $implements)
+                                    }, $class_registry->implementsNames())
                                 ))
                             ))
                         ),
                         $js->return_($js->object_([
-                            "construct" => $constructor,
-                            "_public" => $public,
-                            "_protected" => $protected
+                            "construct" => $this->buildConstructor($class_registry),
+                            "_public" => $this->_public,
+                            "_protected" => $this->_protected
                         ]))
                     ))
                 ),
                 $js->assignVar(
-                    $extend,
-                    $js->function_([$create_class], $js->block(
+                    $this->_extend,
+                    $js->function_([$this->_create_class], $js->block(
                         $js->return_(
                             $js->call(
-                                $create_class,
-                                $js->call($construct_raw)
+                                $this->_create_class,
+                                $js->call($this->_construct_raw)
                             )
                         )
                     ))
                 ),
                 $js->assignVar(
                     $js->identifier("constants"),
-                    $js->object_($constants)
+                    $js->object_(array_map(
+                        [$this, "compileRecursive"],
+                        $class_registry->getConstants()
+                    ))
                 ),
                 $js->return_($js->object_([
-                    "__extend" => $extend,
+                    "__extend" => $this->_extend,
                     "__construct" => $js->propertyOf(
-                        $js->call($construct_raw),
+                        $js->call($this->_construct_raw),
                         $js->identifier("construct")
                     ),
                     "__constants" => $js->identifier("constants")
@@ -291,6 +223,33 @@ class ClassCompiler {
         );
     }
 
+    protected function buildConstructor(ClassRegistry $class_registry) {
+        $js = $this->js_factory;
+
+        if ($class_registry->getConstructor() === null) {
+            return $js->function_([], $js->block(
+                $js->return_($this->_public)
+            ));
+        }
+
+        $c = $this->compileRecursive($class_registry->getConstructor())->value();
+        return $js->function_(
+            $c->parameters(),
+            $js->block(
+                $c->block(),
+                $js->return_($this->_public)
+            )
+        );
+    }
+
+    protected function compileRecursive(PhpNode $n) {
+        $prefix_len = strrpos(PhpNode\Node::class, "\\") + 1;
+        return Recursion::cata($n, function(PhpNode $n) use ($prefix_len) {
+            $class = str_replace("\\", "_", substr(get_class($n), $prefix_len));
+            $method = "compile_$class";
+            return $this->$method($n);
+        });
+    }
 
     protected static $string_replacements = [
         "\n" => "\\n",
@@ -537,19 +496,16 @@ class ClassCompiler {
 
         list($params, $stmts) = $this->unrollParameters(...$n->params);
 
-        return [
-            $n,
-            $js->assign(
-                $js->propertyOf(
-                    $js->identifier("_".$visibility),
-                    $js->identifier($n->name->value())
-                ),
-                $js->function_(
-                    $params,
-                    $js->block(...array_merge($stmts, $n->stmts))
-                )
+        return $js->assign(
+            $js->propertyOf(
+                $js->identifier("_".$visibility),
+                $js->identifier($n->name->value())
+            ),
+            $js->function_(
+                $params,
+                $js->block(...array_merge($stmts, $n->stmts))
             )
-        ];
+        );
     }
 
     protected function unrollParameters(...$params) {
@@ -572,10 +528,7 @@ class ClassCompiler {
     }
 
     public function compile_Const_(PhpNode $n) {
-        return [
-            $n,
-            [ $n->name->value(), $n->value ]
-        ];
+        return $n->value;
     }
 
     public function compile_Stmt_ClassConst(PhpNode $n) {
@@ -594,17 +547,14 @@ class ClassCompiler {
     public function compile_Stmt_Property(PhpNode $n) {
         $js = $this->js_factory;
         $visibility = $js->identifier("_".Compiler::getVisibilityConst($n));
-        return [
-            $n,
-            $js->block(...array_map(function($p) use ($n, $js, $visibility) {
-                return $js->assign(
-                    $js->propertyOf($visibility, $p->name),
-                    $p->default === null
-                        ? $js->null_()
-                        : $p->default
-                );
-            }, $n->props))
-        ];
+        return $js->block(...array_map(function($p) use ($n, $js, $visibility) {
+            return $js->assign(
+                $js->propertyOf($visibility, $p->name),
+                $p->default === null
+                    ? $js->null_()
+                    : $p->default
+            );
+        }, $n->props));
     }
 
     public function compile_Stmt_PropertyProperty(PhpNode $n) {

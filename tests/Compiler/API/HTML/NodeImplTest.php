@@ -29,10 +29,12 @@ use Lechimp\PHP2JS\Compiler\Compiler;
 use Lechimp\PHP2JS\Compiler\AnnotateFullyQualifiedName;
 use Lechimp\PHP2JS\Compiler\AnnotateFirstVariableAssignment;
 use Lechimp\PHP2JS\Compiler\AnnotateUsageVisibility;
+use Lechimp\PHP2JS\Compiler\AnnotateVisibility;
 use Lechimp\PHP2JS\Compiler\RemoveTypeHints;
 use Lechimp\PHP2JS\Compiler\Registry;
 use Lechimp\PHP2JS\JS;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
 
 class NodeImplTest extends \PHPUnit\Framework\TestCase {
@@ -61,10 +63,12 @@ class NodeImplTest extends \PHPUnit\Framework\TestCase {
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $t = new NodeTraverser();
+        $t->addVisitor(new AnnotateVisibility());
         $t->addVisitor(new AnnotateFullyQualifiedName());
         $t->addVisitor(new AnnotateUsageVisibility($registry));
         $t->addVisitor(new AnnotateFirstVariableAssignment());
         $t->addVisitor(new RemoveTypeHints());
+        $t->addVisitor(new NameResolver());
         $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
         $ast[1]->stmts[1]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\HTML\NodeImpl");
 
