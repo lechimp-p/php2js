@@ -323,7 +323,7 @@ JS;
         );
 
         $result = $this->printer->print($ast);
-        $expected = "new ClassName(a, b)";
+        $expected = "(new ClassName(a, b))";
 
         $this->assertEquals($expected, $result);
     }

@@ -68,7 +68,7 @@ class Printer {
 
     protected function print_New_(Node $original, Node $n) {
         $params = join(", ", $n->parameters());
-        return "new {$n->class_()}($params)";
+        return "(new {$n->class_()}($params))";
     }
 
     protected function print_Statement(Node $original, Node $n) {
