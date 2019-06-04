@@ -74,6 +74,11 @@ class Factory {
             $last = array_pop($properties);
             return new PropertyOf($this->propertyOf($object, ...$properties), $last);
         }
+        if (count($properties) !== 1) {
+            throw new \LogicException(
+                "There must be one property."
+            );
+        }
         return new PropertyOf($object, array_pop($properties));
     }
 
