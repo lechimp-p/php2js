@@ -65,7 +65,7 @@ class Factory {
         return new Call($callee, $parameters);
     }
 
-    public function new_(Identifier $class, Expression ...$parameters) : Node {
+    public function new_(Expression $class, Expression ...$parameters) : Node {
         return new New_($class, $parameters);
     }
 
