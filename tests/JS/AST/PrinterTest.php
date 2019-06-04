@@ -65,6 +65,18 @@ class PrinterTest extends \PHPUnit\Framework\TestCase {
         $this->assertEquals("foo.bar", $result); 
     }
 
+    public function test_print_propertyOf_multi() {
+        $ast = $this->factory->propertyOf(
+            $this->factory->identifier("foo"),
+            $this->factory->identifier("bar"),
+            $this->factory->identifier("baz")
+        );
+
+        $result = $this->printer->print($ast);
+
+        $this->assertEquals("foo.bar.baz", $result); 
+    }
+
     public function test_print_propertyOf_string() {
         $ast = $this->factory->propertyOf(
             $this->factory->identifier("foo"),

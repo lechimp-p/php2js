@@ -69,8 +69,12 @@ class Factory {
         return new New_($class, $parameters);
     }
 
-    public function propertyOf(Expression $object, Expression $property) : Node {
-        return new PropertyOf($object, $property);
+    public function propertyOf(Expression $object, Expression ...$properties) : Node {
+        if (count($properties) > 1) {
+            $last = array_pop($properties);
+            return new PropertyOf($this->propertyOf($object, ...$properties), $last);
+        }
+        return new PropertyOf($object, array_pop($properties));
     }
 
     public function assignVar(Identifier $name, Expression $value) : Node {
