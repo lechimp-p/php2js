@@ -82,6 +82,9 @@ class Printer {
     protected function print_Function_(Node $original, Node $n) {
         $params = join(", ", $n->parameters());
         $block = str_replace("\n", "\n    ", $n->block());
+        if (trim($block) === "") {
+            return "function($params) {}";
+        }
         return "function($params) {\n    $block\n}";
     }
 
