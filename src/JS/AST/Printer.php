@@ -34,6 +34,10 @@ class Printer {
         });
     }
 
+    protected function print_Nop(Node $original, Node $n) {
+        return "";
+    }
+
     protected function print_StringLiteral(Node $original, Node $n) {
         return "\"{$n->value()}\"";
     }

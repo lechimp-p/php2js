@@ -30,6 +30,14 @@ class PrinterTest extends \PHPUnit\Framework\TestCase {
         $this->printer = new Printer();
     }
 
+    public function test_print_nop() {
+        $ast = $this->factory->nop();
+
+        $result = $this->printer->print($ast);
+
+        $this->assertEquals("", $result); 
+    }
+
     public function test_print_string() {
         $ast = $this->factory->literal("foo");
 
