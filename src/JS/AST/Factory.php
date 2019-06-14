@@ -178,6 +178,10 @@ class Factory {
         return new BinaryOp(">", $left, $right);
     }
 
+    public function in(Expression $left, Expression $right) : Node {
+        return new BinaryOp("in", $left, $right);
+    }
+
     public function instanceof_(Expression $left, Expression $right) : Node {
         return new BinaryOp("instanceof", $left, $right);
     }
