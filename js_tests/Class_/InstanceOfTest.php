@@ -29,7 +29,7 @@ class B7 {
 
 class InstanceOfTest {
     public function name() {
-        return "InstanceOfTest";
+        return "Class_\\InstanceOfTest";
     }
 
     public function perform() {

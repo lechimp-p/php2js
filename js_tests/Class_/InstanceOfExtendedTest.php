@@ -29,7 +29,7 @@ class B8 extends A8 {
 
 class InstanceOfExtendedTest {
     public function name() {
-        return "InstanceOfExtendedTest";
+        return "Class_\\InstanceOfExtendedTest";
     }
 
     public function perform() {

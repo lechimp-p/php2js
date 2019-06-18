@@ -29,7 +29,7 @@ class A10 implements I10 {
 
 class InstanceOfInterfaceTest {
     public function name() {
-        return "InstanceOfInterfaceTest";
+        return "Class_\\InstanceOfInterfaceTest";
     }
 
     public function perform() {
