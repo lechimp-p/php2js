@@ -26,18 +26,29 @@ and sane modern PHP should compile.
 
 *Again, this currently is a proof of concept.*
 
-When working on a possibly old PHP-applications users typically expect features
+When working on a (possibly old) PHP-applications users typically expect features
 that need to be implemented client-side nowadays. This challenges communities of
-PHP-developers by demanding new skills and knowledge. While we may expect every
-contemporay PHP-developer to know its share of jquery, more complex applications
+PHP-developers in two different ways.
+
+On the one hand, client-side demands new skills and knowledge. While we may expect
+every contemporay PHP-developer to know its share of jquery, more complex applications
 demand for means that jquery never meant to provide. When switching to modern
-js-frameworks like React or Vue to implement requirements of these more complex
+js-frameworks, like React or Vue, to implement requirements of these more complex
 apps, we either demand PHP-developers to acquire the skills and knowledge to use
 these tools or we need to add new developers to our projects that already have
 these skills. In both scenarios we will add new layers of complexity to our
 project.
 
-**php2js** attempts to solve this problem by providing a way to write client-side
+On the other hand, PHP-projects will already have some code which possibly would
+need to be rewritten for the client-side. If, e.g., one would want to perform
+some validation on input on the client-side to provide quick feedback to users,
+the according code would need to be rewritten in javascript (or another language)
+and server- and client-side validation would need to be hold in sync afterwards.
+This will be a handicap for every PHP-project compared to projects written in
+language that work on client- and server-side. After all, two languages and tool
+chains need to be supported.
+
+**php2js** attempts to solve these problems by providing a way to write client-side
 code in PHP, just as server-side code. Client-side code thus can be subject to
 the same procedures (e.g. testing or static analysis) like server-side code and
 can be compiled to JavaScript before deployment.
@@ -58,4 +69,4 @@ with the client-side functionality of the ILIAS-UI-framework. If this is ever pu
 to real work, we most probably will add another layer over the bare JS-APIs
 implemented by this compiler that allow to add client-side functionality to the
 ILIAS-UI-framework in a structured way. This compiler thus is intended to be
-complemented by a JS-framework written in PHP.
+complemented by a client-side-framework written in PHP.
