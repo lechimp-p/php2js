@@ -32,6 +32,7 @@ use Lechimp\PHP2JS\JS;
  */
 class Compiler {
     const ATTR_FULLY_QUALIFIED_NAME = "fully_qualified_name";
+    const ATTR_DONT_DEFINE_UNDEFINED_VARS = "dont_define_undefined_vars";
     const ATTR_FIRST_VAR_ASSIGNMENT = "first_assignment";
     const ATTR_VISIBILITY = "visibility";
     const ATTR_PUBLIC = "public";
@@ -79,6 +80,8 @@ class Compiler {
         \JS_NATIVE_Object::class => null,
         \InvalidArgumentException::class => __DIR__."/InvalidArgumentExceptionImpl.php",
         \TypeError::class => __DIR__."/TypeErrorImpl.php",
+        \ReturnFromLoopClosure::class => __DIR__."/ReturnFromLoopClosureImpl.php",
+        "parent" => null,
         // TODO: make this use BuildInCompiler somehow
         "is_string" => null,
         "is_int" => null,
@@ -206,10 +209,10 @@ class Compiler {
         $pipeline = [
             new NodeVisitor\NameResolver(),
             new RemoveUseNamespace(),
+            new RewriteSelfAccess(),
             new RewriteOperators(),
-            new RewriteArrayCode(),
-            new RewriteParentAccess(),
             new RewriteTypeHints(),
+            new RewriteArrayCode(),
             new DefineUndefinedVariables()
         ];
 
@@ -272,8 +275,11 @@ Object.prototype.getItemAt = function (key) {
 Object.prototype.setItemAt = function (key, value) {
     this[key] = value;
 }
+Object.prototype.__instanceof = function(cls) {
+    return false;
+}
 Array.prototype.toPHPArray = function () {
-    var arr = php2js.PhpArray.__construct();
+    var arr = new php2js.PhpArray();
     this.forEach(function(e) {
         arr.push(e);
     });
@@ -287,6 +293,9 @@ Number.prototype.__instanceof = function(cls) {
 }
 Boolean.prototype.__instanceof = function(cls) {
     return cls === Boolean;
+}
+function __instanceof(e, cls) {
+    return e !== null && e.__instanceof(cls);
 }
 
 // PRELUDE END
@@ -356,16 +365,12 @@ JS;
         $classes = $registry->getFullyQualifiedClassNames();
         $stmts = [];
 
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new AnnotateUsageVisibility($registry));
         // TODO: Check compliance with interfaces.
         // TODO: Check compliance with extended classes.
 
         foreach ($classes as $cls) {
             $stmts[] = $this->class_compiler->compile(
-                $traverser->traverse(
-                    [$registry->getClass($cls)]
-                )[0]
+                $registry->getClass($cls)
             );
         }
 
@@ -389,11 +394,8 @@ JS;
             $dependencies = array_map(function($name) use ($js) {
                 $names = explode("\\", $name);
                 $name = array_pop($names);
-                return $js->call(
-                    $js->propertyOf(
-                        $this->class_compiler->compileClassName("{$name}Impl"),
-                        $js->identifier("__construct")
-                    )
+                return $js->new_(
+                    $this->class_compiler->compileClassName("{$name}Impl")
                 );
             }, $php_script_class->getAttribute(self::ATTR_SCRIPT_DEPENDENCIES));
         }
@@ -402,8 +404,8 @@ JS;
         }
         $stmts[] = $js->assignVar(
             $script,
-            $js->call(
-                $js->propertyOf($script_class, $js->identifier("__construct")),
+            $js->new_(
+                $script_class,
                 ...$dependencies
             )
         );

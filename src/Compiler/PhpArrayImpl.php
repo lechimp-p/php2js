@@ -130,15 +130,49 @@ class PhpArray {
      * @param   \Closure    $f
      * @return  null
      */
-    public function foreach($foo) {
+    public function foreach($f) {
         if (!$this->use_object_mode) {
-            $this->array->forEach($foo);
+            $this->array->forEach($f);
         }
         else {
-            $this->key_order->forEach(function($key) use ($foo) {
-                $foo($this->getItemAt($key), $key);
+            //Prevent Javascript this-rules from kickin in.
+            $self = $this;
+            $this->key_order->forEach(function($key) use ($f, $self) {
+                $f($self->getItemAt($key), $key);
             });
         }
+    }
+
+    public function __identicalTo($other) {
+        if (!($other instanceof \PhpArray)) {
+            return false;
+        }
+        if (!($this->use_object_mode === $other->use_object_mode)) {
+            return false;
+        }
+        if (!($this->max_key === $other->max_key)) {
+            return false;
+        }
+        if (!$this->use_object_mode) {
+            $i = 0;
+            foreach ($this as $v) {
+                if (!($other->getItemAt($i) === $v)) {
+                    return false;
+                }
+                $i++;
+            }
+        }
+        else {
+            if (!($this->key_order->toPHPArray() === $other->key_order->toPHPArray())) {
+                return false;
+            }
+            foreach ($this as $k => $v) {
+                if (!($other->getItemAt($k) === $v)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     protected function toObjectMode() {

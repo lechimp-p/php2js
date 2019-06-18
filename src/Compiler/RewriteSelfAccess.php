@@ -21,56 +21,41 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP2JS\Compiler;
 
+use Lechimp\PHP2JS\JS;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
+use PhpParser\NodeTraverser;
 
-class AnnotateUsageVisibility extends NodeVisitorAbstract {
+class RewriteSelfAccess extends NodeVisitorAbstract {
     /**
-     * @var Registry
-     */
-    protected $registry;
-
-    /**
-     * @var string|null
+     * @var Node\Name|null
      */
     protected $in_class = null;
 
-    public function __construct(Registry $registry) {
-        $this->registry = $registry;
-    }
-
-    public function beforeTraverse(array $nodes) {
-        $this->in_class = null;
-    }
-
     public function enterNode(Node $n) {
         if ($n instanceof Node\Stmt\Class_) {
-            $this->in_class = $n->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME);
-        }
-        if ($n instanceof Node\Expr\PropertyFetch
-        ||  $n instanceof Node\Expr\MethodCall) {
-            if ($this->in_class === null) {
-                return;
-            }
-            if (!isset($n->var->name)
-            || !in_array("".$n->var->name, ["this", RewriteParentAccess::JS_NATIVE_parent])) {
-                return;
-            }
-            if (!($n->name instanceof Node\Identifier)) {
-                throw new \LogicException(
-                    "Cannot compile access to this with variable expression."
+            if (!isset($n->namespacedName)) {
+                throw \LogicException(
+                    "Expected class to have a namespaced name."
                 );
             }
-            $n->setAttribute(
-                Compiler::ATTR_VISIBILITY,
-                $this->registry->getVisibility($this->in_class, (string)$n->name)
-            );
-        }
+            $this->in_class = $n->namespacedName; 
+        } 
     }
 
     public function leaveNode(Node $n) {
         if ($n instanceof Node\Stmt\Class_) {
             $this->in_class = null;
+        }
+        if ($n instanceof Node\Expr\ClassConstFetch) {
+            if ((string)$n->class === "self") {
+                if ($this->in_class === null) {
+                    throw \LogicException(
+                        "Expected in_class to be set."
+                    );
+                }
+                $n->class = $this->in_class;
+            }
         }
     }
 }

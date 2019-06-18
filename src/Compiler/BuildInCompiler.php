@@ -41,10 +41,8 @@ trait BuildInCompiler {
     public function compile_Expr_InstanceOf_(PhpNode $n) {
         $js = $this->js_factory;
         return $js->call(
-            $js->propertyOf(
-                $n->expr,
-                $js->identifier("__instanceof")
-            ),
+            $js->identifier("__instanceof"),
+            $n->expr,
             $this->compileClassName($n->class->value())
         );
     }

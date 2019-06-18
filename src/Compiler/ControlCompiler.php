@@ -63,7 +63,10 @@ trait ControlCompiler {
                     );
                 }, $n->types))
                 : $js->identifier(true),
-            $js->block($js->call($js->function_([$n->var], $js->block(...$n->stmts)), $var))
+            $js->block(
+                $js->assignVar($n->var, $var),
+                ...$n->stmts
+            ) 
         ];
     }
 

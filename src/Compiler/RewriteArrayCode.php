@@ -68,6 +68,7 @@ class RewriteArrayCode extends NodeVisitorAbstract {
                     "Cannot compile foreach with by-ref."
                 );
             }
+
             if ($n->keyVar) {
                 $function_vars = [$n->valueVar, $n->keyVar];
             }
@@ -77,18 +78,36 @@ class RewriteArrayCode extends NodeVisitorAbstract {
 
             $t = new NodeTraverser;
             $t->addVisitor($this->getMarkVarAssignmentsVisitor());
+            $t->addVisitor($this->getReplaceReturnVisitor());
 
-            return new Node\Stmt\Expression(
-                new Node\Expr\MethodCall(
-                    $n->expr,
-                    new Node\Name("foreach"),
-                    [new Node\Expr\Closure([
-                        "params" => array_map(function($v) {
-                            return new Node\Param($v);
-                        }, $function_vars),
-                        "stmts" => $t->traverse($n->stmts)
-                    ])]
-                )
+            return new Node\Stmt\TryCatch(
+                [new Node\Stmt\Expression(
+                    new Node\Expr\MethodCall(
+                        $n->expr,
+                        new Node\Name("foreach"),
+                        [new Node\Expr\Closure(
+                            [
+                                "params" => array_map(function($v) {
+                                    return new Node\Param($v);
+                                }, $function_vars),
+                                "stmts" => $t->traverse($n->stmts)
+                            ],
+                            [
+                                Compiler::ATTR_DONT_DEFINE_UNDEFINED_VARS => true
+                            ]
+                        )]
+                    )
+                )],
+                [new Node\Stmt\Catch_(
+                    [new Node\Name("ReturnFromLoopClosure")],
+                    new Node\Expr\Variable("e"),
+                    [new Node\Stmt\Return_(
+                        new Node\Expr\MethodCall(
+                            new Node\Expr\Variable("e"),
+                            "getValue"
+                        )
+                    )]
+                )]
             );
         }
     }
@@ -105,6 +124,21 @@ class RewriteArrayCode extends NodeVisitorAbstract {
 
                 if ($n instanceof Node\Expr\Assign) {
                     $n->setAttribute(Compiler::ATTR_FIRST_VAR_ASSIGNMENT, false);
+                }
+            }
+        };
+    }
+
+    protected function getReplaceReturnVisitor() {
+        return new class extends NodeVisitorAbstract {
+            public function leaveNode(Node $n) {
+                if ($n instanceof Node\Stmt\Return_) {
+                    return new Node\Stmt\Throw_(
+                        new Node\Expr\New_(
+                            new Node\Name("ReturnFromLoopClosure"),
+                            [$n->expr]
+                        )
+                    );
                 }
             }
         };

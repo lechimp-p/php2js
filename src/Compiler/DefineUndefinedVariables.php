@@ -61,7 +61,8 @@ class DefineUndefinedVariables extends NodeVisitorAbstract {
         if ($n instanceof Node\Param
         ||  $n instanceof Node\Expr\ClosureUse
         ||  $n instanceof Node\Expr\Assign) {
-            if (!($n->var instanceof Node\Expr\PropertyFetch)) {
+            if (!($n->var instanceof Node\Expr\PropertyFetch)
+            &&  !($n->var instanceof Node\Expr\ArrayDimFetch)) {
                 $this->defined[] = (string)$n->var->name;
             }
         }
@@ -77,15 +78,26 @@ class DefineUndefinedVariables extends NodeVisitorAbstract {
     }
 
     public function leaveNode(Node $n) {
+        if ($n instanceof Node\Stmt\Catch_) {
+            $this->used = array_diff($this->used, [(string)$n->var->name]);
+        }
+
         if ($n instanceof Node\Stmt\ClassMethod
         ||  $n instanceof Node\Stmt\Function_
         ||  $n instanceof Node\Expr\Closure
         ) {
+            if ($n->hasAttribute(Compiler::ATTR_DONT_DEFINE_UNDEFINED_VARS)) {
+                return $n;
+            }
+
             $undefined = array_unique(
                 array_diff(
                     $this->used,
                     $this->defined,
-                    ["this", RewriteParentAccess::JS_NATIVE_parent]
+                    ["this"],
+                    array_map(function($p) {
+                        return (string)$p->var->name;
+                    }, $n->params)
                 )
             );
             list($this->defined, $this->used) = array_pop($this->stack);

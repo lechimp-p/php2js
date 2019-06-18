@@ -21,25 +21,26 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP2JS\Test\Compiler;
 
-use Lechimp\PHP2JS\Compiler\RewriteParentAccess;
+use Lechimp\PHP2JS\Compiler\RewriteSelfAccess;
 use PhpParser\ParserFactory;
 use PhpParser\BuilderFactory;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor;
 use PhpParser\NodeDumper;
 
-class RewriteParentAccessTest extends \PHPUnit\Framework\TestCase {
+class RewriteSelfAccessTest extends \PHPUnit\Framework\TestCase {
     public function setUp() : void {
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->builder = new BuilderFactory;
         $this->dumper = new NodeDumper;
     }
 
-    public function test_rewrites_parent_call() {
+    public function test_rewrites_self_constant_access() {
         $before = $this->parser->parse(<<<'PHP'
 <?php
 class Foo {
     public function bar() {
-        parent::bar();
+        self::MY_CONSTANT;
     }
 }
 PHP
@@ -48,42 +49,19 @@ PHP
 <?php
 class Foo {
     public function bar() {
-        $JS_NATIVE_parent->bar();
+        Foo::MY_CONSTANT;
     }
 }
 PHP
         );
 
         $t = new NodeTraverser();
-        $t->addVisitor(new RewriteParentAccess);
+        $t->addVisitor(new NodeVisitor\NameResolver);
         $after = $t->traverse($before);
-
-        $this->assertEquals($this->dumper->dump($expected), $this->dumper->dump($after));
-    }
-
-    public function test_rewrites_parent_property_access() {
-        $before = $this->parser->parse(<<<'PHP'
-<?php
-class Foo {
-    public function bar() {
-        parent::$bar;
-    }
-}
-PHP
-        );
-        $expected = $this->parser->parse(<<<'PHP'
-<?php
-class Foo {
-    public function bar() {
-        $JS_NATIVE_parent->bar;
-    }
-}
-PHP
-        );
 
         $t = new NodeTraverser();
-        $t->addVisitor(new RewriteParentAccess);
-        $after = $t->traverse($before);
+        $t->addVisitor(new RewriteSelfAccess);
+        $after = $t->traverse($after);
 
         $this->assertEquals($this->dumper->dump($expected), $this->dumper->dump($after));
     }

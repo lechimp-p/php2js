@@ -19,33 +19,22 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler;
+/**
+ * ATTENTION: This is not supposed to work in a PHP-environment.
+ * This is just a stub that gets compiled to JS to implement the
+ * JS\PhpArray. Do not use it yourself.
+ */
+class ReturnFromLoopClosure { 
+    /**
+     * @var mixed 
+     */
+    protected $value;
 
-use Lechimp\PHP2JS\JS;
-use PhpParser\Node;
-use PhpParser\NodeVisitorAbstract;
-use PhpParser\NodeTraverser;
-
-class RewriteParentAccess extends NodeVisitorAbstract {
-    const JS_NATIVE_parent = "JS_NATIVE_parent";
-
-    public function leaveNode(Node $n) {
-        if ($n instanceof Node\Expr\StaticCall && $this->isAccessToParent($n)) {
-            return new Node\Expr\MethodCall(
-                new Node\Expr\Variable(self::JS_NATIVE_parent),
-                $n->name,
-                $n->args
-            );
-        }
-        if ($n instanceof Node\Expr\StaticPropertyFetch && $this->isAccessToParent($n)) {
-            return new Node\Expr\PropertyFetch(
-                new Node\Expr\Variable(self::JS_NATIVE_parent),
-                new Node\Identifier($n->name->name)
-            );
-        }
+    public function __construct($value) {
+        $this->value = $value;
     }
 
-    protected function isAccessToParent(Node $n) {
-        return $n->class->toLowerString() === "parent";
+    public function getValue() {
+        return $this->value;
     }
 }

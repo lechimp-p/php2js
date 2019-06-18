@@ -56,16 +56,10 @@ class ElementImplTest extends \PHPUnit\Framework\TestCase {
         $compiler = new ClassCompiler($js, $build_in_compiler);
         $registry = $this->createMock(Registry::class);
 
-        $registry->expects($this->atLeastOnce())
-            ->method("getVisibility")
-            ->with("HTML\ElementImpl", "node")
-            ->willReturn(Compiler::ATTR_PROTECTED);
-
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $t = new NodeTraverser();
         $t->addVisitor(new AnnotateVisibility());
         $t->addVisitor(new AnnotateFullyQualifiedName());
-        $t->addVisitor(new AnnotateUsageVisibility($registry));
         $t->addVisitor(new AnnotateFirstVariableAssignment());
         $t->addVisitor(new RemoveTypeHints());
         $t->addVisitor(new NameResolver());
