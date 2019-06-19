@@ -29,22 +29,10 @@ use PhpParser\Node as PhpNode;
 trait OpsCompiler {
     public function compile_Expr_BinaryOp_Identical(PhpNode $n) {
         $js = $this->js_factory;
-        return $js->or_( 
-            $js->identical($n->left, $n->right),
-            $js->and_(
-                $js->instanceof_(
-                    $n->left,
-                    $this->_object
-                ),
-                $js->in(
-                    $js->literal($this->_identicalTo->value()),
-                    $n->left
-                ),
-                $js->call(
-                    $js->propertyOf($n->left, $this->_identicalTo),
-                    $n->right
-                )
-            )
+        return $js->call(
+            $js->identifier("__identical"),
+            $n->left,
+            $n->right
         );
     }
 

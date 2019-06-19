@@ -278,6 +278,9 @@ Object.prototype.setItemAt = function (key, value) {
 Object.prototype.__instanceof = function(cls) {
     return false;
 }
+Object.prototype.__identicalTo = function(other) {
+    return this === other;
+}
 Array.prototype.toPHPArray = function () {
     var arr = new php2js.PhpArray();
     this.forEach(function(e) {
@@ -296,6 +299,9 @@ Boolean.prototype.__instanceof = function(cls) {
 }
 function __instanceof(e, cls) {
     return e !== null && e.__instanceof(cls);
+}
+function __identical(l, r) {
+    return (l === r) || ((l instanceof Object) && l.__identicalTo(r));
 }
 
 // PRELUDE END
