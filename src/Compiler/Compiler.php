@@ -111,68 +111,62 @@ class Compiler {
     }
 
     public function compile(string $filename) : string {
-        // TODO: inject this
-        $this->codebase = new Codebase();
-        $deps = $this->ingestFile($filename);
-
-        // TODO: Check if there is one class implementing Script now.
-
-        $compiled_deps = [];
-        while(count($deps) > 0) {
-            $dep = array_shift($deps);
-            if (array_key_exists($dep, $compiled_deps)) {
-                continue;
-            }
-            if ($this->codebase->hasClass($dep) || $this->codebase->hasInterface($dep)) {
-                continue;
-            }
-
-            $filename = $this->dependency_locator->getFilenameOfDependency($dep);
-            if ($this->dependency_locator->isInternalDependency($dep)) {
-                if (is_null($filename)) {
-                    $compiled_deps[$dep] = true;
-                    continue;
-                }
-                $new_deps = $this->ingestInternalDependency($filename);
-            }
-            else {
-                $new_deps = $this->ingestFile($filename);
-            }
-
-            $deps = array_merge($deps, $new_deps);
-
-            $compiled_deps[$dep] = true;
-        }
-
-        // TODO: Check if there is still only one class implementing Script now.
-
+        $this->loadCodebaseToCompile($filename);
         return $this->compileCodebase($this->codebase);
     }
 
-    protected function ingestFile(string $filename) : array {
-        $ast = $this->preprocessAST(
-            ...$this->parseFile($filename)
-        );
-        $this->addToCodebase(...$ast);
-        return $this->getDependencies(...$ast);
+
+    //---------------------------
+    // LOAD CODE
+    //---------------------------
+
+    protected function loadCodebaseToCompile($filename) {
+        $this->codebase = new Codebase();
+        $this->filenames = [$filename];
+        $this->discovered_deps = [];
+
+        while(count($this->filenames) > 0) {
+            $file = array_shift($this->filenames);
+            $ast = $this->parseFile($file);
+            $ast = $this->preprocessFileAST(
+                in_array($file, self::$internal_dependencies),
+                ...$ast
+            );
+            $this->addToCodebase(...$ast);
+            $this->addFilenamesOfDependencies(...$ast);
+        }
     }
 
-    protected function ingestInternalDependency(string $filename) {
-        //TODO: add JS\Script to the interfaces that classes are checked against.
+    protected function addFilenamesOfDependencies(PhpNode ...$nodes) : void {
+        foreach ($this->getDependencies(...$nodes) as $dep) {
+            if (isset($this->discovered_deps[$dep])
+            || $this->codebase->hasClass($dep)
+            || $this->codebase->hasInterface($dep)
+            ) {
+                continue;
+            }
+            $filename = $this->dependency_locator->getFilenameOfDependency($dep);
+            if ($filename) {
+                $this->filenames[] = $filename;
+            }
+            $this->discovered_deps[$dep] = true;
+        }
+    }
 
-        $collector = new RemoveTypeHints();
-        $t = new NodeTraverser();
-        $t->addVisitor($collector);
-
-        $ast = $this->annotateAST(
-            ...$t->traverse(
-                $this->simplifyAST(
-                    ...$this->parseFile($filename)
-                )
-            )
-        );
-        $this->addToCodebase(...$ast);
-        return $this->getDependencies(...$ast);
+    protected function preprocessFileAST(bool $is_internal, PhpNode ...$nodes) : array {
+        $nodes = $this->simplifyAST(...$nodes);
+        // TODO: This should probably go somewhere else.
+        if ($is_internal) {
+            // TODO: inject this
+            $collector = new RemoveTypeHints();
+            $t = new NodeTraverser();
+            $t->addVisitor($collector);
+            $ast = $t->traverse($nodes);
+        }
+        else {
+            $this->checkFileAST(...$nodes);
+        }
+        return $this->annotateAST(...$nodes);
     }
 
     protected function parseFile(string $filename) : array {
@@ -188,14 +182,6 @@ class Compiler {
             $e->setRawMessage($e->getRawMessage()." in $filename");
             throw $e;
         }
-    }
-
-    protected function preprocessAST(PhpNode ...$nodes) : array {
-        return $this->annotateAST(
-            ...$this->checkAST(
-                ...$this->simplifyAST(...$nodes)
-            )
-        );
     }
 
     protected function simplifyAST(PhpNode ...$nodes) : array {
@@ -217,7 +203,8 @@ class Compiler {
         return $nodes;
     }
 
-    protected function checkAST(PhpNode ...$nodes) : array {
+    protected function checkFileAST(PhpNode ...$nodes) : array {
+        // TODO: These checks should go somewhere else:
         // TODO: Check if new with variable class name is called.
         // TODO: Check if static call or var fetch with variable class name is used.
         // TODO: Check if variable function is called.
