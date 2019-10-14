@@ -237,18 +237,4 @@ class Codebase {
     public function getNamespaces() : array {
         return $this->namespaces;
     }
-
-
-    /**
-     * TODO: remove me. always work on the codebase itself.
-     * @return void
-     */
-    public function append(Codebase $other) {
-        foreach ($other->getFullyQualifiedClassNames() as $class) {
-            $this->addClass($other->getClass($class));
-        }
-        foreach ($other->getFullyQualifiedInterfaceNames() as $interface) {
-            $this->addInterface($other->getInterface($interface));
-        }
-    }
 }

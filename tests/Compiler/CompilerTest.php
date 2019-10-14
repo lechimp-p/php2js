@@ -42,10 +42,6 @@ class CompilerForTest extends Compiler\Compiler {
     public function _simplifyAST($nodes) {
         return $this->simplifyAST(...$nodes);
     }
-
-    public function _getCodebase($nodes) {
-        return $this->getCodebase(...$nodes);
-    }
 }
 
 class CompilerTest extends \PHPUnit\Framework\TestCase {
@@ -174,27 +170,6 @@ PHP
             "$my_namespace_name\\$my_nested_namespace\\$my_class_name",
             $my_class->getAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME)
         );
-    }
-
-//------------------------------------------------------------------------------
-// TEST: Get Codebase
-//------------------------------------------------------------------------------
-    public function test_getCodebase() {
-        $ast = $this->compiler->_annotateAST(
-            $this->parser->parse(<<<'PHP'
-<?php
-
-class Foo {
-}
-
-PHP
-            )
-        );
-
-
-        $result = $this->compiler->_getCodebase($ast);
-
-        $this->assertEquals(["\\Foo"], $result->getFullyQualifiedClassNames());
     }
 
 //------------------------------------------------------------------------------

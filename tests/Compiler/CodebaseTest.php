@@ -33,47 +33,6 @@ class CodebaseTest extends \PHPUnit\Framework\TestCase {
         $this->codebase = new Codebase();
     }
 
-    public function test_append() {
-        $my_class_name1 = "MY_CLASS_ONE";
-        $my_class1 = $this->builder->class($my_class_name1)->getNode();
-        $my_class1->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name1);
-        $my_class_name2 = "MY_CLASS_TWO";
-        $my_class2 = $this->builder->class($my_class_name2)->getNode();
-        $my_class2->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name2);
-
-        $my_interface_name1 = "MY_INTERFACE_ONE";
-        $my_interface1 = $this->builder->interface($my_interface_name1)->getNode();
-        $my_interface1->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_interface_name1);
-        $my_interface_name2 = "MY_INTERFACE_TWO";
-        $my_interface2 = $this->builder->interface($my_interface_name2)->getNode();
-        $my_interface2->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_interface_name2);
-
-        $codebase1 = new Codebase();
-        $codebase1->addClass($my_class1);
-        $codebase1->addInterface($my_interface1);
-
-        $codebase2 = new Codebase();
-        $codebase2->addClass($my_class2);
-        $codebase2->addInterface($my_interface2);
-
-        $codebase1->append($codebase2);
-
-        $this->assertEquals([$my_class_name1, $my_class_name2], $codebase1->getFullyQualifiedClassNames());  
-        $this->assertEquals([$my_interface_name1, $my_interface_name2], $codebase1->getFullyQualifiedInterfaceNames());  
-
-        $this->assertEquals($my_class1, $codebase1->getClass($my_class_name1));
-        $this->assertEquals($my_class2, $codebase1->getClass($my_class_name2));
-
-        $this->assertEquals($my_interface1, $codebase1->getInterface($my_interface_name1));
-        $this->assertEquals($my_interface2, $codebase1->getInterface($my_interface_name2));
-
-        $this->assertTrue($codebase1->hasClass($my_class_name1));
-        $this->assertTrue($codebase1->hasClass($my_class_name2));
-
-        $this->assertTrue($codebase1->hasInterface($my_interface_name1));
-        $this->assertTrue($codebase1->hasInterface($my_interface_name2));
-    }
-
     public function test_getVisibility() {
         $ast = $this->parser->parse(<<<'PHP'
 <?php

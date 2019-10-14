@@ -30,14 +30,10 @@ class FillCodebase extends NodeVisitorAbstract {
      */
     protected $codebase = null;
 
-    public function getCodebase() : Codebase {
-        return $this->codebase;
+    public function __construct(Codebase $codebase) {
+        $this->codebase = $codebase;
     }
 
-    public function beforeTraverse(array $nodes) {
-        $this->codebase = new Codebase();
-
-    }
 
     public function enterNode(Node $n) {
         switch (get_class($n)) {

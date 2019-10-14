@@ -111,7 +111,9 @@ class Compiler {
     }
 
     public function compile(string $filename) : string {
-        list($deps, $codebase) = $this->ingestFile($filename);
+        // TODO: inject this
+        $this->codebase = new Codebase();
+        $deps = $this->ingestFile($filename);
 
         // TODO: Check if there is one class implementing Script now.
 
@@ -121,7 +123,7 @@ class Compiler {
             if (array_key_exists($dep, $compiled_deps)) {
                 continue;
             }
-            if ($codebase->hasClass($dep) || $codebase->hasInterface($dep)) {
+            if ($this->codebase->hasClass($dep) || $this->codebase->hasInterface($dep)) {
                 continue;
             }
 
@@ -131,35 +133,28 @@ class Compiler {
                     $compiled_deps[$dep] = true;
                     continue;
                 }
-                list($new_deps, $new_codebase) = $this->ingestInternalDependency($filename);
+                $new_deps = $this->ingestInternalDependency($filename);
             }
             else {
-                list($new_deps, $new_codebase) = $this->ingestFile($filename);
+                $new_deps = $this->ingestFile($filename);
             }
 
-            if ($new_codebase !== null) {
-                $codebase->append($new_codebase);
-            }
-            if ($new_deps !== null) {
-                $deps = array_merge($deps, $new_deps);
-            }
+            $deps = array_merge($deps, $new_deps);
 
             $compiled_deps[$dep] = true;
         }
 
         // TODO: Check if there is still only one class implementing Script now.
 
-        return $this->compileCodebase($codebase);
+        return $this->compileCodebase($this->codebase);
     }
 
     protected function ingestFile(string $filename) : array {
         $ast = $this->preprocessAST(
             ...$this->parseFile($filename)
         );
-        return [
-            $this->getDependencies(...$ast),
-            $this->getCodebase(...$ast)
-        ];
+        $this->addToCodebase(...$ast);
+        return $this->getDependencies(...$ast);
     }
 
     protected function ingestInternalDependency(string $filename) {
@@ -176,10 +171,8 @@ class Compiler {
                 )
             )
         );
-        return [
-            $this->getDependencies(...$ast),
-            $this->getCodebase(...$ast)
-        ];
+        $this->addToCodebase(...$ast);
+        return $this->getDependencies(...$ast);
     }
 
     protected function parseFile(string $filename) : array {
@@ -253,12 +246,12 @@ class Compiler {
         return $collector->getDependencies();
     }
 
-    protected function getCodebase(PhpNode ...$nodes) : Codebase {
-        $filler = new FillCodebase();
+    protected function addToCodebase(PhpNode ...$nodes) : void {
+        // TODO: this does not need to be created various times...
+        $filler = new FillCodebase($this->codebase);
         $t = new NodeTraverser();
         $t->addVisitor($filler);
         $t->traverse($nodes);
-        return $filler->getCodebase();
     }
 
     protected function compileCodebase(Codebase $codebase) {
