@@ -24,28 +24,28 @@ namespace Lechimp\PHP2JS\Compiler;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class FillRegistry extends NodeVisitorAbstract {
+class FillCodebase extends NodeVisitorAbstract {
     /**
-     * @var Registry|null
+     * @var Codebase|null
      */
-    protected $registry = null;
+    protected $codebase = null;
 
-    public function getRegistry() : Registry {
-        return $this->registry;
+    public function getCodebase() : Codebase {
+        return $this->codebase;
     }
 
     public function beforeTraverse(array $nodes) {
-        $this->registry = new Registry();
+        $this->codebase = new Codebase();
 
     }
 
     public function enterNode(Node $n) {
         switch (get_class($n)) {
             case Node\Stmt\Class_::class:
-                $this->registry->addClass($n);
+                $this->codebase->addClass($n);
                 break;
             case Node\Stmt\Interface_::class:
-                $this->registry->addInterface($n);
+                $this->codebase->addInterface($n);
                 break;
         }
     }

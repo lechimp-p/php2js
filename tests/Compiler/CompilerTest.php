@@ -43,8 +43,8 @@ class CompilerForTest extends Compiler\Compiler {
         return $this->simplifyAST(...$nodes);
     }
 
-    public function _getRegistry($nodes) {
-        return $this->getRegistry(...$nodes);
+    public function _getCodebase($nodes) {
+        return $this->getCodebase(...$nodes);
     }
 }
 
@@ -177,9 +177,9 @@ PHP
     }
 
 //------------------------------------------------------------------------------
-// TEST: Get Registry
+// TEST: Get Codebase
 //------------------------------------------------------------------------------
-    public function test_getRegistry() {
+    public function test_getCodebase() {
         $ast = $this->compiler->_annotateAST(
             $this->parser->parse(<<<'PHP'
 <?php
@@ -192,7 +192,7 @@ PHP
         );
 
 
-        $result = $this->compiler->_getRegistry($ast);
+        $result = $this->compiler->_getCodebase($ast);
 
         $this->assertEquals(["\\Foo"], $result->getFullyQualifiedClassNames());
     }

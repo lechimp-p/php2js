@@ -111,7 +111,7 @@ class Compiler {
     }
 
     public function compile(string $filename) : string {
-        list($deps, $registry) = $this->ingestFile($filename);
+        list($deps, $codebase) = $this->ingestFile($filename);
 
         // TODO: Check if there is one class implementing Script now.
 
@@ -121,7 +121,7 @@ class Compiler {
             if (array_key_exists($dep, $compiled_deps)) {
                 continue;
             }
-            if ($registry->hasClass($dep) || $registry->hasInterface($dep)) {
+            if ($codebase->hasClass($dep) || $codebase->hasInterface($dep)) {
                 continue;
             }
 
@@ -131,14 +131,14 @@ class Compiler {
                     $compiled_deps[$dep] = true;
                     continue;
                 }
-                list($new_deps, $new_registry) = $this->ingestInternalDependency($filename);
+                list($new_deps, $new_codebase) = $this->ingestInternalDependency($filename);
             }
             else {
-                list($new_deps, $new_registry) = $this->ingestFile($filename);
+                list($new_deps, $new_codebase) = $this->ingestFile($filename);
             }
 
-            if ($new_registry !== null) {
-                $registry->append($new_registry);
+            if ($new_codebase !== null) {
+                $codebase->append($new_codebase);
             }
             if ($new_deps !== null) {
                 $deps = array_merge($deps, $new_deps);
@@ -149,7 +149,7 @@ class Compiler {
 
         // TODO: Check if there is still only one class implementing Script now.
 
-        return $this->compileRegistry($registry);
+        return $this->compileCodebase($codebase);
     }
 
     protected function ingestFile(string $filename) : array {
@@ -158,7 +158,7 @@ class Compiler {
         );
         return [
             $this->getDependencies(...$ast),
-            $this->getRegistry(...$ast)
+            $this->getCodebase(...$ast)
         ];
     }
 
@@ -178,7 +178,7 @@ class Compiler {
         );
         return [
             $this->getDependencies(...$ast),
-            $this->getRegistry(...$ast)
+            $this->getCodebase(...$ast)
         ];
     }
 
@@ -253,15 +253,15 @@ class Compiler {
         return $collector->getDependencies();
     }
 
-    protected function getRegistry(PhpNode ...$nodes) : Registry {
-        $filler = new FillRegistry();
+    protected function getCodebase(PhpNode ...$nodes) : Codebase {
+        $filler = new FillCodebase();
         $t = new NodeTraverser();
         $t->addVisitor($filler);
         $t->traverse($nodes);
-        return $filler->getRegistry();
+        return $filler->getCodebase();
     }
 
-    protected function compileRegistry(Registry $registry) {
+    protected function compileCodebase(Codebase $codebase) {
         $js = $this->js_factory;
 
         // TODO: move this to a single file
@@ -320,14 +320,14 @@ JS;
         $compiled_code = $this->js_printer->print(
             $this->js_factory->block(
                 ...array_merge(
-                    $this->compileNamespaceCreation($registry),
+                    $this->compileNamespaceCreation($codebase),
                     [ $js->assign($js->propertyOf($php2js, $string), $String)
                     , $js->assign($js->propertyOf($php2js, $int), $Number)
                     , $js->assign($js->propertyOf($php2js, $bool), $Bool)
                     ],
-                    $this->compileInterfacesFromRegistry($registry),
-                    $this->compileClassesFromRegistry($registry),
-                    $this->compileScriptInvocationFromRegistry($registry)
+                    $this->compileInterfacesFromCodebase($codebase),
+                    $this->compileClassesFromCodebase($codebase),
+                    $this->compileScriptInvocationFromCodebase($codebase)
                 )
             )
         );
@@ -335,7 +335,7 @@ JS;
         return $prelude.$compiled_code;
     }
 
-    protected function compileNamespaceCreation(Registry $registry) {
+    protected function compileNamespaceCreation(Codebase $codebase) {
         $f = null;
         $f = function ($n) use (&$f) {
             $js = [];
@@ -347,14 +347,14 @@ JS;
         return [
             $this->js_factory->assignVar(
                 $this->js_factory->identifier("php2js"),
-                $f($registry->getNamespaces())
+                $f($codebase->getNamespaces())
             )
         ];
     }
 
-    protected function compileInterfacesFromRegistry(Registry $registry) {
+    protected function compileInterfacesFromCodebase(Codebase $codebase) {
         $js = $this->js_factory;
-        $interfaces = $registry->getFullyQualifiedInterfaceNames();
+        $interfaces = $codebase->getFullyQualifiedInterfaceNames();
         $stmts = [];
 
         foreach ($interfaces as $i) {
@@ -367,8 +367,8 @@ JS;
         return $stmts;
     }
 
-    protected function compileClassesFromRegistry(Registry $registry) {
-        $classes = $registry->getFullyQualifiedClassNames();
+    protected function compileClassesFromCodebase(Codebase $codebase) {
+        $classes = $codebase->getFullyQualifiedClassNames();
         $stmts = [];
 
         // TODO: Check compliance with interfaces.
@@ -376,18 +376,18 @@ JS;
 
         foreach ($classes as $cls) {
             $stmts[] = $this->class_compiler->compile(
-                $registry->getClass($cls)
+                $codebase->getClass($cls)
             );
         }
 
         return $stmts;
     }
 
-    protected function compileScriptInvocationFromRegistry(Registry $registry) {
+    protected function compileScriptInvocationFromCodebase(Codebase $codebase) {
         $js = $this->js_factory;
         $stmts = [];
 
-        $script_classes = $registry->getClassesThatImplement(JS\Script::class);
+        $script_classes = $codebase->getClassesThatImplement(JS\Script::class);
         assert(count($script_classes) === 1);
         $php_script_class = array_pop($script_classes);
 

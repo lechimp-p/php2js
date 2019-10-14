@@ -21,16 +21,16 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP2JS\Test\Compiler;
 
-use Lechimp\PHP2JS\Compiler\Registry;
+use Lechimp\PHP2JS\Compiler\Codebase;
 use Lechimp\PHP2JS\Compiler\Compiler;
 use PhpParser\ParserFactory;
 use PhpParser\BuilderFactory;
 
-class RegistryTest extends \PHPUnit\Framework\TestCase {
+class CodebaseTest extends \PHPUnit\Framework\TestCase {
     public function setUp() : void {
         $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $this->builder = new BuilderFactory;
-        $this->registry = new Registry();
+        $this->codebase = new Codebase();
     }
 
     public function test_append() {
@@ -48,30 +48,30 @@ class RegistryTest extends \PHPUnit\Framework\TestCase {
         $my_interface2 = $this->builder->interface($my_interface_name2)->getNode();
         $my_interface2->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_interface_name2);
 
-        $registry1 = new Registry();
-        $registry1->addClass($my_class1);
-        $registry1->addInterface($my_interface1);
+        $codebase1 = new Codebase();
+        $codebase1->addClass($my_class1);
+        $codebase1->addInterface($my_interface1);
 
-        $registry2 = new Registry();
-        $registry2->addClass($my_class2);
-        $registry2->addInterface($my_interface2);
+        $codebase2 = new Codebase();
+        $codebase2->addClass($my_class2);
+        $codebase2->addInterface($my_interface2);
 
-        $registry1->append($registry2);
+        $codebase1->append($codebase2);
 
-        $this->assertEquals([$my_class_name1, $my_class_name2], $registry1->getFullyQualifiedClassNames());  
-        $this->assertEquals([$my_interface_name1, $my_interface_name2], $registry1->getFullyQualifiedInterfaceNames());  
+        $this->assertEquals([$my_class_name1, $my_class_name2], $codebase1->getFullyQualifiedClassNames());  
+        $this->assertEquals([$my_interface_name1, $my_interface_name2], $codebase1->getFullyQualifiedInterfaceNames());  
 
-        $this->assertEquals($my_class1, $registry1->getClass($my_class_name1));
-        $this->assertEquals($my_class2, $registry1->getClass($my_class_name2));
+        $this->assertEquals($my_class1, $codebase1->getClass($my_class_name1));
+        $this->assertEquals($my_class2, $codebase1->getClass($my_class_name2));
 
-        $this->assertEquals($my_interface1, $registry1->getInterface($my_interface_name1));
-        $this->assertEquals($my_interface2, $registry1->getInterface($my_interface_name2));
+        $this->assertEquals($my_interface1, $codebase1->getInterface($my_interface_name1));
+        $this->assertEquals($my_interface2, $codebase1->getInterface($my_interface_name2));
 
-        $this->assertTrue($registry1->hasClass($my_class_name1));
-        $this->assertTrue($registry1->hasClass($my_class_name2));
+        $this->assertTrue($codebase1->hasClass($my_class_name1));
+        $this->assertTrue($codebase1->hasClass($my_class_name2));
 
-        $this->assertTrue($registry1->hasInterface($my_interface_name1));
-        $this->assertTrue($registry1->hasInterface($my_interface_name2));
+        $this->assertTrue($codebase1->hasInterface($my_interface_name1));
+        $this->assertTrue($codebase1->hasInterface($my_interface_name2));
     }
 
     public function test_getVisibility() {
@@ -96,7 +96,7 @@ PHP
         $class = array_shift($ast);
         $class->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "MyClass");
 
-        $r = $this->registry;
+        $r = $this->codebase;
         $r->addClass($class);
 
         $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyClass", "var_public_property"));
@@ -132,7 +132,7 @@ PHP
 
         $class = array_shift($ast);
         $class->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "MyClass");
-        $r = $this->registry;
+        $r = $this->codebase;
         $r->addClass($class);
 
         $ast = $this->parser->parse(<<<'PHP'
@@ -194,12 +194,12 @@ PHP
         $my_class5 = $this->builder->class($my_class_name5)->getNode();
         $my_class5->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, $my_class_name5);
 
-        $registry = new Registry();
-        $registry->addClass($my_class1);
-        $registry->addClass($my_class2);
-        $registry->addClass($my_class3);
-        $registry->addClass($my_class4);
-        $registry->addClass($my_class5);
+        $codebase = new Codebase();
+        $codebase->addClass($my_class1);
+        $codebase->addClass($my_class2);
+        $codebase->addClass($my_class3);
+        $codebase->addClass($my_class4);
+        $codebase->addClass($my_class5);
 
         $expected = [
             "A" => [
@@ -210,6 +210,6 @@ PHP
             ]
         ];
 
-        $this->assertEquals($expected, $registry->getNamespaces());
+        $this->assertEquals($expected, $codebase->getNamespaces());
     }
 }

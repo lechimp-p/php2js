@@ -31,7 +31,7 @@ use Lechimp\PHP2JS\Compiler\AnnotateFirstVariableAssignment;
 use Lechimp\PHP2JS\Compiler\AnnotateUsageVisibility;
 use Lechimp\PHP2JS\Compiler\AnnotateVisibility;
 use Lechimp\PHP2JS\Compiler\RemoveTypeHints;
-use Lechimp\PHP2JS\Compiler\Registry;
+use Lechimp\PHP2JS\Compiler\Codebase;
 use Lechimp\PHP2JS\JS;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
@@ -54,7 +54,7 @@ class NodeImplTest extends \PHPUnit\Framework\TestCase {
         $js = new JS\AST\Factory();
         $build_in_compiler = new BuildInFunctionsCompiler($js);
         $compiler = new ClassCompiler($js, $build_in_compiler);
-        $registry = $this->createMock(Registry::class);
+        $codebase = $this->createMock(Codebase::class);
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $t = new NodeTraverser();

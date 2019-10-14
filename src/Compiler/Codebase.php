@@ -26,7 +26,7 @@ use PhpParser\Node;
 /**
  * Collects results of the compilation.
  */
-class Registry {
+class Codebase {
     /**
      * @var Node\Stmt\Class_[]
      */
@@ -57,7 +57,7 @@ class Registry {
     /**
      * @return void
      */
-    public function append(Registry $other) {
+    public function append(Codebase $other) {
         foreach ($other->getFullyQualifiedClassNames() as $class) {
             $this->addClass($other->getClass($class));
         }
@@ -83,7 +83,7 @@ class Registry {
     protected function addClassOrInterface($class_or_interface) {
         if (!$class_or_interface->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
             throw new \LogicException(
-                "Class/interface for Registry should have fully qualified name."
+                "Class/interface for Codebase should have fully qualified name."
             );
         }
         $fqn = $class_or_interface->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME);
