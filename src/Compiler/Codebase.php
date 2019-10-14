@@ -24,9 +24,16 @@ namespace Lechimp\PHP2JS\Compiler;
 use PhpParser\Node;
 
 /**
- * Collects results of the compilation.
+ * Represents the codebase we are working on.
+ *
+ * Stores the objects in the codebase and informations about them. It is the
+ * workspace we are using for different compiler passes.
  */
 class Codebase {
+    //---------------------------
+    // INITIALISATION
+    //---------------------------
+
     /**
      * @var Node\Stmt\Class_[]
      */
@@ -43,7 +50,7 @@ class Codebase {
     protected $visibilities;
 
     /**
-     * @var
+     * @var string[]
      */
     protected $namespaces;
 
@@ -54,33 +61,20 @@ class Codebase {
         $this->namespaces = [];
     }
 
-    /**
-     * @return void
-     */
-    public function append(Codebase $other) {
-        foreach ($other->getFullyQualifiedClassNames() as $class) {
-            $this->addClass($other->getClass($class));
-        }
-        foreach ($other->getFullyQualifiedInterfaceNames() as $interface) {
-            $this->addInterface($other->getInterface($interface));
-        }
-    }
 
-    /**
-     * @return void
-     */
-    public function addClass(Node\Stmt\Class_ $class) {
+    //---------------------------
+    // SETTERS
+    //---------------------------
+
+    public function addClass(Node\Stmt\Class_ $class) : void {
         $this->addClassOrInterface($class);
     }
 
-    /**
-     * @return void
-     */
-    public function addInterface(Node\Stmt\Interface_ $interface) {
+    public function addInterface(Node\Stmt\Interface_ $interface) : void{
         $this->addClassOrInterface($interface);
     }
 
-    protected function addClassOrInterface($class_or_interface) {
+    protected function addClassOrInterface($class_or_interface) : void {
         if (!$class_or_interface->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
             throw new \LogicException(
                 "Class/interface for Codebase should have fully qualified name."
@@ -113,10 +107,36 @@ class Codebase {
         $this->addNamespace($fqn);
     }
 
+    protected function addNamespace(string $fqn) : void {
+        $names = explode("\\", $fqn);
+        if ($names[0] === "") {
+            array_shift($names);
+        }
+        array_pop($names);
+        $cur = &$this->namespaces;
+        foreach($names as $n) {
+            if (!isset($cur[$n])) {
+                $cur[$n] = [];
+            }
+            $cur = &$cur[$n];
+        }
+    }
+
+
+    //---------------------------
+    // QUERIES
+    //---------------------------
+
+    /**
+     * @return string[]
+     */
     public function getFullyQualifiedClassNames() {
         return array_keys($this->classes);
     }
 
+    /**
+     * @return string[]
+     */
     public function getFullyQualifiedInterfaceNames() {
         return array_keys($this->interfaces);
     }
@@ -129,7 +149,7 @@ class Codebase {
         return isset($this->interfaces[$fully_qualified_name]);
     }
 
-    public function getClass(string $fully_qualified_name) {
+    public function getClass(string $fully_qualified_name) : Node\Stmt\Class_ {
         if (!isset($this->classes[$fully_qualified_name])) {
             throw new \LogicException(
                 "Unknown class '$fully_qualified_name'"
@@ -138,7 +158,7 @@ class Codebase {
         return $this->classes[$fully_qualified_name];
     }
 
-    public function getInterface(string $fully_qualified_name) {
+    public function getInterface(string $fully_qualified_name) : Node\Stmt\Interface_ {
         if (!isset($this->interfaces[$fully_qualified_name])) {
             throw new \LogicException(
                 "Unknown interface '$fully_qualified_name'"
@@ -211,22 +231,24 @@ class Codebase {
         return $visibility;
     }
 
+    /**
+     * @return string[]
+     */
     public function getNamespaces() : array {
         return $this->namespaces;
     }
 
-    protected function addNamespace(string $fqn) : void {
-        $names = explode("\\", $fqn);
-        if ($names[0] === "") {
-            array_shift($names);
+
+    /**
+     * TODO: remove me. always work on the codebase itself.
+     * @return void
+     */
+    public function append(Codebase $other) {
+        foreach ($other->getFullyQualifiedClassNames() as $class) {
+            $this->addClass($other->getClass($class));
         }
-        array_pop($names);
-        $cur = &$this->namespaces;
-        foreach($names as $n) {
-            if (!isset($cur[$n])) {
-                $cur[$n] = [];
-            }
-            $cur = &$cur[$n];
+        foreach ($other->getFullyQualifiedInterfaceNames() as $interface) {
+            $this->addInterface($other->getInterface($interface));
         }
     }
 }
