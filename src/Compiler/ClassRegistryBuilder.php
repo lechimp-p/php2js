@@ -28,14 +28,14 @@ use PhpParser\Node;
  */
 class ClassRegistryBuilder {
     public function buildClassRegistryFrom(Node\Stmt\Class_ $n) {
-        if (!$n->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
+        if (!$n->hasAttribute(Visitor\AnnotateFullyQualifiedName::ATTR)) {
             throw new \LogicException(
                 "Expected class to have FQN."
             );
         }
 
         $registry = new ClassRegistry(
-            (string)$n->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME),
+            (string)$n->getAttribute(Visitor\AnnotateFullyQualifiedName::ATTR),
             $n->extends ? (string)$n->extends : null,
             array_map(function($i) {
                 if (!($i instanceof Node\Name\FullyQualified)) {

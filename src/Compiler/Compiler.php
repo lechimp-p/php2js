@@ -31,7 +31,6 @@ use Lechimp\PHP2JS\JS;
  * Compile PHP to JS.
  */
 class Compiler {
-    const ATTR_FULLY_QUALIFIED_NAME = "fully_qualified_name";
     const ATTR_DONT_DEFINE_UNDEFINED_VARS = "dont_define_undefined_vars";
     const ATTR_FIRST_VAR_ASSIGNMENT = "first_assignment";
     const ATTR_VISIBILITY = "visibility";
@@ -160,7 +159,7 @@ class Compiler {
 
     protected function preprocessFileAST(PhpNode ...$nodes) : array {
         $n = new NodeVisitor\NameResolver();
-        $a = new AnnotateFullyQualifiedName();
+        $a = new Visitor\AnnotateFullyQualifiedName();
         $t = new NodeTraverser();
         $t->addVisitor($n);
         $t->addVisitor($a);
@@ -184,12 +183,11 @@ class Compiler {
 
     protected function simplifyAST(PhpNode ...$nodes) : array {
         $pipeline = [
-            new RemoveUseNamespace(),
-            new RewriteSelfAccess(),
-            new RewriteOperators(),
-            new RewriteTypeHints(),
-            new RewriteArrayCode(),
-            new DefineUndefinedVariables()
+            new Visitor\RewriteSelfAccess(),
+            new Visitor\RewriteOperators(),
+            new Visitor\RewriteTypeHints(),
+            new Visitor\RewriteArrayCode(),
+            new Visitor\DefineUndefinedVariables()
         ];
 
         foreach($pipeline as $p) {
@@ -202,15 +200,15 @@ class Compiler {
 
     protected function annotateAST(PhpNode ...$nodes) : array {
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new AnnotateScriptDependencies());
-        $traverser->addVisitor(new AnnotateFirstVariableAssignment());
-        $traverser->addVisitor(new AnnotateVisibility());
+        $traverser->addVisitor(new Visitor\AnnotateScriptDependencies());
+        $traverser->addVisitor(new Visitor\AnnotateFirstVariableAssignment());
+        $traverser->addVisitor(new Visitor\AnnotateVisibility());
 
         return $traverser->traverse($nodes);
     }
 
     protected function getDependencies(PhpNode ...$nodes) : array {
-        $collector = new CollectDependencies();
+        $collector = new Visitor\CollectDependencies();
         $t = new NodeTraverser();
         $t->addVisitor($collector);
         $t->traverse($nodes);
@@ -219,7 +217,7 @@ class Compiler {
 
     protected function addToCodebase(PhpNode ...$nodes) : void {
         // TODO: this does not need to be created various times...
-        $filler = new FillCodebase($this->codebase);
+        $filler = new Visitor\FillCodebase($this->codebase);
         $t = new NodeTraverser();
         $t->addVisitor($filler);
         $t->traverse($nodes);
@@ -361,7 +359,7 @@ JS;
         $php_script_class = array_pop($script_classes);
 
         $script_class = $this->class_compiler->compileClassName(
-            $php_script_class->getAttribute(self::ATTR_FULLY_QUALIFIED_NAME)
+            $php_script_class->getAttribute(Visitor\AnnotateFullyQualifiedName::ATTR)
         );
         $script = $js->identifier("script");
 

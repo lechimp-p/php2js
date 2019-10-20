@@ -25,6 +25,7 @@ use Lechimp\PHP2JS\JS\API\HTML;
 use Lechimp\PHP2JS\JS\API\Document;
 use Lechimp\PHP2JS\Compiler\BuildInFunctionsCompiler;
 use Lechimp\PHP2JS\Compiler\ClassCompiler;
+use Lechimp\PHP2JS\Compiler\Visitor;
 use Lechimp\PHP2JS\Compiler\Compiler;
 use Lechimp\PHP2JS\Compiler\AnnotateFullyQualifiedName;
 use Lechimp\PHP2JS\Compiler\AnnotateFirstVariableAssignment;
@@ -56,12 +57,12 @@ class TextNodeImplTest extends \PHPUnit\Framework\TestCase {
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $t = new NodeTraverser();
-        $t->addVisitor(new AnnotateVisibility());
-        $t->addVisitor(new AnnotateFullyQualifiedName());
-        $t->addVisitor(new RemoveTypeHints());
+        $t->addVisitor(new Visitor\AnnotateVisibility());
+        $t->addVisitor(new Visitor\AnnotateFullyQualifiedName());
+        $t->addVisitor(new Visitor\RemoveTypeHints());
         $t->addVisitor(new NameResolver());
         $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
-        $ast[1]->stmts[1]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\HTML\TextNodeImpl");
+        $ast[1]->stmts[1]->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, "\HTML\TextNodeImpl");
 
         $result = $compiler->compile($ast[1]->stmts[1]);
 

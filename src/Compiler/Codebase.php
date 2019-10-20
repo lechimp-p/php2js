@@ -75,12 +75,12 @@ class Codebase {
     }
 
     protected function addClassOrInterface($class_or_interface) : void {
-        if (!$class_or_interface->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
+        if (!$class_or_interface->hasAttribute(Visitor\AnnotateFullyQualifiedName::ATTR)) {
             throw new \LogicException(
                 "Class/interface for Codebase should have fully qualified name."
             );
         }
-        $fqn = $class_or_interface->getAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME);
+        $fqn = $class_or_interface->getAttribute(Visitor\AnnotateFullyQualifiedName::ATTR);
 
         if ($class_or_interface instanceof Node\Stmt\Class_) {
             if (isset($this->classes[$fqn])) {

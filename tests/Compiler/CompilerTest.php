@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Lechimp\PHP2JS\Test\Compiler;
 
 use Lechimp\PHP2JS\Compiler;
-use Lechimp\PHP2JS\Compiler\AnnotateFullyQualifiedName;
+use Lechimp\PHP2JS\Compiler\Visitor;
 use Lechimp\PHP2JS\JS;
 use PhpParser\BuilderFactory;
 use PhpParser\ParserFactory;
@@ -128,19 +128,6 @@ PHP
     }
 
 //------------------------------------------------------------------------------
-// TEST: Get Dependencies of the Script Class
-//------------------------------------------------------------------------------
-    public function test_getDependencies_of_script_class() {
-        $ast = $this->builder->class("SOME_CLASS")->getNode();
-        $ast->setAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES, ["Window"]);
-
-        $expected = ["Window"];
-        $result = $this->compiler->_getDependencies([$ast]);
-
-        $this->assertEquals($expected, $result);
-    }
-
-//------------------------------------------------------------------------------
 // TEST: Annotate Class with Fully Qualified Name
 //------------------------------------------------------------------------------
     public function test_annotate_class_with_fully_qualified_name() {
@@ -149,8 +136,8 @@ PHP
 
         list($result) = $this->compiler->_preprocessFileAST([$ast]);
 
-        $this->assertTrue($result->hasAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
-        $this->assertEquals("\\$my_class_name", $result->getAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
+        $this->assertTrue($result->hasAttribute(Visitor\AnnotateFullyQualifiedName::ATTR));
+        $this->assertEquals("\\$my_class_name", $result->getAttribute(Visitor\AnnotateFullyQualifiedName::ATTR));
     }
 
 //------------------------------------------------------------------------------
@@ -172,10 +159,10 @@ PHP
 
         $this->compiler->_preprocessFileAST([$ast]);
 
-        $this->assertTrue($my_class->hasAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
+        $this->assertTrue($my_class->hasAttribute(Visitor\AnnotateFullyQualifiedName::ATTR));
         $this->assertEquals(
             "$my_namespace_name\\$my_nested_namespace\\$my_class_name",
-            $my_class->getAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME)
+            $my_class->getAttribute(Visitor\AnnotateFullyQualifiedName::ATTR)
         );
     }
 
@@ -439,7 +426,7 @@ PHP
         );
 
         $n = new NodeVisitor\NameResolver();
-        $a = new AnnotateFullyQualifiedName();
+        $a = new Visitor\AnnotateFullyQualifiedName();
         $t = new NodeTraverser();
         $t->addVisitor($n);
         $t->addVisitor($a);

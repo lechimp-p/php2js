@@ -19,36 +19,30 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler;
+namespace Lechimp\PHP2JS\Compiler\Visitor;
 
+use Lechimp\PHP2JS\Compiler\Compiler;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
-use PhpParser\NodeTraverser;
 
-class ExtractConstructor extends NodeVisitorAbstract {
-    /**
-     * @var Node\StmtClass_
-     */
-    protected $class = null;
-
-    public function beforeTraverse(array $nodes) {
-        $this->class = null;
-    }
-
+class AnnotateVisibility extends NodeVisitorAbstract {
     public function enterNode(Node $n) {
-        if ($n instanceof Node\Stmt\Class_) {
-            $this->class = $n;
-        }
-    }
-
-    public function leaveNode(Node $n) {
-        if ($n instanceof Node\Stmt\Class_) {
-            $this->class = null;
-        }
-        if ($n instanceof Node\Stmt\ClassMethod) {
-            if ((string)$n->name === "__construct") {
-                $this->class->constructor = $n;
-                return NodeTraverser::REMOVE_NODE; 
+        if ($n instanceof Node\Stmt\ClassMethod
+        ||  $n instanceof Node\Stmt\Property
+        ||  $n instanceof Node\Stmt\ClassConst) {
+            if ($n->isPublic()) {
+                $n->setAttribute(Compiler::ATTR_VISIBILITY, Compiler::ATTR_PUBLIC);
+            }
+            elseif ($n->isProtected()) {
+                $n->setAttribute(Compiler::ATTR_VISIBILITY, Compiler::ATTR_PROTECTED);
+            }
+            elseif ($n->isPrivate()) {
+                $n->setAttribute(Compiler::ATTR_VISIBILITY, Compiler::ATTR_PRIVATE);
+            }
+            else {
+                throw new \LogicException(
+                    "Method or property is neither public, nor protected, nor private"
+                );
             }
         }
     }

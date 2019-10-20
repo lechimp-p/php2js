@@ -19,12 +19,14 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler;
+namespace Lechimp\PHP2JS\Compiler\Visitor;
 
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
 class AnnotateFullyQualifiedName extends NodeVisitorAbstract {
+    const ATTR = "fully_qualified_name";
+
     /**
      * @var string[]
      */
@@ -43,7 +45,7 @@ class AnnotateFullyQualifiedName extends NodeVisitorAbstract {
             case Node\Stmt\Interface_::class:
                 if ($n->name !== null) {
                     $n->setAttribute(
-                        Compiler::ATTR_FULLY_QUALIFIED_NAME,
+                        self::ATTR, 
                         join("\\",$this->namespaces)."\\".(string)$n->name
                     );
                 }

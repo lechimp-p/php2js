@@ -19,43 +19,31 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler;
+namespace Lechimp\PHP2JS\Compiler\Visitor;
 
-use Lechimp\PHP2JS\JS;
+use Lechimp\PHP2JS\Compiler\Codebase;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
-use PhpParser\NodeTraverser;
 
-class RewriteSelfAccess extends NodeVisitorAbstract {
+class FillCodebase extends NodeVisitorAbstract {
     /**
-     * @var Node\Name|null
+     * @var Codebase|null
      */
-    protected $in_class = null;
+    protected $codebase = null;
 
-    public function enterNode(Node $n) {
-        if ($n instanceof Node\Stmt\Class_) {
-            if (!isset($n->namespacedName)) {
-                throw new \LogicException(
-                    "Expected class to have a namespaced name."
-                );
-            }
-            $this->in_class = $n->namespacedName; 
-        } 
+    public function __construct(Codebase $codebase) {
+        $this->codebase = $codebase;
     }
 
-    public function leaveNode(Node $n) {
-        if ($n instanceof Node\Stmt\Class_) {
-            $this->in_class = null;
-        }
-        if ($n instanceof Node\Expr\ClassConstFetch) {
-            if ((string)$n->class === "self") {
-                if ($this->in_class === null) {
-                    throw \LogicException(
-                        "Expected in_class to be set."
-                    );
-                }
-                $n->class = $this->in_class;
-            }
+
+    public function enterNode(Node $n) {
+        switch (get_class($n)) {
+            case Node\Stmt\Class_::class:
+                $this->codebase->addClass($n);
+                break;
+            case Node\Stmt\Interface_::class:
+                $this->codebase->addInterface($n);
+                break;
         }
     }
 }

@@ -92,7 +92,7 @@ class ClassCompiler {
     public function compile(PhpNode\Stmt\Class_ $class) : JS\AST\Node {
         $js = $this->js_factory;
 
-        if (!$class->hasAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME)) {
+        if (!$class->hasAttribute(Visitor\AnnotateFullyQualifiedName::ATTR)) {
             throw new \LogicException(
                 "Class should have fully qualified name to be compiled."
             );

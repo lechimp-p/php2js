@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler;
+namespace Lechimp\PHP2JS\Compiler\Visitor;
 
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
@@ -46,12 +46,6 @@ class CollectDependencies extends NodeVisitorAbstract {
                 }
                 foreach ($n->implements as $i) {
                     $this->dependencies[] = (string)$i;
-                }
-                if ($n->hasAttribute(Compiler::ATTR_SCRIPT_DEPENDENCIES)) {
-                    $this->dependencies = array_merge(
-                        $this->dependencies,
-                        $n->getAttribute(Compiler::ATTR_SCRIPT_DEPENDENCIES)
-                    );
                 }
                 break;
             case Node\Stmt\ClassMethod::class:

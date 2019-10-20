@@ -24,11 +24,8 @@ namespace Lechimp\PHP2JS\Test\Compiler\API;
 use Lechimp\PHP2JS\JS\API\Document;
 use Lechimp\PHP2JS\Compiler\BuildInFunctionsCompiler;
 use Lechimp\PHP2JS\Compiler\ClassCompiler;
+use Lechimp\PHP2JS\Compiler\Visitor;
 use Lechimp\PHP2JS\Compiler\Compiler;
-use Lechimp\PHP2JS\Compiler\AnnotateFullyQualifiedName;
-use Lechimp\PHP2JS\Compiler\AnnotateFirstVariableAssignment;
-use Lechimp\PHP2JS\Compiler\AnnotateVisibility;
-use Lechimp\PHP2JS\Compiler\RemoveTypeHints;
 use Lechimp\PHP2JS\JS;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
@@ -52,13 +49,13 @@ class DocumentImplTest extends \PHPUnit\Framework\TestCase {
 
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
         $t = new NodeTraverser();
-        $t->addVisitor(new AnnotateVisibility());
-        $t->addVisitor(new AnnotateFullyQualifiedName());
-        $t->addVisitor(new AnnotateFirstVariableAssignment());
-        $t->addVisitor(new RemoveTypeHints());
+        $t->addVisitor(new Visitor\AnnotateVisibility());
+        $t->addVisitor(new Visitor\AnnotateFullyQualifiedName());
+        $t->addVisitor(new Visitor\AnnotateFirstVariableAssignment());
+        $t->addVisitor(new Visitor\RemoveTypeHints());
         $t->addVisitor(new NameResolver());
         $ast = $t->traverse($parser->parse(file_get_contents(self::LOCATION)));
-        $ast[3]->setAttribute(Compiler::ATTR_FULLY_QUALIFIED_NAME, "\DocumentImpl");
+        $ast[3]->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, "\DocumentImpl");
 
         return $compiler->compile($ast[3]);
     }
