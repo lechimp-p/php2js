@@ -35,7 +35,7 @@ class RewriteSelfAccess extends NodeVisitorAbstract {
     public function enterNode(Node $n) {
         if ($n instanceof Node\Stmt\Class_) {
             if (!isset($n->namespacedName)) {
-                throw \LogicException(
+                throw new \LogicException(
                     "Expected class to have a namespaced name."
                 );
             }

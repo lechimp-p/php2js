@@ -22,13 +22,20 @@ declare(strict_types=1);
 namespace Lechimp\PHP2JS\Test\Compiler;
 
 use Lechimp\PHP2JS\Compiler;
+use Lechimp\PHP2JS\Compiler\AnnotateFullyQualifiedName;
 use Lechimp\PHP2JS\JS;
 use PhpParser\BuilderFactory;
 use PhpParser\ParserFactory;
 use PhpParser\Node as PhpNode;
+use PhpParser\NodeVisitor;
+use PhpParser\NodeTraverser;
 
 class CompilerForTest extends Compiler\Compiler {
     public function __construct() {
+    }
+
+    public function _preprocessFileAST($nodes) {
+        return $this->preprocessFileAST(...$nodes);
     }
 
     public function _getDependencies($nodes) {
@@ -140,7 +147,7 @@ PHP
         $my_class_name = "CLASS_NAME";
         $ast = $this->builder->class($my_class_name)->getNode();
 
-        list($result) = $this->compiler->_annotateAST([$ast]);
+        list($result) = $this->compiler->_preprocessFileAST([$ast]);
 
         $this->assertTrue($result->hasAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
         $this->assertEquals("\\$my_class_name", $result->getAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
@@ -163,7 +170,7 @@ PHP
             )
             ->getNode();
 
-        $this->compiler->_annotateAST([$ast]);
+        $this->compiler->_preprocessFileAST([$ast]);
 
         $this->assertTrue($my_class->hasAttribute(Compiler\Compiler::ATTR_FULLY_QUALIFIED_NAME));
         $this->assertEquals(
@@ -430,6 +437,13 @@ class TestScript implements Script {
 
 PHP
         );
+
+        $n = new NodeVisitor\NameResolver();
+        $a = new AnnotateFullyQualifiedName();
+        $t = new NodeTraverser();
+        $t->addVisitor($n);
+        $t->addVisitor($a);
+        $ast = $t->traverse($ast);
 
         $this->compiler->_simplifyAST($ast);
         $this->compiler->_annotateAST($ast);

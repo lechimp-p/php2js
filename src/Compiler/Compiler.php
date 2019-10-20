@@ -122,14 +122,19 @@ class Compiler {
 
     protected function loadCodebaseToCompile($filename) {
         $this->codebase = new Codebase();
-        $this->filenames = [$filename];
+        $this->filenames = [
+            // TODO: move this somewhere else
+            __DIR__."/PhpArrayImpl.php",
+            __DIR__."/ReturnFromLoopClosureImpl.php",
+            __DIR__."/TypeErrorImpl.php",
+            $filename
+        ];
         $this->discovered_deps = [];
 
         while(count($this->filenames) > 0) {
             $file = array_shift($this->filenames);
             $ast = $this->parseFile($file);
             $ast = $this->preprocessFileAST(
-                in_array($file, self::$internal_dependencies),
                 ...$ast
             );
             $this->addToCodebase(...$ast);
@@ -153,20 +158,13 @@ class Compiler {
         }
     }
 
-    protected function preprocessFileAST(bool $is_internal, PhpNode ...$nodes) : array {
-        $nodes = $this->simplifyAST(...$nodes);
-        // TODO: This should probably go somewhere else.
-        if ($is_internal) {
-            // TODO: inject this
-            $collector = new RemoveTypeHints();
-            $t = new NodeTraverser();
-            $t->addVisitor($collector);
-            $ast = $t->traverse($nodes);
-        }
-        else {
-            $this->checkFileAST(...$nodes);
-        }
-        return $this->annotateAST(...$nodes);
+    protected function preprocessFileAST(PhpNode ...$nodes) : array {
+        $n = new NodeVisitor\NameResolver();
+        $a = new AnnotateFullyQualifiedName();
+        $t = new NodeTraverser();
+        $t->addVisitor($n);
+        $t->addVisitor($a);
+        return $t->traverse($nodes);
     }
 
     protected function parseFile(string $filename) : array {
@@ -186,7 +184,6 @@ class Compiler {
 
     protected function simplifyAST(PhpNode ...$nodes) : array {
         $pipeline = [
-            new NodeVisitor\NameResolver(),
             new RemoveUseNamespace(),
             new RewriteSelfAccess(),
             new RewriteOperators(),
@@ -203,21 +200,8 @@ class Compiler {
         return $nodes;
     }
 
-    protected function checkFileAST(PhpNode ...$nodes) : array {
-        // TODO: These checks should go somewhere else:
-        // TODO: Check if new with variable class name is called.
-        // TODO: Check if static call or var fetch with variable class name is used.
-        // TODO: Check if variable function is called.
-        // TODO: Check if anonymous classes are used.
-        // TODO: Check if this is accessed with a property expression (instead of a name)
-        // TODO: Check if there are methods and properties that have the same name.
-        // TODO: Check if only declared variables are used.
-        return $nodes;
-    }
-
     protected function annotateAST(PhpNode ...$nodes) : array {
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new AnnotateFullyQualifiedName());
         $traverser->addVisitor(new AnnotateScriptDependencies());
         $traverser->addVisitor(new AnnotateFirstVariableAssignment());
         $traverser->addVisitor(new AnnotateVisibility());
@@ -242,6 +226,11 @@ class Compiler {
     }
 
     protected function compileCodebase(Codebase $codebase) {
+        $codebase->withClassesAndInterfaces(function($name, $code) {
+            $nodes = $this->simplifyAST($code);
+            $this->annotateAST(...$nodes);
+        });
+
         $js = $this->js_factory;
 
         // TODO: move this to a single file

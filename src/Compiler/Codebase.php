@@ -124,6 +124,27 @@ class Codebase {
 
 
     //---------------------------
+    // MUTATION
+    //---------------------------
+
+    public function withClasses(callable $f) {
+        foreach ($this->classes as $fqn => $class) {
+            $f($fqn, $class);
+        }
+    }
+
+    public function withInterfaces(callable $f) {
+        foreach ($this->interfaces as $fqn => $class) {
+            $f($fqn, $class);
+        }
+    }
+
+    public function withClassesAndInterfaces(callable $f) {
+        $this->withClasses($f);
+        $this->withInterfaces($f);
+    }
+
+    //---------------------------
     // QUERIES
     //---------------------------
 
