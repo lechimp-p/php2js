@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP2JS\Compiler\Visitor;
 
+use Lechimp\PHP2JS\Compiler\FilePass\AnnotateScriptDependencies;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
@@ -46,6 +47,11 @@ class CollectDependencies extends NodeVisitorAbstract {
                 }
                 foreach ($n->implements as $i) {
                     $this->dependencies[] = (string)$i;
+                }
+                if ($n->hasAttribute(AnnotateScriptDependencies::ATTR)) {
+                    foreach ($n->getAttribute(AnnotateScriptDependencies::ATTR) as $d) {
+                        $this->dependencies[] = $d; 
+                    }
                 }
                 break;
             case Node\Stmt\ClassMethod::class:

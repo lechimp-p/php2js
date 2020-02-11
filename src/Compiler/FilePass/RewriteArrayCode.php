@@ -19,15 +19,20 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler\Visitor;
+namespace Lechimp\PHP2JS\Compiler\FilePass;
 
 use Lechimp\PHP2JS\JS;
+use Lechimp\PHP2JS\Compiler\FilePass;
 use Lechimp\PHP2JS\Compiler\Compiler;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\NodeTraverser;
 
-class RewriteArrayCode extends NodeVisitorAbstract {
+class RewriteArrayCode extends NodeVisitorAbstract implements FilePass {
+    public function runsAlone() : bool {
+        return true;
+    }
+
     public function leaveNode(Node $n) {
         if ($n instanceof Node\Expr\ArrayItem) {
             if ($n->byRef) {
@@ -94,7 +99,7 @@ class RewriteArrayCode extends NodeVisitorAbstract {
                                 "stmts" => $t->traverse($n->stmts)
                             ],
                             [
-                                Compiler::ATTR_DONT_DEFINE_UNDEFINED_VARS => true
+                                DefineUndefinedVariables::ATTR_DONT => true
                             ]
                         )]
                     )
@@ -124,7 +129,7 @@ class RewriteArrayCode extends NodeVisitorAbstract {
                 }
 
                 if ($n instanceof Node\Expr\Assign) {
-                    $n->setAttribute(Compiler::ATTR_FIRST_VAR_ASSIGNMENT, false);
+                    $n->setAttribute(AnnotateFirstVariableAssignment::ATTR, false);
                 }
             }
         };

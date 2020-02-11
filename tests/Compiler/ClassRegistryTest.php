@@ -23,6 +23,7 @@ namespace Lechimp\PHP2JS\Test\Compiler;
 
 use Lechimp\PHP2JS\Compiler\ClassRegistry;
 use Lechimp\PHP2JS\Compiler\Compiler;
+use Lechimp\PHP2JS\Compiler\FilePass;
 use PhpParser\ParserFactory;
 use PhpParser\BuilderFactory;
 use PhpParser\Node;
@@ -62,19 +63,19 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
         $method1 = new Node\Stmt\ClassMethod(
             "method1",
             [],
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PUBLIC]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PUBLIC]
         );
         $this->registry->addMethod($method1);
         $method2 = new Node\Stmt\ClassMethod(
             "method2",
             [],
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PROTECTED]
         );
         $this->registry->addMethod($method2);
         $method3 = new Node\Stmt\ClassMethod(
             "method3",
             [],
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PRIVATE]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PRIVATE]
         );
         $this->registry->addMethod($method3);
 
@@ -84,9 +85,9 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals(["method1", "method2", "method3"], $this->registry->getMethodNames());
 
-        $this->assertEquals(["method1"], $this->registry->getMethodNames(Compiler::ATTR_PUBLIC));
-        $this->assertEquals(["method2"], $this->registry->getMethodNames(Compiler::ATTR_PROTECTED));
-        $this->assertEquals(["method3"], $this->registry->getMethodNames(Compiler::ATTR_PRIVATE));
+        $this->assertEquals(["method1"], $this->registry->getMethodNames(FilePass\AnnotateVisibility::ATTR_PUBLIC));
+        $this->assertEquals(["method2"], $this->registry->getMethodNames(FilePass\AnnotateVisibility::ATTR_PROTECTED));
+        $this->assertEquals(["method3"], $this->registry->getMethodNames(FilePass\AnnotateVisibility::ATTR_PRIVATE));
 
         $this->assertEquals(
             ["method1" => $method1, "method2" => $method2, "method3" => $method3],
@@ -99,7 +100,7 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
             0,
             [ new Node\Stmt\PropertyProperty("prop1")
             ],
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PUBLIC]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PUBLIC]
         );
         $this->registry->addProperty($prop1);
         $prop23 = new Node\Stmt\Property(
@@ -107,14 +108,14 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
             [ new Node\Stmt\PropertyProperty("prop2")
             , new Node\Stmt\PropertyProperty("prop3")
             ],
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PROTECTED]
         );
         $this->registry->addProperty($prop23);
         $prop4 = new Node\Stmt\Property(
             0,
             [ new Node\Stmt\PropertyProperty("prop4")
             ],
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PRIVATE]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PRIVATE]
         );
         $this->registry->addProperty($prop4);
 
@@ -122,13 +123,13 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
             0,
             [ new Node\Stmt\PropertyProperty("prop2")
             ],
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PROTECTED]
         );
         $prop3 = new Node\Stmt\Property(
             0,
             [ new Node\Stmt\PropertyProperty("prop3")
             ],
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PROTECTED]
         );
 
         $this->assertEquals($prop1, $this->registry->getProperty("prop1"));
@@ -138,9 +139,9 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertEquals(["prop1", "prop2", "prop3", "prop4"], $this->registry->getPropertyNames());
 
-        $this->assertEquals(["prop1"], $this->registry->getPropertyNames(Compiler::ATTR_PUBLIC));
-        $this->assertEquals(["prop2", "prop3"], $this->registry->getPropertyNames(Compiler::ATTR_PROTECTED));
-        $this->assertEquals(["prop4"], $this->registry->getPropertyNames(Compiler::ATTR_PRIVATE));
+        $this->assertEquals(["prop1"], $this->registry->getPropertyNames(FilePass\AnnotateVisibility::ATTR_PUBLIC));
+        $this->assertEquals(["prop2", "prop3"], $this->registry->getPropertyNames(FilePass\AnnotateVisibility::ATTR_PROTECTED));
+        $this->assertEquals(["prop4"], $this->registry->getPropertyNames(FilePass\AnnotateVisibility::ATTR_PRIVATE));
 
         $this->assertEquals(
             ["prop1" => $prop1, "prop2" => $prop2, "prop3" => $prop3, "prop4" => $prop4],
@@ -152,7 +153,7 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
         $constructor = new Node\Stmt\ClassMethod(
             "__construct",
             [],
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PUBLIC]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PUBLIC]
         );
         $this->registry->addMethod($constructor);
 
@@ -168,7 +169,7 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
                 new Node\Const_("const2", new Node\Scalar\String_("const2"))
             ],
             0,
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PROTECTED]
         );
         $this->registry->addConstant($const12);
 
@@ -177,23 +178,23 @@ class ClassRegistryTest extends \PHPUnit\Framework\TestCase {
                 new Node\Const_("const1", new Node\Scalar\String_("const1"))
             ],
             0,
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PROTECTED]
         );
         $const2 = new Node\Stmt\ClassConst(
             [
                 new Node\Const_("const2", new Node\Scalar\String_("const2"))
             ],
             0,
-            [Compiler::ATTR_VISIBILITY => Compiler::ATTR_PROTECTED]
+            [FilePass\AnnotateVisibility::ATTR => FilePass\AnnotateVisibility::ATTR_PROTECTED]
         );
 
         $this->assertEquals($const1, $this->registry->getConstant("const1"));
         $this->assertEquals($const2, $this->registry->getConstant("const2"));
 
         $this->assertEquals(["const1", "const2"], $this->registry->getConstantNames());
-        $this->assertEquals([], $this->registry->getConstantNames(Compiler::ATTR_PUBLIC));
-        $this->assertEquals(["const1", "const2"], $this->registry->getConstantNames(Compiler::ATTR_PROTECTED));
-        $this->assertEquals([], $this->registry->getConstantNames(Compiler::ATTR_PRIVATE));
+        $this->assertEquals([], $this->registry->getConstantNames(FilePass\AnnotateVisibility::ATTR_PUBLIC));
+        $this->assertEquals(["const1", "const2"], $this->registry->getConstantNames(FilePass\AnnotateVisibility::ATTR_PROTECTED));
+        $this->assertEquals([], $this->registry->getConstantNames(FilePass\AnnotateVisibility::ATTR_PRIVATE));
 
         $this->assertEquals(
             ["const1" => $const1, "const2" => $const2],

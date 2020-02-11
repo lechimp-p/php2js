@@ -19,18 +19,22 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler\Visitor;
+namespace Lechimp\PHP2JS\Compiler\FilePass;
 
 use Lechimp\PHP2JS\JS;
+use Lechimp\PHP2JS\Compiler\FilePass;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
-use PhpParser\NodeTraverser;
 
-class RewriteSelfAccess extends NodeVisitorAbstract {
+class RewriteSelfAccess extends NodeVisitorAbstract implements FilePass {
     /**
      * @var Node\Name|null
      */
     protected $in_class = null;
+
+    public function runsAlone() : bool {
+        return false;
+    }
 
     public function enterNode(Node $n) {
         if ($n instanceof Node\Stmt\Class_) {

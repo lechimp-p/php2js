@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Lechimp\PHP2JS\Test\Compiler;
 
-use Lechimp\PHP2JS\Compiler\Visitor\RewriteSelfAccess;
+use Lechimp\PHP2JS\Compiler\FilePass\RewriteSelfAccess;
 use PhpParser\ParserFactory;
 use PhpParser\BuilderFactory;
 use PhpParser\NodeTraverser;

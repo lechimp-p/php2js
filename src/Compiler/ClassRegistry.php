@@ -96,7 +96,7 @@ class ClassRegistry {
      * @return void
      */
     public function addMethod(Node\Stmt\ClassMethod $method) {
-        if (!$method->hasAttribute(Compiler::ATTR_VISIBILITY)) {
+        if (!$method->hasAttribute(FilePass\AnnotateVisibility::ATTR)) {
             throw new \LogicException(
                 "Expected method to have visibility-attribute."
             );
@@ -135,7 +135,7 @@ class ClassRegistry {
             array_filter(
                 $this->methods,
                 function ($m) use ($visibility) {
-                    return $m->getAttribute(Compiler::ATTR_VISIBILITY) === $visibility;
+                    return $m->getAttribute(FilePass\AnnotateVisibility::ATTR) === $visibility;
                 }
             )
         );
@@ -156,7 +156,7 @@ class ClassRegistry {
      * @return void
      */
     public function addProperty(Node\Stmt\Property $property) {
-        if (!$property->hasAttribute(Compiler::ATTR_VISIBILITY)) {
+        if (!$property->hasAttribute(FilePass\AnnotateVisibility::ATTR)) {
             throw new \LogicException(
                 "Expected property to have visibility-attribute."
             );
@@ -195,7 +195,7 @@ class ClassRegistry {
             array_filter(
                 $this->properties,
                 function ($p) use ($visibility) {
-                    return $p->getAttribute(Compiler::ATTR_VISIBILITY) === $visibility;
+                    return $p->getAttribute(FilePass\AnnotateVisibility::ATTR) === $visibility;
                 }
             )
         );
@@ -212,7 +212,7 @@ class ClassRegistry {
      * @return void
      */
     public function addConstant(Node\Stmt\ClassConst $const) {
-        if (!$const->hasAttribute(Compiler::ATTR_VISIBILITY)) {
+        if (!$const->hasAttribute(FilePass\AnnotateVisibility::ATTR)) {
             throw new \LogicException(
                 "Expected property to have visibility-attribute."
             );
@@ -248,7 +248,7 @@ class ClassRegistry {
             array_filter(
                 $this->constants,
                 function ($c) use ($visibility) {
-                    return $c->getAttribute(Compiler::ATTR_VISIBILITY) === $visibility;
+                    return $c->getAttribute(FilePass\AnnotateVisibility::ATTR) === $visibility;
                 }
             )
         );

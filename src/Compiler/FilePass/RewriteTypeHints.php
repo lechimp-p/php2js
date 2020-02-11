@@ -19,15 +19,15 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler\Visitor;
+namespace Lechimp\PHP2JS\Compiler\FilePass;
 
 use Lechimp\PHP2JS\JS;
+use Lechimp\PHP2JS\Compiler\FilePass;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\NodeTraverser;
-use PhpParser\Parser;
 
-class RewriteTypeHints extends NodeVisitorAbstract {
+class RewriteTypeHints extends NodeVisitorAbstract implements FilePass {
     /**
      * @var array
      */
@@ -37,6 +37,10 @@ class RewriteTypeHints extends NodeVisitorAbstract {
      * @var array
      */
     protected $type_checked_vars = [];
+
+    public function runsAlone() : bool {
+        return true;
+    }
 
     public function enterNode(Node $n) {
         if ($n instanceof Node\Stmt\Class_) {

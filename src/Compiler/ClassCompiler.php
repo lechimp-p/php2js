@@ -92,7 +92,7 @@ class ClassCompiler {
     public function compile(PhpNode\Stmt\Class_ $class) : JS\AST\Node {
         $js = $this->js_factory;
 
-        if (!$class->hasAttribute(Visitor\AnnotateFullyQualifiedName::ATTR)) {
+        if (!$class->hasAttribute(FilePass\AnnotateFullyQualifiedName::ATTR)) {
             throw new \LogicException(
                 "Class should have fully qualified name to be compiled."
             );
@@ -344,8 +344,8 @@ class ClassCompiler {
     }
 
     public function compile_Expr_Assign(PhpNode $n) {
-        assert($n->hasAttribute(Compiler::ATTR_FIRST_VAR_ASSIGNMENT));
-        if ($n->getAttribute(Compiler::ATTR_FIRST_VAR_ASSIGNMENT)) {
+        assert($n->hasAttribute(FilePass\AnnotateFirstVariableAssignment::ATTR));
+        if ($n->getAttribute(FilePass\AnnotateFirstVariableAssignment::ATTR)) {
             assert($n->var instanceof JS\AST\Identifier);
             return $this->js_factory->assignVar(
                 $n->var,

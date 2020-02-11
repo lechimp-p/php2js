@@ -19,14 +19,16 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler\Visitor;
+namespace Lechimp\PHP2JS\Compiler\FilePass;
 
-use Lechimp\PHP2JS\Compiler\Compiler;
+use Lechimp\PHP2JS\Compiler\FilePass;
 use Lechimp\PHP2JS\JS;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class AnnotateScriptDependencies extends NodeVisitorAbstract {
+class AnnotateScriptDependencies extends NodeVisitorAbstract implements FilePass {
+    const ATTR = "script_dependencies";
+
     const API_NAMESPACE = JS\API::class;
     protected static $known_apis = ["Window", "Document"];
 
@@ -39,6 +41,10 @@ class AnnotateScriptDependencies extends NodeVisitorAbstract {
      * @var bool
      */
     protected $in_script_constructor = false;
+
+    public function runsAlone() : bool {
+        return false;
+    }
 
     public function beforeTraverse(array $nodes) {
         $this->script_dependencies = [];
@@ -79,7 +85,7 @@ class AnnotateScriptDependencies extends NodeVisitorAbstract {
                     $p->type = null;
                     return "$namespace\\$api";
                 }, $n->params);
-                $this->script_class->setAttribute(Compiler::ATTR_SCRIPT_DEPENDENCIES, $dependencies);
+                $this->script_class->setAttribute(self::ATTR, $dependencies);
                 break;
         }
     }

@@ -19,15 +19,16 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler\Visitor;
+namespace Lechimp\PHP2JS\Compiler\FilePass;
 
-use Lechimp\PHP2JS\Compiler\Compiler;
 use Lechimp\PHP2JS\JS;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\NodeTraverser;
 
 class DefineUndefinedVariables extends NodeVisitorAbstract {
+    const ATTR_DONT = "dont_define_undefined_vars";
+
     /**
      * @var string[]
      */
@@ -42,6 +43,10 @@ class DefineUndefinedVariables extends NodeVisitorAbstract {
      * @var string[][]
      */
     protected $stack = [];
+
+    public function runsAlone() : bool {
+        return true;
+    }
 
     public function beforeTraverse(array $nodes) {
         $this->defined = [];
@@ -87,7 +92,7 @@ class DefineUndefinedVariables extends NodeVisitorAbstract {
         ||  $n instanceof Node\Stmt\Function_
         ||  $n instanceof Node\Expr\Closure
         ) {
-            if ($n->hasAttribute(Compiler::ATTR_DONT_DEFINE_UNDEFINED_VARS)) {
+            if ($n->hasAttribute(self::ATTR_DONT)) {
                 return $n;
             }
 

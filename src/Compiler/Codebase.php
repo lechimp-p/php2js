@@ -83,12 +83,12 @@ class Codebase {
     }
 
     protected function addClassOrInterface($class_or_interface) : void {
-        if (!$class_or_interface->hasAttribute(Visitor\AnnotateFullyQualifiedName::ATTR)) {
+        if (!$class_or_interface->hasAttribute(FilePass\AnnotateFullyQualifiedName::ATTR)) {
             throw new \LogicException(
                 "Class/interface for Codebase should have fully qualified name."
             );
         }
-        $fqn = $class_or_interface->getAttribute(Visitor\AnnotateFullyQualifiedName::ATTR);
+        $fqn = $class_or_interface->getAttribute(FilePass\AnnotateFullyQualifiedName::ATTR);
 
         if ($class_or_interface instanceof Node\Stmt\Class_) {
             if (isset($this->classes[$fqn])) {
@@ -213,7 +213,7 @@ class Codebase {
     }
 
     /**
-     * @var string One of: Compiler::ATTR_PUBLIC, Compiler::ATTR_PROTECTED, Compiler::ATTR_PRIVATE
+     * @var string One of: FilePass\AnnotateVisibility::ATTR_PUBLIC, FilePass\AnnotateVisibility::ATTR_PROTECTED, FilePass\AnnotateVisibility::ATTR_PRIVATE
      */
     public function getVisibility(string $fully_qualified_class_name, string $method_or_property) : string {
         if (isset($this->visibilities[$fully_qualified_class_name])
@@ -248,12 +248,12 @@ class Codebase {
         if ($visibility === null) {
             if ($class->extends !== null) {
                 $visibility = $this->getVisibility((string)$class->extends, $method_or_property);
-                if (in_array($visibility, [Compiler::ATTR_PUBLIC, Compiler::ATTR_PROTECTED])) {
+                if (in_array($visibility, [FilePass\AnnotateVisibility::ATTR_PUBLIC, FilePass\AnnotateVisibility::ATTR_PROTECTED])) {
                     return $visibility;
                 }
             }
 
-            return Compiler::ATTR_PUBLIC;
+            return FilePass\AnnotateVisibility::ATTR_PUBLIC;
         }
 
         return $visibility;

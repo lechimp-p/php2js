@@ -31,14 +31,6 @@ use Lechimp\PHP2JS\JS;
  * Compile PHP to JS.
  */
 class Compiler {
-    const ATTR_DONT_DEFINE_UNDEFINED_VARS = "dont_define_undefined_vars";
-    const ATTR_FIRST_VAR_ASSIGNMENT = "first_assignment";
-    const ATTR_VISIBILITY = "visibility";
-    const ATTR_PUBLIC = "public";
-    const ATTR_PROTECTED = "protected";
-    const ATTR_PRIVATE = "private";
-    const ATTR_SCRIPT_DEPENDENCIES = "script_dependencies";
-
     /**
      * @var Parser
      */
@@ -107,6 +99,18 @@ class Compiler {
                 $this->js_factory
             )
         );
+        $this->file_passes = [
+            new FilePass\ResolveNames(),
+            new FilePass\AnnotateFullyQualifiedName(),
+            new FilePass\RewriteSelfAccess(),
+            new FilePass\RewriteOperators(),
+            new FilePass\RewriteTypeHints(),
+            new FilePass\RewriteArrayCode(),
+            new FilePass\DefineUndefinedVariables(),
+            new FilePass\AnnotateScriptDependencies(),
+            new FilePass\AnnotateFirstVariableAssignment(),
+            new FilePass\AnnotateVisibility()
+        ];
     }
 
     public function compile(string $filename) : string {
@@ -121,13 +125,7 @@ class Compiler {
 
     protected function loadCodebaseToCompile($filename) {
         $this->codebase = new Codebase();
-        $this->filenames = [
-            // TODO: move this somewhere else
-            __DIR__."/PhpArrayImpl.php",
-            __DIR__."/ReturnFromLoopClosureImpl.php",
-            __DIR__."/TypeErrorImpl.php",
-            $filename
-        ];
+        $this->filenames = [$filename];
         $this->discovered_deps = [];
 
         while(count($this->filenames) > 0) {
@@ -158,11 +156,18 @@ class Compiler {
     }
 
     protected function preprocessFileAST(PhpNode ...$nodes) : array {
-        $n = new NodeVisitor\NameResolver();
-        $a = new Visitor\AnnotateFullyQualifiedName();
         $t = new NodeTraverser();
-        $t->addVisitor($n);
-        $t->addVisitor($a);
+        foreach ($this->file_passes as $p) {
+            if ($p->runsAlone()) {
+                $t->traverse($nodes);
+                $t = new NodeTraverser();
+            }
+            $t->addVisitor($p);
+            if ($p->runsAlone()) {
+                $t->traverse($nodes);
+                $t = new NodeTraverser();
+            }
+        }
         return $t->traverse($nodes);
     }
 
@@ -181,32 +186,6 @@ class Compiler {
         }
     }
 
-    protected function simplifyAST(PhpNode ...$nodes) : array {
-        $pipeline = [
-            new Visitor\RewriteSelfAccess(),
-            new Visitor\RewriteOperators(),
-            new Visitor\RewriteTypeHints(),
-            new Visitor\RewriteArrayCode(),
-            new Visitor\DefineUndefinedVariables()
-        ];
-
-        foreach($pipeline as $p) {
-            $t = new NodeTraverser();
-            $t->addVisitor($p);
-            $nodes = $t->traverse($nodes);
-        }
-        return $nodes;
-    }
-
-    protected function annotateAST(PhpNode ...$nodes) : array {
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new Visitor\AnnotateScriptDependencies());
-        $traverser->addVisitor(new Visitor\AnnotateFirstVariableAssignment());
-        $traverser->addVisitor(new Visitor\AnnotateVisibility());
-
-        return $traverser->traverse($nodes);
-    }
-
     protected function getDependencies(PhpNode ...$nodes) : array {
         $collector = new Visitor\CollectDependencies();
         $t = new NodeTraverser();
@@ -216,11 +195,6 @@ class Compiler {
     }
 
     protected function compileCodebase(Codebase $codebase) {
-        $codebase->withClassesAndInterfaces(function($name, $code) {
-            $nodes = $this->simplifyAST($code);
-            $this->annotateAST(...$nodes);
-        });
-
         $js = $this->js_factory;
 
         // TODO: move this to a single file
@@ -351,18 +325,18 @@ JS;
         $php_script_class = array_pop($script_classes);
 
         $script_class = $this->class_compiler->compileClassName(
-            $php_script_class->getAttribute(Visitor\AnnotateFullyQualifiedName::ATTR)
+            $php_script_class->getAttribute(FilePass\AnnotateFullyQualifiedName::ATTR)
         );
         $script = $js->identifier("script");
 
-        if ($php_script_class->hasAttribute(self::ATTR_SCRIPT_DEPENDENCIES)) {
+        if ($php_script_class->hasAttribute(FilePass\AnnotateScriptDependencies::ATTR)) {
             $dependencies = array_map(function($name) use ($js) {
                 $names = explode("\\", $name);
                 $name = array_pop($names);
                 return $js->new_(
                     $this->class_compiler->compileClassName("{$name}Impl")
                 );
-            }, $php_script_class->getAttribute(self::ATTR_SCRIPT_DEPENDENCIES));
+            }, $php_script_class->getAttribute(FilePass\AnnotateScriptDependencies::ATTR));
         }
         else {
             $dependencies = [];
@@ -383,13 +357,13 @@ JS;
 
     static public function getVisibilityConst(PhpNode $n) {
         if ($n->isPublic()) {
-            return self::ATTR_PUBLIC;
+            return FilePass\AnnotateVisibility::ATTR_PUBLIC;
         }
         elseif ($n->isProtected()) {
-            return self::ATTR_PROTECTED;
+            return FilePass\AnnotateVisibility::ATTR_PROTECTED;
         }
         elseif ($n->isPrivate()) {
-            return self::ATTR_PRIVATE;
+            return FilePass\AnnotateVisibility::ATTR_PRIVATE;
         }
         throw new \LogicException(
             "Method or property is neither public, nor protected, nor private"

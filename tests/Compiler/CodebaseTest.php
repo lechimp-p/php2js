@@ -24,6 +24,7 @@ namespace Lechimp\PHP2JS\Test\Compiler;
 use Lechimp\PHP2JS\Compiler\Codebase;
 use Lechimp\PHP2JS\Compiler\Compiler;
 use Lechimp\PHP2JS\Compiler\Visitor;
+use Lechimp\PHP2JS\Compiler\FilePass;
 use PhpParser\ParserFactory;
 use PhpParser\BuilderFactory;
 
@@ -54,20 +55,20 @@ PHP
         );
 
         $class = array_shift($ast);
-        $class->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, "MyClass");
+        $class->setAttribute(FilePass\AnnotateFullyQualifiedName::ATTR, "MyClass");
 
         $r = $this->codebase;
         $r->addClass($class);
 
-        $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyClass", "var_public_property"));
-        $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyClass", "public_property"));
-        $this->assertEquals(Compiler::ATTR_PROTECTED, $r->getVisibility("MyClass", "protected_property"));
-        $this->assertEquals(Compiler::ATTR_PRIVATE, $r->getVisibility("MyClass", "private_property"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PUBLIC, $r->getVisibility("MyClass", "var_public_property"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PUBLIC, $r->getVisibility("MyClass", "public_property"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PROTECTED, $r->getVisibility("MyClass", "protected_property"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PRIVATE, $r->getVisibility("MyClass", "private_property"));
 
-        $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyClass", "implicit_public_method"));
-        $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyClass", "public_method"));
-        $this->assertEquals(Compiler::ATTR_PROTECTED, $r->getVisibility("MyClass", "protected_method"));
-        $this->assertEquals(Compiler::ATTR_PRIVATE, $r->getVisibility("MyClass", "private_method"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PUBLIC, $r->getVisibility("MyClass", "implicit_public_method"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PUBLIC, $r->getVisibility("MyClass", "public_method"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PROTECTED, $r->getVisibility("MyClass", "protected_method"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PRIVATE, $r->getVisibility("MyClass", "private_method"));
     }
 
 
@@ -91,7 +92,7 @@ PHP
         );
 
         $class = array_shift($ast);
-        $class->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, "MyClass");
+        $class->setAttribute(FilePass\AnnotateFullyQualifiedName::ATTR, "MyClass");
         $r = $this->codebase;
         $r->addClass($class);
 
@@ -105,27 +106,27 @@ PHP
         );
 
         $class = array_shift($ast);
-        $class->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, "MyExtendedClass");
+        $class->setAttribute(FilePass\AnnotateFullyQualifiedName::ATTR, "MyExtendedClass");
         $r->addClass($class);
 
-        $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "var_public_property"));
-        $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "public_property"));
-        $this->assertEquals(Compiler::ATTR_PROTECTED, $r->getVisibility("MyExtendedClass", "protected_property"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "var_public_property"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "public_property"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PROTECTED, $r->getVisibility("MyExtendedClass", "protected_property"));
 
-        $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "implicit_public_method"));
-        $this->assertEquals(Compiler::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "public_method"));
-        $this->assertEquals(Compiler::ATTR_PROTECTED, $r->getVisibility("MyExtendedClass", "protected_method"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "implicit_public_method"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PUBLIC, $r->getVisibility("MyExtendedClass", "public_method"));
+        $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PROTECTED, $r->getVisibility("MyExtendedClass", "protected_method"));
 
 
         try {
-            $this->assertEquals(Compiler::ATTR_PRIVATE, $r->getVisibility("\\MyClass", "private_property"));
+            $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PRIVATE, $r->getVisibility("\\MyClass", "private_property"));
             $this->assertTrue(false);
         }
         catch(\LogicException $e) {
         }
 
         try {
-            $this->assertEquals(Compiler::ATTR_PRIVATE, $r->getVisibility("\\MyClass", "private_method"));
+            $this->assertEquals(FilePass\AnnotateVisibility::ATTR_PRIVATE, $r->getVisibility("\\MyClass", "private_method"));
             $this->assertTrue(false);
         }
         catch(\LogicException $e) {
@@ -136,23 +137,23 @@ PHP
     public function test_getNamespaces() {
         $my_class_name1 = "\\A";
         $my_class1 = $this->builder->class($my_class_name1)->getNode();
-        $my_class1->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, $my_class_name1);
+        $my_class1->setAttribute(FilePass\AnnotateFullyQualifiedName::ATTR, $my_class_name1);
 
         $my_class_name2 = "\\A\\B";
         $my_class2 = $this->builder->class($my_class_name2)->getNode();
-        $my_class2->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, $my_class_name2);
+        $my_class2->setAttribute(FilePass\AnnotateFullyQualifiedName::ATTR, $my_class_name2);
 
         $my_class_name3 = "\\A\\B\\C";
         $my_class3 = $this->builder->class($my_class_name3)->getNode();
-        $my_class3->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, $my_class_name3);
+        $my_class3->setAttribute(FilePass\AnnotateFullyQualifiedName::ATTR, $my_class_name3);
 
         $my_class_name4 = "\\A\\C\\D";
         $my_class4 = $this->builder->class($my_class_name4)->getNode();
-        $my_class4->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, $my_class_name4);
+        $my_class4->setAttribute(FilePass\AnnotateFullyQualifiedName::ATTR, $my_class_name4);
 
         $my_class_name5 = "\\A\\B\\C\\D";
         $my_class5 = $this->builder->class($my_class_name5)->getNode();
-        $my_class5->setAttribute(Visitor\AnnotateFullyQualifiedName::ATTR, $my_class_name5);
+        $my_class5->setAttribute(FilePass\AnnotateFullyQualifiedName::ATTR, $my_class_name5);
 
         $codebase = new Codebase();
         $codebase->addClass($my_class1);

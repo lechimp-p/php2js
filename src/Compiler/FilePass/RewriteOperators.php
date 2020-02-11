@@ -19,14 +19,18 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler\Visitor;
+namespace Lechimp\PHP2JS\Compiler\FilePass;
 
 use Lechimp\PHP2JS\JS;
+use Lechimp\PHP2JS\Compiler\FilePass;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
-use PhpParser\NodeTraverser;
 
-class RewriteOperators extends NodeVisitorAbstract {
+class RewriteOperators extends NodeVisitorAbstract implements FilePass {
+    public function runsAlone() : bool {
+        return false;
+    }
+
     public function leaveNode(Node $n) {
         if ($n instanceof Node\Expr\AssignOp\Plus) {
             return $this->toAssign($n, Node\Expr\BinaryOp\Plus::class);

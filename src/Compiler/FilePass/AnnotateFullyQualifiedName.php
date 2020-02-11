@@ -19,18 +19,23 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler\Visitor;
+namespace Lechimp\PHP2JS\Compiler\FilePass;
 
+use Lechimp\PHP2JS\Compiler\FilePass;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class AnnotateFullyQualifiedName extends NodeVisitorAbstract {
+class AnnotateFullyQualifiedName extends NodeVisitorAbstract implements FilePass {
     const ATTR = "fully_qualified_name";
 
     /**
      * @var string[]
      */
     protected $namespaces = [];
+
+    public function runsAlone() : bool {
+        return false;
+    }
 
     public function beforeTraverse(array $nodes) {
         $this->namespaces = [];

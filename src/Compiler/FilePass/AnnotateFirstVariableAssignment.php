@@ -19,13 +19,15 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler\Visitor;
+namespace Lechimp\PHP2JS\Compiler\FilePass;
 
-use Lechimp\PHP2JS\Compiler\Compiler;
+use Lechimp\PHP2JS\Compiler\FilePass;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class AnnotateFirstVariableAssignment extends NodeVisitorAbstract {
+class AnnotateFirstVariableAssignment extends NodeVisitorAbstract implements FilePass {
+    const ATTR = "first_var_assignment";
+
     /**
      * @var string[]
      */
@@ -35,6 +37,10 @@ class AnnotateFirstVariableAssignment extends NodeVisitorAbstract {
      * @var string[][]
      */
     protected $stack = [];
+
+    public function runsAlone() : bool {
+        return false;
+    }
 
     public function beforeTraverse(array $nodes) {
         $this->assignments = [];
@@ -51,9 +57,9 @@ class AnnotateFirstVariableAssignment extends NodeVisitorAbstract {
         }
 
         if ($n instanceof Node\Expr\Assign) {
-            if (!$n->hasAttribute(Compiler::ATTR_FIRST_VAR_ASSIGNMENT)) {
+            if (!$n->hasAttribute(self::ATTR)) {
                 $n->setAttribute(
-                    Compiler::ATTR_FIRST_VAR_ASSIGNMENT,
+                    self::ATTR,
                     $n->var instanceof Node\Expr\Variable
                     && !array_key_exists($n->var->name, $this->assignments)
                 );

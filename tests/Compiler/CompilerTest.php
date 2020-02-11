@@ -23,6 +23,7 @@ namespace Lechimp\PHP2JS\Test\Compiler;
 
 use Lechimp\PHP2JS\Compiler;
 use Lechimp\PHP2JS\Compiler\Visitor;
+use Lechimp\PHP2JS\Compiler\FilePass;
 use Lechimp\PHP2JS\JS;
 use PhpParser\BuilderFactory;
 use PhpParser\ParserFactory;
@@ -32,6 +33,18 @@ use PhpParser\NodeTraverser;
 
 class CompilerForTest extends Compiler\Compiler {
     public function __construct() {
+        $this->file_passes = [
+            new FilePass\ResolveNames(),
+            new FilePass\AnnotateFullyQualifiedName(),
+            new FilePass\RewriteSelfAccess(),
+            new FilePass\RewriteOperators(),
+            new FilePass\RewriteTypeHints(),
+            new FilePass\RewriteArrayCode(),
+            new FilePass\DefineUndefinedVariables(),
+            new FilePass\AnnotateScriptDependencies(),
+            new FilePass\AnnotateFirstVariableAssignment(),
+            new FilePass\AnnotateVisibility()
+        ];
     }
 
     public function _preprocessFileAST($nodes) {
@@ -40,14 +53,6 @@ class CompilerForTest extends Compiler\Compiler {
 
     public function _getDependencies($nodes) {
         return $this->getDependencies(...$nodes);
-    }
-
-    public function _annotateAST($nodes) {
-        return $this->annotateAST(...$nodes);
-    }
-
-    public function _simplifyAST($nodes) {
-        return $this->simplifyAST(...$nodes);
     }
 }
 
@@ -136,8 +141,8 @@ PHP
 
         list($result) = $this->compiler->_preprocessFileAST([$ast]);
 
-        $this->assertTrue($result->hasAttribute(Visitor\AnnotateFullyQualifiedName::ATTR));
-        $this->assertEquals("\\$my_class_name", $result->getAttribute(Visitor\AnnotateFullyQualifiedName::ATTR));
+        $this->assertTrue($result->hasAttribute(FilePass\AnnotateFullyQualifiedName::ATTR));
+        $this->assertEquals("\\$my_class_name", $result->getAttribute(FilePass\AnnotateFullyQualifiedName::ATTR));
     }
 
 //------------------------------------------------------------------------------
@@ -159,10 +164,10 @@ PHP
 
         $this->compiler->_preprocessFileAST([$ast]);
 
-        $this->assertTrue($my_class->hasAttribute(Visitor\AnnotateFullyQualifiedName::ATTR));
+        $this->assertTrue($my_class->hasAttribute(FilePass\AnnotateFullyQualifiedName::ATTR));
         $this->assertEquals(
             "$my_namespace_name\\$my_nested_namespace\\$my_class_name",
-            $my_class->getAttribute(Visitor\AnnotateFullyQualifiedName::ATTR)
+            $my_class->getAttribute(FilePass\AnnotateFullyQualifiedName::ATTR)
         );
     }
 
@@ -426,23 +431,23 @@ PHP
         );
 
         $n = new NodeVisitor\NameResolver();
-        $a = new Visitor\AnnotateFullyQualifiedName();
+        $a = new FilePass\AnnotateFullyQualifiedName();
+        $s = new FilePass\AnnotateScriptDependencies();
         $t = new NodeTraverser();
         $t->addVisitor($n);
         $t->addVisitor($a);
+        $t->addVisitor($s);
         $ast = $t->traverse($ast);
 
-        $this->compiler->_simplifyAST($ast);
-        $this->compiler->_annotateAST($ast);
         array_shift($ast); // USE-Statement
         array_shift($ast); // USE-Statement
         array_shift($ast); // USE-Statement
         $my_class = array_shift($ast);
 
-        $this->assertTrue($my_class->hasAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES));
+        $this->assertTrue($my_class->hasAttribute(Compiler\FilePass\AnnotateScriptDependencies::ATTR));
         $this->assertEquals(
             [JS\API\Window::class, JS\API\Document::class],
-            $my_class->getAttribute(Compiler\Compiler::ATTR_SCRIPT_DEPENDENCIES)
+            $my_class->getAttribute(Compiler\FilePass\AnnotateScriptDependencies::ATTR)
         );
     }
 
