@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Lechimp\PHP2JS\Compiler;
 
 use PhpParser\Node;
+use PhpParser\NodeTraverser;
 
 /**
  * Represents the codebase we are working on.
@@ -59,12 +60,19 @@ class Codebase {
         $this->interfaces = [];
         $this->visibilities = [];
         $this->namespaces = [];
+        $this->codebase_filler = new CodebaseFiller($this);
     }
 
 
     //---------------------------
     // SETTERS
     //---------------------------
+
+    public function addPhpNodes(Node ...$nodes) : void {
+        $t = new NodeTraverser();
+        $t->addVisitor($this->codebase_filler);
+        $t->traverse($nodes);
+    }
 
     public function addClass(Node\Stmt\Class_ $class) : void {
         $this->addClassOrInterface($class);
@@ -121,7 +129,6 @@ class Codebase {
             $cur = &$cur[$n];
         }
     }
-
 
     //---------------------------
     // MUTATION

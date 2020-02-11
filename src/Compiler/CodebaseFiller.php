@@ -19,13 +19,13 @@
 
 declare(strict_types=1);
 
-namespace Lechimp\PHP2JS\Compiler\Visitor;
+namespace Lechimp\PHP2JS\Compiler;
 
 use Lechimp\PHP2JS\Compiler\Codebase;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
-class FillCodebase extends NodeVisitorAbstract {
+class CodebaseFiller extends NodeVisitorAbstract {
     /**
      * @var Codebase|null
      */

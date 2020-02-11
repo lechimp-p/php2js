@@ -136,7 +136,7 @@ class Compiler {
             $ast = $this->preprocessFileAST(
                 ...$ast
             );
-            $this->addToCodebase(...$ast);
+            $this->codebase->addPhpNodes(...$ast);
             $this->addFilenamesOfDependencies(...$ast);
         }
     }
@@ -213,14 +213,6 @@ class Compiler {
         $t->addVisitor($collector);
         $t->traverse($nodes);
         return $collector->getDependencies();
-    }
-
-    protected function addToCodebase(PhpNode ...$nodes) : void {
-        // TODO: this does not need to be created various times...
-        $filler = new Visitor\FillCodebase($this->codebase);
-        $t = new NodeTraverser();
-        $t->addVisitor($filler);
-        $t->traverse($nodes);
     }
 
     protected function compileCodebase(Codebase $codebase) {
