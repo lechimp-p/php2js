@@ -18,6 +18,7 @@
     "autoload" : {
         "psr-4" : {
             "Lechimp\\PHP2JS\\" : "src",
+            "Lechimp\\PHP2JS\\Test\\" : "tests",
             "Lechimp\\PHP2JS\\JS_Tests\\" : "js_tests"
         }
     },
