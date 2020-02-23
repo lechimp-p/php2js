@@ -23,6 +23,7 @@ namespace Lechimp\PHP2JS\Test\Compiler;
 
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter;
+use PhpParser\NodeFinder;
 
 trait PHPTestHelpers {
     protected function assertPHPEquals(string $php, array $stmts) {
@@ -30,5 +31,9 @@ trait PHPTestHelpers {
         $parsed = $parser->parse($php);
         $pretty = new PrettyPrinter\Standard;
         $this->assertEquals($pretty->prettyPrintFile($parsed), $pretty->prettyPrintFile($stmts));
+    }
+
+    protected function getNodeFinder() {
+        return new NodeFinder();
     }
 }
